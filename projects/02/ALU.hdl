@@ -42,5 +42,34 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    // Put you code here:
+    // if (zx == 1) set x = 0        // 16-bit constant
+    Mux16 (a=x, b=false, sel=zx, out=x0);
+
+    // if (nx == 1) set x = !x       // bitwise not
+    Not16 (in=x0, out=nx0);
+    Mux16 (a=x0, b=nx0, sel=nx, out=nx1);
+
+    // if (zy == 1) set y = 0        // 16-bit constant
+    Mux16 (a=y, b=false, sel=zy, out=y0);
+
+    // if (ny == 1) set y = !y       // bitwise not
+    Not16 (in=y0, out=ny0);
+    Mux16 (a=y0, b=ny0, sel=ny, out=ny1);
+
+    // if (f == 1)  set out = x + y  // integer 2's complement addition
+    // if (f == 0)  set out = x & y  // bitwise and
+    Add16 (a=nx1, b=ny1, out=xaddy);
+    And16 (a=nx1, b=ny1, out=xandy);
+    Mux16 (a=xandy, b=xaddy, sel=f, out=fxy);
+
+    // if (no == 1) set out = !out   // bitwise not
+    Not16 (in=fxy, out=nfxy);
+    Mux16 (a=fxy, b=nfxy, sel=no, out=result, out[15]=ng);
+
+    Mux16 (a=result, b=false, sel=false, out=out);
+
+    // if (out == 0) set zr = 1
+    Or16Way (in=result, out=zr0);
+    Not     (in=zr0, out=zr);
 }
