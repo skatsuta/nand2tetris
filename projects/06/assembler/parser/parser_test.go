@@ -3,6 +3,7 @@ package parser
 import (
 	"io"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -46,15 +47,38 @@ func TestNewParser(t *testing.T) {
 }
 
 func TestHasMoreCommands(t *testing.T) {
-	a := newParser(strings.NewReader(testAsm))
+	p := newParser(strings.NewReader(testAsm))
 	numOfCmdsInTestAsm := 7
 	var cnt int
 
-	for a.hasMoreCommands() {
+	for p.hasMoreCommands() {
 		cnt++
 	}
 
 	if cnt != numOfCmdsInTestAsm {
 		t.Errorf("# of commands in testAsm should be %d, but got %d", numOfCmdsInTestAsm, cnt)
+	}
+}
+
+func TestAdvance(t *testing.T) {
+	advanceTests := []command{
+		nil,
+		aCmd{baseCmd{cmd: "@16", typ: aCommand}},
+		cCmd{baseCmd{cmd: "D=M", typ: cCommand}},
+		lCmd{baseCmd{cmd: "(LOOP)", typ: lCommand}},
+		aCmd{baseCmd{cmd: "@17", typ: aCommand}},
+		cCmd{baseCmd{cmd: "D=A", typ: cCommand}},
+		aCmd{baseCmd{cmd: "@LOOP", typ: aCommand}},
+		cCmd{baseCmd{cmd: "0;JMP", typ: cCommand}},
+	}
+
+	p := newParser(strings.NewReader(testAsm))
+	for _, want := range advanceTests {
+		if e := p.advance(); e != nil {
+			t.Errorf("advance failed: %s", e.Error())
+		}
+		if !reflect.DeepEqual(p.cmd, want) {
+			t.Errorf("got: %+v; want: %+v", p.cmd, want)
+		}
 	}
 }
