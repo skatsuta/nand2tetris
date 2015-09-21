@@ -15,8 +15,12 @@ var testAsm = `
 // This is also a comment.
 D=M
 
+(LOOP)
     @17 // indent spaces
 	D=A // indent tab
+
+	@LOOP
+	0;JMP
 `
 
 func TestNewParser(t *testing.T) {
@@ -43,7 +47,7 @@ func TestNewParser(t *testing.T) {
 
 func TestHasMoreCommands(t *testing.T) {
 	a := newParser(strings.NewReader(testAsm))
-	numOfCmdsInTestAsm := 4
+	numOfCmdsInTestAsm := 7
 	var cnt int
 
 	for a.hasMoreCommands() {
