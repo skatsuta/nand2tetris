@@ -13,7 +13,8 @@ const (
 
 // parser is a parser for Hack assembly language.
 type parser struct {
-	in *bufio.Scanner
+	in   *bufio.Scanner
+	line string
 }
 
 // newParser creates a new parser object that reads and parses r.
@@ -30,10 +31,10 @@ func (p *parser) hasMoreCommands() bool {
 	// if Scan() == false, return false
 	for p.in.Scan() {
 		// trim all leading and trailing white spaces
-		line := strings.TrimSpace(p.in.Text())
+		p.line = strings.TrimSpace(p.in.Text())
 
 		// return true if the line is not empty and not a comment, that is, a command
-		if line != "" && !strings.HasPrefix(line, prefixComment) {
+		if p.line != "" && !strings.HasPrefix(p.line, prefixComment) {
 			return true
 		}
 	}
