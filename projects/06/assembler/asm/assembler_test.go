@@ -10,13 +10,13 @@ import (
 var testAsm = `
 
 // This is a comment.
-@16  \t
+@16  	
 
 // This is also a comment.
 D=M     
 MD=0   
-AD=D|M;JGE\t
-AMD=D+1;JLT   \t
+AD=D|M;JGE	
+AMD=D+1;JLT   	
 M+1;JLT
 -1;JGT
 
@@ -25,7 +25,7 @@ M+1;JLT
 	@17 // indent spaces
 	D=A // indent tab
 
-	@LOOP\t\t    
+	@LOOP		    
 	D;JEQ
 
 (END)
@@ -42,6 +42,7 @@ var wantHack = `0000000000010000
 1110111010000001
 0000000000010001
 1110110000010000
+1110001100000010
 1110101010000111
 `
 
@@ -59,7 +60,7 @@ func TestRun(t *testing.T) {
 		{"1;JMP", "1110111111000111\n"},
 		{"A-1;JNE", "1110110010000101\n"},
 		{"AM=D&A;JLE", "1110000000101110\n"},
-		//{testAsm, wantHack},
+		{testAsm, wantHack},
 	}
 
 	for _, tt := range runTests {
