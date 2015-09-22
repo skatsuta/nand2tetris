@@ -16,6 +16,7 @@ type parser struct {
 	in   *bufio.Scanner
 	line string
 	cmd  command
+	err  error
 }
 
 // newParser creates a new parser object that reads and parses r.
@@ -27,6 +28,10 @@ func newParser(r io.Reader) *parser {
 
 // hasMoreCommands reports whether there exist more commands in input.
 func (p *parser) hasMoreCommands() bool {
+	if p.err != nil {
+		return false
+	}
+
 	// if Scan() == true && Text() is not a comment, return true
 	// if Scan() == false, return false
 	for p.in.Scan() {
@@ -42,8 +47,12 @@ func (p *parser) hasMoreCommands() bool {
 }
 
 // advance reads next command from input and set the command to current one.
-// If the next command
+// If the next command is invalid, it returns an error.
 // This method should be called only if hasMoreCommands() returns true.
 func (p *parser) advance() error {
+	if p.err != nil {
+		return p.err
+	}
+
 	return nil
 }
