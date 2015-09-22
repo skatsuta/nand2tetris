@@ -75,8 +75,8 @@ var (
 type Code struct {
 }
 
-// dest returns 3 bit binary opcode corresponding to the dest mneumonic.
-func (c *Code) dest(mneum string) (byte, error) {
+// Dest returns 3 bit binary opcode corresponding to the dest mneumonic.
+func (c *Code) Dest(mneum string) (byte, error) {
 	if !destInstSet.isValid(mneum) {
 		return 0, fmt.Errorf("invalid dest mneumonic: %s", mneum)
 	}
@@ -88,8 +88,8 @@ func (c *Code) IsValidDest(mneum string) bool {
 	return destInstSet.isValid(mneum)
 }
 
-// comp returns 7 bit binary opcode corresponding to the comp mneumonic.
-func (c *Code) comp(mneum string) (byte, error) {
+// Comp returns 7 bit binary opcode corresponding to the comp mneumonic.
+func (c *Code) Comp(mneum string) (byte, error) {
 	if !compInstSet.isValid(mneum) {
 		return 0, fmt.Errorf("invalid comp mneumonic: %s", mneum)
 	}
@@ -101,8 +101,8 @@ func (c *Code) IsValidComp(mneum string) bool {
 	return compInstSet.isValid(mneum)
 }
 
-// jump returns 3 bit binary code corresponding to the jump mneumonic.
-func (c *Code) jump(mneum string) (byte, error) {
+// Jump returns 3 bit binary code corresponding to the jump mneumonic.
+func (c *Code) Jump(mneum string) (byte, error) {
 	if !jumpInstSet.isValid(mneum) {
 		return 0, fmt.Errorf("invalid jump mneumonic: %s", mneum)
 	}

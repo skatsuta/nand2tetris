@@ -19,7 +19,7 @@ func TestDest(t *testing.T) {
 
 	var c Code
 	for _, tt := range destTests {
-		got, err := c.dest(tt.mneum)
+		got, err := c.Dest(tt.mneum)
 		if err != nil {
 			t.Fatalf("dest error: %s", err.Error())
 		}
@@ -41,7 +41,7 @@ func TestDestError(t *testing.T) {
 	var c Code
 	for _, tt := range destTests {
 		found := c.IsValidDest(tt.mneum)
-		_, err := c.dest(tt.mneum)
+		_, err := c.Dest(tt.mneum)
 		if found || err == nil {
 			t.Errorf("%s should not be a valid dest mneumonic", tt.mneum)
 		}
@@ -85,7 +85,7 @@ func TestComp(t *testing.T) {
 
 	var c Code
 	for _, tt := range compTests {
-		got, err := c.comp(tt.mneum)
+		got, err := c.Comp(tt.mneum)
 		if err != nil {
 			t.Fatalf("comp error: %s", err.Error())
 		}
@@ -110,7 +110,7 @@ func TestCompError(t *testing.T) {
 	var c Code
 	for _, tt := range compTests {
 		found := c.IsValidComp(tt.mneum)
-		_, err := c.comp(tt.mneum)
+		_, err := c.Comp(tt.mneum)
 		if found || err == nil {
 			t.Errorf("%s should not be a valid comp mneumonic", tt.mneum)
 		}
@@ -134,7 +134,7 @@ func TestJump(t *testing.T) {
 
 	var c Code
 	for _, tt := range jumpTests {
-		got, err := c.jump(tt.mneum)
+		got, err := c.Jump(tt.mneum)
 		if err != nil {
 			t.Fatalf("jump error: %s", err.Error())
 		}
@@ -156,7 +156,7 @@ func TestJumpError(t *testing.T) {
 	var c Code
 	for _, tt := range jumpTests {
 		found := c.IsValidJump(tt.mneum)
-		_, err := c.jump(tt.mneum)
+		_, err := c.Jump(tt.mneum)
 		if found || err == nil {
 			t.Errorf("%s should not be a valid jump mneumonic", tt.mneum)
 		}
