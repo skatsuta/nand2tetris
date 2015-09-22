@@ -18,12 +18,12 @@ const (
 type CommandType int
 
 const (
-	// aCommand means @Xxx command.
-	aCommand CommandType = iota
-	// cCommand means dest=comp;jump command.
-	cCommand
-	// lCommand means (Xxx) pseudo command.
-	lCommand
+	// ACommand means @Xxx command.
+	ACommand CommandType = iota
+	// CCommand means dest=comp;jump command.
+	CCommand
+	// LCommand means (Xxx) pseudo command.
+	LCommand
 )
 
 type command struct {
@@ -86,7 +86,7 @@ func (p *Parser) Advance() error {
 	switch cmd[0] {
 	// assginment command
 	case '@':
-		typ = aCommand
+		typ = ACommand
 		symb = cmd[1:]
 	// lobal command
 	case '(':
@@ -95,7 +95,7 @@ func (p *Parser) Advance() error {
 			p.err = fmt.Errorf("label command should be closed with ')', but got %s", string(lastc))
 			return p.err
 		}
-		typ = lCommand
+		typ = LCommand
 		symb = cmd[1 : len(cmd)-1]
 	// computation command
 	default:
@@ -129,7 +129,7 @@ func (p *Parser) Advance() error {
 			}
 			jump = s2[1]
 		}
-		typ = cCommand
+		typ = CCommand
 	}
 
 	// assgin into fields if no error occurs

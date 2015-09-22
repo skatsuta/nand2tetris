@@ -62,13 +62,13 @@ func TestHasMoreCommands(t *testing.T) {
 
 func TestAdvance(t *testing.T) {
 	advanceTests := []command{
-		{cmd: "@16", typ: aCommand, symb: "16"},
-		{cmd: "D=M", typ: cCommand, dest: "D", comp: "M"},
-		{cmd: "(LOOP)", typ: lCommand, symb: "LOOP"},
-		{cmd: "@17", typ: aCommand, symb: "17"},
-		{cmd: "D=A", typ: cCommand, dest: "D", comp: "A"},
-		{cmd: "@LOOP", typ: aCommand, symb: "LOOP"},
-		{cmd: "0;JMP", typ: cCommand, comp: "0", jump: "JMP"},
+		{cmd: "@16", typ: ACommand, symb: "16"},
+		{cmd: "D=M", typ: CCommand, dest: "D", comp: "M"},
+		{cmd: "(LOOP)", typ: LCommand, symb: "LOOP"},
+		{cmd: "@17", typ: ACommand, symb: "17"},
+		{cmd: "D=A", typ: CCommand, dest: "D", comp: "A"},
+		{cmd: "@LOOP", typ: ACommand, symb: "LOOP"},
+		{cmd: "0;JMP", typ: CCommand, comp: "0", jump: "JMP"},
 	}
 
 	p := NewParser(strings.NewReader(testAsm))
