@@ -50,9 +50,16 @@ func TestRun(t *testing.T) {
 		src  string
 		want string
 	}{
-		{"@1", "0000000000000001"},
-		{"@256", "0000000100000000"},
-		// {testAsm, wantHack},
+		{"@1", "0000000000000001\n"},
+		{"@256", "0000000100000000\n"},
+		{"(LOOP)", ""},
+		{"(END)", ""},
+		{"A=!A", "1110110001100000\n"},
+		{"M=M-D", "1111000111001000\n"},
+		{"1;JMP", "1110111111000111\n"},
+		{"A-1;JNE", "1110110010000101\n"},
+		{"AM=D&A;JLE", "1110000000101110\n"},
+		//{testAsm, wantHack},
 	}
 
 	for _, tt := range runTests {
@@ -60,7 +67,7 @@ func TestRun(t *testing.T) {
 		var out bytes.Buffer
 
 		if e := asmblr.Run(&out); e != nil {
-			t.Fatalf("Run failed: %s", e.Error())
+			t.Fatalf("%s", e.Error())
 		}
 
 		got := out.String()
