@@ -82,3 +82,21 @@ func TestAdvance(t *testing.T) {
 		}
 	}
 }
+
+func TestTrimComment(t *testing.T) {
+	trimCommentTests := []struct {
+		line string
+		want string
+	}{
+		{"  D=A  // comment", "D=A"},
+		{"@10", "@10"},
+	}
+
+	var p parser
+	for _, tt := range trimCommentTests {
+		got := p.trimComment(tt.line)
+		if got != tt.want {
+			t.Errorf(`got: "%s"; want: "%s"`, got, tt.want)
+		}
+	}
+}

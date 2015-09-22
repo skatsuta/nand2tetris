@@ -56,3 +56,15 @@ func (p *parser) advance() error {
 
 	return nil
 }
+
+// trimComment trims off an inline comment. If the line has no comment, it does nothing.
+func (p *parser) trimComment(line string) string {
+	idx := strings.Index(line, prefixComment)
+
+	// If the line has no comment, do nothing.
+	if idx < 0 {
+		return line
+	}
+
+	return strings.TrimSpace(line[:idx])
+}
