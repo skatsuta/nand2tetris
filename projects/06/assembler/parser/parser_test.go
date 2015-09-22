@@ -39,7 +39,7 @@ func TestNewParser(t *testing.T) {
 	}
 
 	for _, tt := range newParserTests {
-		got := newParser(tt.r)
+		got := NewParser(tt.r)
 		if got.in == nil {
 			t.Errorf("input is nil")
 		}
@@ -47,7 +47,7 @@ func TestNewParser(t *testing.T) {
 }
 
 func TestHasMoreCommands(t *testing.T) {
-	p := newParser(strings.NewReader(testAsm))
+	p := NewParser(strings.NewReader(testAsm))
 	numOfCmdsInTestAsm := 7
 	var cnt int
 
@@ -71,7 +71,7 @@ func TestAdvance(t *testing.T) {
 		{cmd: "0;JMP", typ: cCommand, comp: "0", jump: "JMP"},
 	}
 
-	p := newParser(strings.NewReader(testAsm))
+	p := NewParser(strings.NewReader(testAsm))
 	for _, want := range advanceTests {
 		if p.hasMoreCommands() {
 			if e := p.advance(); e != nil {
@@ -93,7 +93,7 @@ func TestTrimComment(t *testing.T) {
 		{"@10", "@10"},
 	}
 
-	var p parser
+	var p Parser
 	for _, tt := range trimCommentTests {
 		got := p.trimComment(tt.line)
 		if got != tt.want {
@@ -118,7 +118,7 @@ func TestSplitCmd(t *testing.T) {
 		{"M=D;JGT", ";", []string{"M=D", "JGT"}},
 	}
 
-	var p parser
+	var p Parser
 	for _, tt := range splitCmdTests {
 		got := p.splitCmd(tt.cmd, tt.sep)
 		if !reflect.DeepEqual(got, tt.want) {

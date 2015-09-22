@@ -35,23 +35,23 @@ type command struct {
 	jump string
 }
 
-// parser is a parser for Hack assembly language.
-type parser struct {
+// Parser is a parser for Hack assembly language.
+type Parser struct {
 	in      *bufio.Scanner
 	err     error
 	line    string
 	command command
 }
 
-// newParser creates a new parser object that reads and parses r.
-func newParser(r io.Reader) *parser {
-	return &parser{
+// NewParser creates a new parser object that reads and parses r.
+func NewParser(r io.Reader) *Parser {
+	return &Parser{
 		in: bufio.NewScanner(r),
 	}
 }
 
 // hasMoreCommands reports whether there exist more commands in input.
-func (p *parser) hasMoreCommands() bool {
+func (p *Parser) hasMoreCommands() bool {
 	if p.err != nil {
 		return false
 	}
@@ -73,7 +73,7 @@ func (p *parser) hasMoreCommands() bool {
 // advance reads next command from input and set the command to current one.
 // If the next command is invalid, it returns an error.
 // This method should be called only if hasMoreCommands() returns true.
-func (p *parser) advance() error {
+func (p *Parser) advance() error {
 	if p.err != nil {
 		return p.err
 	}
@@ -146,36 +146,36 @@ func (p *parser) advance() error {
 }
 
 // commandType returns a type of a current command.
-func (p *parser) commandType() commandType {
+func (p *Parser) commandType() commandType {
 	return p.command.typ
 }
 
 // symbol returns a symbol in a current command. This method should be called
 // only if commandType() returns aCommand or lCommand.
-func (p *parser) symbol() string {
+func (p *Parser) symbol() string {
 	return p.command.symb
 }
 
 // dest returns a destination in a current command. This method should be called
 // only if commandType() returns cCommand.
-func (p *parser) dest() string {
+func (p *Parser) dest() string {
 	return p.command.dest
 }
 
 // comp returns a comp section in a current command. This method should be called
 // only if commandType() returns cCommand.
-func (p *parser) comp() string {
+func (p *Parser) comp() string {
 	return p.command.comp
 }
 
 // jump returns a jump section in a current command. This method should be called
 // only if commandType() returns cCommand.
-func (p *parser) jump() string {
+func (p *Parser) jump() string {
 	return p.command.jump
 }
 
 // trimComment trims off an inline comment. If the line has no comment, it does nothing.
-func (p *parser) trimComment(line string) string {
+func (p *Parser) trimComment(line string) string {
 	idx := strings.Index(line, prefixComment)
 
 	// If the line has no comment, do nothing.
@@ -187,6 +187,6 @@ func (p *parser) trimComment(line string) string {
 }
 
 // splitCmd splits cmd into up to two elements by sep.
-func (p *parser) splitCmd(cmd string, sep string) []string {
+func (p *Parser) splitCmd(cmd string, sep string) []string {
 	return strings.SplitN(cmd, sep, 2)
 }
