@@ -62,23 +62,24 @@ func TestHasMoreCommands(t *testing.T) {
 
 func TestAdvance(t *testing.T) {
 	advanceTests := []command{
-		{},
-		{cmd: "@16", typ: aCommand},
-		{cmd: "D=M", typ: cCommand},
-		{cmd: "(LOOP)", typ: lCommand},
-		{cmd: "@17", typ: aCommand},
-		{cmd: "D=A", typ: cCommand},
-		{cmd: "@LOOP", typ: aCommand},
-		{cmd: "0;JMP", typ: cCommand},
+		{cmd: "@16", typ: aCommand, symb: "16"},
+		{cmd: "D=M", typ: cCommand, dest: "D", comp: "M"},
+		{cmd: "(LOOP)", typ: lCommand, symb: "LOOP"},
+		{cmd: "@17", typ: aCommand, symb: "17"},
+		{cmd: "D=A", typ: cCommand, dest: "D", comp: "A"},
+		{cmd: "@LOOP", typ: aCommand, symb: "LOOP"},
+		{cmd: "0;JMP", typ: cCommand, comp: "0", jump: "JMP"},
 	}
 
 	p := newParser(strings.NewReader(testAsm))
 	for _, want := range advanceTests {
-		if e := p.advance(); e != nil {
-			t.Errorf("advance failed: %s", e.Error())
-		}
-		if !reflect.DeepEqual(p.command, want) {
-			t.Errorf("got: %+v; want: %+v", p.command, want)
+		if p.hasMoreCommands() {
+			if e := p.advance(); e != nil {
+				t.Errorf("advance failed: %s", e.Error())
+			}
+			if !reflect.DeepEqual(p.command, want) {
+				t.Errorf("got: %+v; want: %+v", p.command, want)
+			}
 		}
 	}
 }

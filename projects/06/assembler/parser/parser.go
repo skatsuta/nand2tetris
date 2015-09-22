@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -77,7 +78,61 @@ func (p *parser) advance() error {
 
 	// trim a comment and get a pure command string
 	cmd := p.trimComment(p.line)
-	_ = cmd
+	var typ commandType
+	var symb, dest, comp, jump string
+
+	switch cmd[0] {
+	case '@':
+		typ = aCommand
+		symb = cmd[1:]
+	case '(':
+		lastc := cmd[len(cmd)-1]
+		if lastc != ')' {
+			p.err = fmt.Errorf("label command should be closed with ')', but got %s", string(lastc))
+			return p.err
+		}
+		typ = lCommand
+		symb = cmd[1 : len(cmd)-1]
+	default:
+		s1 := p.splitCmd(cmd, "=")
+		// next parse target command
+		next := s1[0]
+		if len(s1) == 2 {
+			// check whether dest command is valid
+			if _, found := destBit[s1[0]]; !found {
+				p.err = fmt.Errorf("invalid dest command: %s", s1[0])
+				return p.err
+			}
+			dest = s1[0]
+			// replace next parse target command
+			next = s1[1]
+		}
+		// split next parse target command
+		s2 := p.splitCmd(next, ";")
+		_, found0 := compBit0[s2[0]]
+		_, found1 := compBit1[s2[0]]
+		if !found0 && !found1 {
+			p.err = fmt.Errorf("invalid comp command: \"%s\"", s2[0])
+			return p.err
+		}
+		comp = s2[0]
+		if len(s2) == 2 {
+			if _, found := jumpBit[s2[1]]; !found {
+				p.err = fmt.Errorf("invalid jump command: %s", s2[1])
+				return p.err
+			}
+			jump = s2[1]
+		}
+		typ = cCommand
+	}
+
+	// assgin into fields if no error occurs
+	p.cmd = cmd
+	p.typ = typ
+	p.symb = symb
+	p.dest = dest
+	p.comp = comp
+	p.jump = jump
 
 	return nil
 }
