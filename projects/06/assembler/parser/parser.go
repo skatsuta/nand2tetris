@@ -147,10 +147,28 @@ func (p *parser) commandType() commandType {
 	return p.command.typ
 }
 
-// symbol returns a symbol of a current command. This method should be called
+// symbol returns a symbol in a current command. This method should be called
 // only if commandType() returns aCommand or lCommand.
 func (p *parser) symbol() string {
 	return p.command.symb
+}
+
+// dest returns a destination in a current command. This method should be called
+// only if commandType() returns cCommand.
+func (p *parser) dest() string {
+	return p.command.dest
+}
+
+// comp returns a comp section in a current command. This method should be called
+// only if commandType() returns cCommand.
+func (p *parser) comp() string {
+	return p.command.comp
+}
+
+// jump returns a jump section in a current command. This method should be called
+// only if commandType() returns cCommand.
+func (p *parser) jump() string {
+	return p.command.jump
 }
 
 // trimComment trims off an inline comment. If the line has no comment, it does nothing.
