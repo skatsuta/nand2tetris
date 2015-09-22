@@ -11,7 +11,7 @@ import (
 var testAsm = `
 
 // This is a comment.
-@16
+   @16	
 
 // This is also a comment.
 D=M
@@ -48,15 +48,25 @@ func TestNewParser(t *testing.T) {
 
 func TestHasMoreCommands(t *testing.T) {
 	p := NewParser(strings.NewReader(testAsm))
-	numOfCmdsInTestAsm := 7
-	var cnt int
 
-	for p.HasMoreCommands() {
-		cnt++
+	hmcTests := []struct {
+		want string
+	}{
+		{"@16"},
+		{"D=M"},
+		{"(LOOP)"},
+		{"@17 // indent spaces"},
+		{"D=A // indent tab"},
+		{"@LOOP"},
+		{"0;JMP"},
 	}
 
-	if cnt != numOfCmdsInTestAsm {
-		t.Errorf("# of commands in testAsm should be %d, but got %d", numOfCmdsInTestAsm, cnt)
+	for _, tt := range hmcTests {
+		if p.HasMoreCommands() {
+			if p.line != tt.want {
+				t.Errorf("expected %q but got %q", tt.want, p.line)
+			}
+		}
 	}
 }
 
