@@ -98,3 +98,63 @@ func (p *parser) trimComment(line string) string {
 func (p *parser) splitCmd(cmd string, sep string) []string {
 	return strings.SplitN(cmd, sep, 2)
 }
+
+// destBit is a map of a dest command and a binary instruction.
+var destBit = map[string]byte{
+	"":    0x0,
+	"M":   0x1,
+	"D":   0x2,
+	"MD":  0x3,
+	"A":   0x4,
+	"AM":  0x5,
+	"AD":  0x6,
+	"AMD": 0x7,
+}
+
+// compBit0 is a map of a comp command and a binary instruction in the case a = 0
+var compBit0 = map[string]byte{
+	"0":   0x2A,
+	"1":   0x3F,
+	"-1":  0x3A,
+	"D":   0xC,
+	"A":   0x30,
+	"!D":  0xD,
+	"!A":  0x31,
+	"-D":  0xF,
+	"-A":  0x33,
+	"D+1": 0x1F,
+	"A+1": 0x37,
+	"D-1": 0xE,
+	"A-1": 0x32,
+	"D+A": 0x2,
+	"D-A": 0x13,
+	"A-D": 0x7,
+	"D&A": 0x0,
+	"D|A": 0x15,
+}
+
+// compBit1 is a map of a comp command and a binary instruction in the case a = 1
+var compBit1 = map[string]byte{
+	"M":   0x30,
+	"!M":  0x31,
+	"-M":  0x33,
+	"M+1": 0x37,
+	"M-1": 0x32,
+	"D+M": 0x2,
+	"D-M": 0x13,
+	"M-D": 0x7,
+	"D&M": 0x0,
+	"D|M": 0x15,
+}
+
+// jumpBit is a map of a jump command and a binary instruction.
+var jumpBit = map[string]byte{
+	"":    0x0,
+	"JGT": 0x1,
+	"JEQ": 0x2,
+	"JGE": 0x3,
+	"JLT": 0x4,
+	"JNE": 0x5,
+	"JLE": 0x6,
+	"JMP": 0x7,
+}
