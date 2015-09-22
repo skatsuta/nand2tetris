@@ -1,17 +1,5 @@
 package parser
 
-// commandType represents a type of a Hack command.
-type commandType int
-
-const (
-	// aCommand means @Xxx command.
-	aCommand commandType = iota
-	// cCommand means dest=comp;jump command.
-	cCommand
-	// lCommand means (Xxx) pseudo command.
-	lCommand
-)
-
 // command is an interface that represents a Hack command.
 type command interface {
 	// commandType returns a type of the command.

@@ -11,6 +11,18 @@ const (
 	prefixComment = "//"
 )
 
+// commandType represents a type of a Hack command.
+type commandType int
+
+const (
+	// aCommand means @Xxx command.
+	aCommand commandType = iota
+	// cCommand means dest=comp;jump command.
+	cCommand
+	// lCommand means (Xxx) pseudo command.
+	lCommand
+)
+
 // parser is a parser for Hack assembly language.
 type parser struct {
 	in   *bufio.Scanner
