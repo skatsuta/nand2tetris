@@ -51,7 +51,7 @@ func TestHasMoreCommands(t *testing.T) {
 	numOfCmdsInTestAsm := 7
 	var cnt int
 
-	for p.hasMoreCommands() {
+	for p.HasMoreCommands() {
 		cnt++
 	}
 
@@ -73,8 +73,8 @@ func TestAdvance(t *testing.T) {
 
 	p := NewParser(strings.NewReader(testAsm))
 	for _, want := range advanceTests {
-		if p.hasMoreCommands() {
-			if e := p.advance(); e != nil {
+		if p.HasMoreCommands() {
+			if e := p.Advance(); e != nil {
 				t.Errorf("advance failed: %s", e.Error())
 			}
 			if !reflect.DeepEqual(p.command, want) {

@@ -14,12 +14,12 @@ const (
 	prefixComment = "//"
 )
 
-// commandType represents a type of a Hack command.
-type commandType int
+// CommandType represents a type of a Hack command.
+type CommandType int
 
 const (
 	// aCommand means @Xxx command.
-	aCommand commandType = iota
+	aCommand CommandType = iota
 	// cCommand means dest=comp;jump command.
 	cCommand
 	// lCommand means (Xxx) pseudo command.
@@ -28,7 +28,7 @@ const (
 
 type command struct {
 	cmd  string
-	typ  commandType
+	typ  CommandType
 	symb string
 	dest string
 	comp string
@@ -50,8 +50,8 @@ func NewParser(r io.Reader) *Parser {
 	}
 }
 
-// hasMoreCommands reports whether there exist more commands in input.
-func (p *Parser) hasMoreCommands() bool {
+// HasMoreCommands reports whether there exist more commands in input.
+func (p *Parser) HasMoreCommands() bool {
 	if p.err != nil {
 		return false
 	}
@@ -70,17 +70,17 @@ func (p *Parser) hasMoreCommands() bool {
 	return false
 }
 
-// advance reads next command from input and set the command to current one.
+// Advance reads next command from input and set the command to current one.
 // If the next command is invalid, it returns an error.
 // This method should be called only if hasMoreCommands() returns true.
-func (p *Parser) advance() error {
+func (p *Parser) Advance() error {
 	if p.err != nil {
 		return p.err
 	}
 
 	// trim a comment and get a pure command string
 	cmd := p.trimComment(p.line)
-	var typ commandType
+	var typ CommandType
 	var symb, dest, comp, jump string
 
 	switch cmd[0] {
@@ -145,32 +145,32 @@ func (p *Parser) advance() error {
 	return nil
 }
 
-// commandType returns a type of a current command.
-func (p *Parser) commandType() commandType {
+// CommandType returns a type of a current command.
+func (p *Parser) CommandType() CommandType {
 	return p.command.typ
 }
 
-// symbol returns a symbol in a current command. This method should be called
-// only if commandType() returns aCommand or lCommand.
-func (p *Parser) symbol() string {
+// Symbol returns a symbol in a current command. This method should be called
+// only if CommandType() returns aCommand or lCommand.
+func (p *Parser) Symbol() string {
 	return p.command.symb
 }
 
-// dest returns a destination in a current command. This method should be called
-// only if commandType() returns cCommand.
-func (p *Parser) dest() string {
+// Dest returns a destination in a current command. This method should be called
+// only if CommandType() returns cCommand.
+func (p *Parser) Dest() string {
 	return p.command.dest
 }
 
-// comp returns a comp section in a current command. This method should be called
-// only if commandType() returns cCommand.
-func (p *Parser) comp() string {
+// Comp returns a comp section in a current command. This method should be called
+// only if CommandType() returns cCommand.
+func (p *Parser) Comp() string {
 	return p.command.comp
 }
 
-// jump returns a jump section in a current command. This method should be called
-// only if commandType() returns cCommand.
-func (p *Parser) jump() string {
+// Jump returns a jump section in a current command. This method should be called
+// only if CommandType() returns cCommand.
+func (p *Parser) Jump() string {
 	return p.command.jump
 }
 
