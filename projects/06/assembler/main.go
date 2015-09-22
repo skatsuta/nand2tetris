@@ -21,46 +21,46 @@ func main() {
 	msg := make(chan string, len(args))
 	var wg sync.WaitGroup
 
+	// convert files concurrently
 	wg.Add(len(args))
 	for _, path := range args {
 		go func(path string) {
 			defer wg.Done()
-			convert(msg, path)
+			msg <- convert(path)
 		}(path)
 	}
 
-	// clone channel if all goroutines finish
+	// clone channel after all goroutines finish
 	go func() {
 		wg.Wait()
 		close(msg)
 	}()
 
+	// print each message
 	for m := range msg {
-		fmt.Fprintln(os.Stdout, m)
+		fmt.Println(m)
 	}
 }
 
 // convert converts `in` source assembly code to machine code and write it to `out`.
-func convert(ch chan string, path string) {
+// It returns a result message if successful, otherwise an error message.
+func convert(path string) string {
 	in, err := os.Open(path)
 	if err != nil {
-		ch <- err.Error()
-		return
+		return err.Error()
 	}
 
 	outName := outPath(path, binExt)
 	out, err := os.Create(outName)
 	if err != nil {
-		ch <- err.Error()
-		return
+		return err.Error()
 	}
 
 	// convert in to out
 	if e := asm.New(in).Run(out); e != nil {
-		ch <- e.Error()
-		return
+		return e.Error()
 	}
-	ch <- fmt.Sprintf("Successfully converted %s to %s", path, outName)
+	return fmt.Sprintf("Successfully converted %s to %s", path, outName)
 }
 
 // outPath returns a new output file name path with the given new extension name.
