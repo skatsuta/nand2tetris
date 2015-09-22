@@ -140,6 +140,17 @@ func (p *parser) advance() error {
 	return nil
 }
 
+// commandType returns a type of a current command.
+func (p *parser) commandType() commandType {
+	return p.typ
+}
+
+// symbol returns a symbol of a current command. This method should be called
+// only if commandType() returns aCommand or lCommand.
+func (p *parser) symbol() string {
+	return p.symb
+}
+
 // trimComment trims off an inline comment. If the line has no comment, it does nothing.
 func (p *parser) trimComment(line string) string {
 	idx := strings.Index(line, prefixComment)
