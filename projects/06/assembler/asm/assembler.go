@@ -41,14 +41,16 @@ func (a *Asm) Run(out io.Writer) error {
 			b   int
 			err error
 		)
-
 		switch a.p.CommandType() {
 		case parser.LCommand:
 			// skip a label command
 			continue
 		case parser.ACommand:
 			// if symbol is an integer
-			b, err = strconv.Atoi(a.p.Symbol())
+			if b, err = strconv.Atoi(a.p.Symbol()); err != nil {
+				// TODO implement @SYMBOL pattern
+				continue
+			}
 		case parser.CCommand:
 			b, err = a.formatCInst(a.p.Dest(), a.p.Comp(), a.p.Jump())
 		}
