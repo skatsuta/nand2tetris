@@ -35,10 +35,10 @@ type command struct {
 
 // parser is a parser for Hack assembly language.
 type parser struct {
-	in   *bufio.Scanner
-	err  error
-	line string
-	command
+	in      *bufio.Scanner
+	err     error
+	line    string
+	command command
 }
 
 // newParser creates a new parser object that reads and parses r.
@@ -130,25 +130,27 @@ func (p *parser) advance() error {
 	}
 
 	// assgin into fields if no error occurs
-	p.cmd = cmd
-	p.typ = typ
-	p.symb = symb
-	p.dest = dest
-	p.comp = comp
-	p.jump = jump
+	p.command = command{
+		cmd:  cmd,
+		typ:  typ,
+		symb: symb,
+		dest: dest,
+		comp: comp,
+		jump: jump,
+	}
 
 	return nil
 }
 
 // commandType returns a type of a current command.
 func (p *parser) commandType() commandType {
-	return p.typ
+	return p.command.typ
 }
 
 // symbol returns a symbol of a current command. This method should be called
 // only if commandType() returns aCommand or lCommand.
 func (p *parser) symbol() string {
-	return p.symb
+	return p.command.symb
 }
 
 // trimComment trims off an inline comment. If the line has no comment, it does nothing.
