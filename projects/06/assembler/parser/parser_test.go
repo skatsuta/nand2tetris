@@ -62,14 +62,14 @@ func TestHasMoreCommands(t *testing.T) {
 
 func TestAdvance(t *testing.T) {
 	advanceTests := []command{
-		nil,
-		aCmd{baseCmd{cmd: "@16", typ: aCommand}},
-		cCmd{baseCmd{cmd: "D=M", typ: cCommand}},
-		lCmd{baseCmd{cmd: "(LOOP)", typ: lCommand}},
-		aCmd{baseCmd{cmd: "@17", typ: aCommand}},
-		cCmd{baseCmd{cmd: "D=A", typ: cCommand}},
-		aCmd{baseCmd{cmd: "@LOOP", typ: aCommand}},
-		cCmd{baseCmd{cmd: "0;JMP", typ: cCommand}},
+		{},
+		{cmd: "@16", typ: aCommand},
+		{cmd: "D=M", typ: cCommand},
+		{cmd: "(LOOP)", typ: lCommand},
+		{cmd: "@17", typ: aCommand},
+		{cmd: "D=A", typ: cCommand},
+		{cmd: "@LOOP", typ: aCommand},
+		{cmd: "0;JMP", typ: cCommand},
 	}
 
 	p := newParser(strings.NewReader(testAsm))
@@ -77,8 +77,8 @@ func TestAdvance(t *testing.T) {
 		if e := p.advance(); e != nil {
 			t.Errorf("advance failed: %s", e.Error())
 		}
-		if !reflect.DeepEqual(p.cmd, want) {
-			t.Errorf("got: %+v; want: %+v", p.cmd, want)
+		if !reflect.DeepEqual(p.command, want) {
+			t.Errorf("got: %+v; want: %+v", p.command, want)
 		}
 	}
 }

@@ -23,12 +23,21 @@ const (
 	lCommand
 )
 
+type command struct {
+	cmd  string
+	typ  commandType
+	symb string
+	dest string
+	comp string
+	jump string
+}
+
 // parser is a parser for Hack assembly language.
 type parser struct {
 	in   *bufio.Scanner
-	line string
-	cmd  command
 	err  error
+	line string
+	command
 }
 
 // newParser creates a new parser object that reads and parses r.
@@ -65,6 +74,10 @@ func (p *parser) advance() error {
 	if p.err != nil {
 		return p.err
 	}
+
+	// trim a comment and get a pure command string
+	cmd := p.trimComment(p.line)
+	_ = cmd
 
 	return nil
 }
