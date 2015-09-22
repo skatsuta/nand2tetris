@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/skatsuta/nand2tetris/projects/06/assembler/code"
 )
 
 const (
@@ -97,12 +99,13 @@ func (p *parser) advance() error {
 		symb = cmd[1 : len(cmd)-1]
 	// computation command
 	default:
+		var cod code.Code
 		s1 := p.splitCmd(cmd, "=")
 		// next parse target command
 		next := s1[0]
 		if len(s1) == 2 {
 			// check whether dest command is valid
-			if !destBit.contains(s1[0]) {
+			if !cod.IsValidDest(s1[0]) {
 				p.err = fmt.Errorf("invalid dest command: %s", s1[0])
 				return p.err
 			}
@@ -113,14 +116,14 @@ func (p *parser) advance() error {
 		// split next parse target command
 		s2 := p.splitCmd(next, ";")
 		// check whether comp command is valid
-		if !compBit0.contains(s2[0]) && !compBit1.contains(s2[0]) {
+		if !cod.IsValidComp(s2[0]) {
 			p.err = fmt.Errorf("invalid comp command: \"%s\"", s2[0])
 			return p.err
 		}
 		comp = s2[0]
 		if len(s2) == 2 {
 			// check whether jump command is valid
-			if !jumpBit.contains(s2[1]) {
+			if !cod.IsValidJump(s2[1]) {
 				p.err = fmt.Errorf("invalid jump command: %s", s2[1])
 				return p.err
 			}
@@ -187,74 +190,3 @@ func (p *parser) trimComment(line string) string {
 func (p *parser) splitCmd(cmd string, sep string) []string {
 	return strings.SplitN(cmd, sep, 2)
 }
-
-// opcBit is a map of an opcode and a binary instruction.
-type opcBit map[string]byte
-
-// contains reports whether opc is contained in ob.
-func (ob opcBit) contains(opc string) bool {
-	_, found := ob[opc]
-	return found
-}
-
-var (
-	// destBit is a map of a dest command and a binary instruction.
-	destBit opcBit = map[string]byte{
-		"":    0x0,
-		"M":   0x1,
-		"D":   0x2,
-		"MD":  0x3,
-		"A":   0x4,
-		"AM":  0x5,
-		"AD":  0x6,
-		"AMD": 0x7,
-	}
-
-	// compBit0 is a map of a comp command and a binary instruction in the case a = 0
-	compBit0 opcBit = map[string]byte{
-		"0":   0x2A,
-		"1":   0x3F,
-		"-1":  0x3A,
-		"D":   0xC,
-		"A":   0x30,
-		"!D":  0xD,
-		"!A":  0x31,
-		"-D":  0xF,
-		"-A":  0x33,
-		"D+1": 0x1F,
-		"A+1": 0x37,
-		"D-1": 0xE,
-		"A-1": 0x32,
-		"D+A": 0x2,
-		"D-A": 0x13,
-		"A-D": 0x7,
-		"D&A": 0x0,
-		"D|A": 0x15,
-	}
-
-	// compBit1 is a map of a comp command and a binary instruction in the case a = 1
-	compBit1 opcBit = map[string]byte{
-		"M":   0x30,
-		"!M":  0x31,
-		"-M":  0x33,
-		"M+1": 0x37,
-		"M-1": 0x32,
-		"D+M": 0x2,
-		"D-M": 0x13,
-		"M-D": 0x7,
-		"D&M": 0x0,
-		"D|M": 0x15,
-	}
-
-	// jumpBit is a map of a jump command and a binary instruction.
-	jumpBit opcBit = map[string]byte{
-		"":    0x0,
-		"JGT": 0x1,
-		"JEQ": 0x2,
-		"JGE": 0x3,
-		"JLT": 0x4,
-		"JNE": 0x5,
-		"JLE": 0x6,
-		"JMP": 0x7,
-	}
-)
