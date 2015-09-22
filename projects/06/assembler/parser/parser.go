@@ -68,3 +68,8 @@ func (p *parser) trimComment(line string) string {
 
 	return strings.TrimSpace(line[:idx])
 }
+
+// splitCmd splits cmd into up to two elements by sep.
+func (p *parser) splitCmd(cmd string, sep string) []string {
+	return strings.SplitN(cmd, sep, 2)
+}

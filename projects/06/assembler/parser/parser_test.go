@@ -100,3 +100,28 @@ func TestTrimComment(t *testing.T) {
 		}
 	}
 }
+
+func TestSplitCmd(t *testing.T) {
+	splitCmdTests := []struct {
+		cmd  string
+		sep  string
+		want []string
+	}{
+		{"@10", "=", []string{"@10"}},
+		{"M=D", "=", []string{"M", "D"}},
+		{"MD=0", "=", []string{"MD", "0"}},
+		{"AMD=M+1", "=", []string{"AMD", "M+1"}},
+		{"0;JMP", ";", []string{"0", "JMP"}},
+		{"D;JEQ", ";", []string{"D", "JEQ"}},
+		{"M=D;JGT", "=", []string{"M", "D;JGT"}},
+		{"M=D;JGT", ";", []string{"M=D", "JGT"}},
+	}
+
+	var p parser
+	for _, tt := range splitCmdTests {
+		got := p.splitCmd(tt.cmd, tt.sep)
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("got: %v; want: %v", got, tt.want)
+		}
+	}
+}
