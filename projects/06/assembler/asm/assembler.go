@@ -90,7 +90,7 @@ func (a *Asm) Run(out io.Writer) error {
 				b = int(a.st.GetAddress(symb))
 			}
 		case parser.CCommand:
-			if b, err = a.formatCInst(a.p.Dest(), a.p.Comp(), a.p.Jump()); err != nil {
+			if b, err = a.formatCCmd(a.p.Dest(), a.p.Comp(), a.p.Jump()); err != nil {
 				return fmt.Errorf("failed to parse command: %s", err.Error())
 			}
 		}
@@ -102,9 +102,9 @@ func (a *Asm) Run(out io.Writer) error {
 	return nil
 }
 
-// formatCInst formats dest, comp and jump mneumonics into one machine code.
+// formatCCmd formats dest, comp and jump mneumonics into one machine code.
 // If the arguments contain an invalid mneumonic, it returns an error.
-func (a *Asm) formatCInst(dest, comp, jump string) (int, error) {
+func (a *Asm) formatCCmd(dest, comp, jump string) (int, error) {
 	dbyt, err := a.c.Dest(dest)
 	a.setErr(err)
 	cbyt, err := a.c.Comp(comp)
@@ -113,10 +113,10 @@ func (a *Asm) formatCInst(dest, comp, jump string) (int, error) {
 	a.setErr(err)
 
 	if a.err != nil {
-		return 0, fmt.Errorf("formatBit: %s", a.err.Error())
+		return 0, fmt.Errorf("formatCCmd: %s", a.err.Error())
 	}
 
-	// C instruction: 111 comp[0000000] dest[000] jump[000]
+	// C instruction: 111 0000000(comp) 000(dest) 000(jump)
 	return int(0x7)<<13 | int(cbyt)<<6 | int(dbyt)<<3 | int(jbyt), nil
 }
 
