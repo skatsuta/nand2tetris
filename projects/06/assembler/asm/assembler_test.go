@@ -22,6 +22,8 @@ AD=D|M;JGE
 AMD=D+1;JLT   	
 @j
 M+1;JLT
+@END
+D;JLE
 
 (LOOP)     
 	@17 // indent spaces
@@ -47,10 +49,12 @@ var wantHack = `0000000100000000
 0000000000010001
 1111110111000100
 0000000000010001
+1110001100000110
+0000000000010001
 1110110000010000
-0000000000001010
+0000000000001100
 1110001100000010
-0000000000001111
+0000000000010001
 1110101010000111
 `
 
@@ -116,9 +120,15 @@ func TestRun(t *testing.T) {
 			t.Fatalf("%s", e.Error())
 		}
 
-		got := out.String()
-		if got != tt.want {
-			t.Errorf("\nsrc:\n%s\n\ngot:\n%s\nwant:\n%s", tt.src, got, tt.want)
+		got := strings.Split(out.String(), "\n")
+		want := strings.Split(tt.want, "\n")
+		if len(got) != len(want) {
+			t.Fatalf("the number of lines should be %d, but got %d", len(want), len(got))
+		}
+		for i := range got {
+			if got[i] != want[i] {
+				t.Errorf("\nsrc:\n%s\n\nline %d: got: %s != want: %s", tt.src, i+1, got[i], want[i])
+			}
 		}
 	}
 }
