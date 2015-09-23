@@ -46,6 +46,32 @@ var wantHack = `0000000000010000
 1110101010000111
 `
 
+func TestDefineSymbols(t *testing.T) {
+	symtbl := map[string]uintptr{
+		"SP":     0x0,
+		"LCL":    0x1,
+		"ARG":    0x2,
+		"THIS":   0x3,
+		"THAT":   0x4,
+		"R0":     0x0,
+		"R4":     0x4,
+		"R5":     0x5,
+		"R16":    0xF,
+		"SCREEN": 0x4000,
+		"KBD":    0x6000,
+	}
+
+	asmblr := New(nil)
+	asmblr.DefineSymbols(symtbl)
+
+	for symb, addr := range symtbl {
+		got := asmblr.st.GetAddress(symb)
+		if got != addr {
+			t.Errorf("got = 0x%X; want = 0x%X", got, addr)
+		}
+	}
+}
+
 func TestRun(t *testing.T) {
 	runTests := []struct {
 		src  string

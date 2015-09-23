@@ -7,6 +7,7 @@ import (
 
 	"github.com/skatsuta/nand2tetris/projects/06/assembler/code"
 	"github.com/skatsuta/nand2tetris/projects/06/assembler/parser"
+	"github.com/skatsuta/nand2tetris/projects/06/assembler/symbtbl"
 )
 
 const (
@@ -16,17 +17,24 @@ const (
 
 // Asm is an Hack assembler.
 type Asm struct {
+	err error
 	p   *parser.Parser
 	c   *code.Code
-	err error
+	st  *symbtbl.SymbolTable
 }
 
 // New creates a new Asm object that converts `in` to a Hack binary code.
 func New(in io.Reader) *Asm {
 	return &Asm{
-		p: parser.NewParser(in),
-		c: &code.Code{},
+		p:  parser.NewParser(in),
+		c:  &code.Code{},
+		st: symbtbl.NewSymbolTable(),
 	}
+}
+
+// DefineSymbols adds pre-defined symbols into the assembler.
+func (a *Asm) DefineSymbols(sym map[string]uintptr) {
+	a.st.AddEntries(sym)
 }
 
 // Run converts a Hack assembly code that `a` holds to a Hack binary code
