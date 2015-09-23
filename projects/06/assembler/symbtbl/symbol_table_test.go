@@ -68,3 +68,23 @@ func TestGetAddress(t *testing.T) {
 		}
 	}
 }
+
+func TestAddVar(t *testing.T) {
+	addVarSymbolTests := []struct {
+		symb string
+		want uintptr
+	}{
+		{"a", 0x10},
+		{"b", 0x11},
+		{"c", 0x12},
+	}
+
+	st := NewSymbolTable()
+	for _, tt := range addVarSymbolTests {
+		st.AddVar(tt.symb)
+		got := st.GetAddress(tt.symb)
+		if got != tt.want {
+			t.Errorf("symbol @%s: got = 0x%X; want = 0x%X", tt.symb, got, tt.want)
+		}
+	}
+}
