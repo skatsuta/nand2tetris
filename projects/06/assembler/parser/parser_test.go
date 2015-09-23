@@ -46,7 +46,7 @@ func TestNewParser(t *testing.T) {
 	}
 }
 
-func TestHasMoreCommands(t *testing.T) {
+func TestHasMoreCommandsAndROMAddr(t *testing.T) {
 	p := NewParser(strings.NewReader(testAsm))
 
 	hmcTests := []struct {
@@ -61,11 +61,15 @@ func TestHasMoreCommands(t *testing.T) {
 		{"0;JMP"},
 	}
 
-	for _, tt := range hmcTests {
-		if p.HasMoreCommands() {
-			if p.line != tt.want {
-				t.Errorf("expected %q but got %q", tt.want, p.line)
-			}
+	for i, tt := range hmcTests {
+		if !p.HasMoreCommands() {
+			t.Errorf("HasMoreCommands should not return false: %s", tt.want)
+		}
+		if p.line != tt.want {
+			t.Errorf("expected %q but got %q", tt.want, p.line)
+		}
+		if p.ROMAddr() != uintptr(i) {
+			t.Errorf("ROM address: got = 0x%X but want = 0x%X", p.ROMAddr(), i)
 		}
 	}
 }

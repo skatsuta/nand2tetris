@@ -36,17 +36,23 @@ type command struct {
 }
 
 // Parser is a parser for Hack assembly language.
+// Parser is not thread safe, so it should not be used in multiple goroutines.
 type Parser struct {
 	in      *bufio.Scanner
 	err     error
 	line    string
 	command command
+	romaddr uintptr
 }
 
 // NewParser creates a new parser object that reads and parses r.
 func NewParser(r io.Reader) *Parser {
+	ptr := uintptr(0)
 	return &Parser{
 		in: bufio.NewScanner(r),
+		// initialize to the max value of uintptr
+		// in order to set romaddr as 0 in the first increment
+		romaddr: ptr - 1,
 	}
 }
 
@@ -64,10 +70,16 @@ func (p *Parser) HasMoreCommands() bool {
 
 		// return true if the line is not empty and not a comment, that is, a command
 		if p.line != "" && !strings.HasPrefix(p.line, prefixComment) {
+			p.romaddr++
 			return true
 		}
 	}
 	return false
+}
+
+// ROMAddr returns current ROM address.
+func (p *Parser) ROMAddr() uintptr {
+	return p.romaddr
 }
 
 // Advance reads next command from input and set the command to current one.
