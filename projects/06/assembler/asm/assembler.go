@@ -1,8 +1,10 @@
 package asm
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"strconv"
 
 	"github.com/skatsuta/nand2tetris/projects/06/assembler/code"
@@ -17,19 +19,27 @@ const (
 
 // Asm is an Hack assembler.
 type Asm struct {
-	err error
-	p   *parser.Parser
-	c   *code.Code
-	st  *symbtbl.SymbolTable
+	err  error
+	data []byte
+	p    *parser.Parser
+	c    *code.Code
+	st   *symbtbl.SymbolTable
 }
 
 // New creates a new Asm object that converts `in` to a Hack binary code.
-func New(in io.Reader) *Asm {
-	return &Asm{
-		p:  parser.NewParser(in),
-		c:  &code.Code{},
-		st: symbtbl.NewSymbolTable(),
+func New(in io.Reader) (*Asm, error) {
+	data, err := ioutil.ReadAll(in)
+	if err != nil {
+		return nil, fmt.Errorf("asm.New: %s", err.Error())
 	}
+
+	a := &Asm{
+		data: data,
+		p:    parser.NewParser(bytes.NewBuffer(data)),
+		c:    &code.Code{},
+		st:   symbtbl.NewSymbolTable(),
+	}
+	return a, nil
 }
 
 // DefineSymbols adds pre-defined symbols into the assembler.

@@ -61,7 +61,11 @@ func TestDefineSymbols(t *testing.T) {
 		"KBD":    0x6000,
 	}
 
-	asmblr := New(nil)
+	asmblr, err := New(strings.NewReader(testAsm))
+	if err != nil {
+		t.Fatalf("New failed: %s", err.Error())
+	}
+
 	asmblr.DefineSymbols(symtbl)
 
 	for symb, addr := range symtbl {
@@ -90,8 +94,11 @@ func TestRun(t *testing.T) {
 	}
 
 	for _, tt := range runTests {
-		asmblr := New(strings.NewReader(tt.src))
 		var out bytes.Buffer
+		asmblr, err := New(strings.NewReader(tt.src))
+		if err != nil {
+			t.Fatalf("New failed: %s", err.Error())
+		}
 
 		if e := asmblr.Run(&out); e != nil {
 			t.Fatalf("%s", e.Error())

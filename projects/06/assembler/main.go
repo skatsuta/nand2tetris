@@ -57,7 +57,11 @@ func convert(path string) string {
 	}
 
 	// convert in to out
-	if e := asm.New(in).Run(out); e != nil {
+	asmblr, err := asm.New(in)
+	if err != nil {
+		return err.Error()
+	}
+	if e := asmblr.Run(out); e != nil {
 		return e.Error()
 	}
 	return fmt.Sprintf("Successfully converted %s to %s", path, outName)
