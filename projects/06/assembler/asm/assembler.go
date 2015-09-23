@@ -55,25 +55,13 @@ func (a *Asm) Run(out io.Writer) error {
 			return fmt.Errorf("asm: %s", e.Error())
 		}
 
-		// first loop focuses on symbols, so skip CCommands
-		if a.p.CommandType() == parser.CCommand {
+		// first loop focuses on label commands, so skip the others
+		if a.p.CommandType() != parser.LCommand {
 			continue
 		}
 
-		switch a.p.CommandType() {
-		case parser.LCommand: // add the current ROM address
-			// get next address
-			addr := a.p.ROMAddr()
-			addr++
-			// LCommand is a top level definition, so it may override previously defined symbol address
-			a.st.AddEntry(a.p.Symbol(), addr)
-		case parser.ACommand: // add a variable symbol address
-			symb := a.p.Symbol()
-			// add the symbol only if it is not an integer and is not contained yet in symbol table
-			if _, e := strconv.Atoi(symb); e != nil && !a.st.Contains(symb) {
-				a.st.AddVar(symb)
-			}
-		}
+		// add label symbol and next ROM address
+		a.st.AddEntry(a.p.Symbol(), a.p.ROMAddr()+1)
 	}
 
 	//=== second loop: parsing entire code ===//
@@ -94,6 +82,10 @@ func (a *Asm) Run(out io.Writer) error {
 		case parser.ACommand:
 			symb := a.p.Symbol()
 			if b, err = strconv.Atoi(symb); err != nil {
+				// add the symbol only if it is not an integer and is not contained yet in symbol table
+				if !a.st.Contains(symb) {
+					a.st.AddVar(symb)
+				}
 				// if symbol is not an integer, get its address from symbol table
 				b = int(a.st.GetAddress(symb))
 			}
