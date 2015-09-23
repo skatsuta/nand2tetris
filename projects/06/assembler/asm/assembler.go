@@ -14,7 +14,6 @@ import (
 
 const (
 	bitLen = 16
-	binExt = ".hack"
 )
 
 // Asm is an Hack assembler.
@@ -50,6 +49,32 @@ func (a *Asm) DefineSymbols(sym map[string]uintptr) {
 // Run converts a Hack assembly code that `a` holds to a Hack binary code
 // and write it into out.
 func (a *Asm) Run(out io.Writer) error {
+	//=== first loop: only creating a symbol table ===//
+	for a.p.HasMoreCommands() {
+		if e := a.p.Advance(); e != nil {
+			return fmt.Errorf("asm: %s", e.Error())
+		}
+
+		// first loop focuses on symbols, so skip CCommands
+		if a.p.CommandType() == parser.CCommand {
+			continue
+		}
+
+		switch a.p.CommandType() {
+		case parser.LCommand: // add the current ROM address
+			// LCommand is a top level definition, so it may override previously defined symbol address
+			a.st.AddEntry(a.p.Symbol(), a.p.ROMAddr())
+		case parser.ACommand: // add a variable symbol address
+			symb := a.p.Symbol()
+			// add the symbol only if it is not an integer and is not contained yet in symbol table
+			if _, e := strconv.Atoi(symb); e != nil && !a.st.Contains(symb) {
+				a.st.AddVar(symb)
+			}
+		}
+	}
+
+	//=== second loop: parsing entire code ===//
+	a.p = parser.NewParser(bytes.NewBuffer(a.data))
 	for a.p.HasMoreCommands() {
 		if e := a.p.Advance(); e != nil {
 			return fmt.Errorf("asm: %s", e.Error())
@@ -64,17 +89,15 @@ func (a *Asm) Run(out io.Writer) error {
 			// skip a label command
 			continue
 		case parser.ACommand:
-			// if symbol is an integer
-			if b, err = strconv.Atoi(a.p.Symbol()); err != nil {
-				// TODO implement @SYMBOL pattern
-				continue
+			symb := a.p.Symbol()
+			if b, err = strconv.Atoi(symb); err != nil {
+				// if symbol is not an integer, get its address from symbol table
+				b = int(a.st.GetAddress(symb))
 			}
 		case parser.CCommand:
-			b, err = a.formatCInst(a.p.Dest(), a.p.Comp(), a.p.Jump())
-		}
-
-		if err != nil {
-			return fmt.Errorf("asm: %s", err.Error())
+			if b, err = a.formatCInst(a.p.Dest(), a.p.Comp(), a.p.Jump()); err != nil {
+				return fmt.Errorf("failed to parse command: %s", err.Error())
+			}
 		}
 
 		if e := a.write(out, b); e != nil {

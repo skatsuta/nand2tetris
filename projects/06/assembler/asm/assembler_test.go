@@ -10,16 +10,18 @@ import (
 var testAsm = `
 
 // This is a comment.
-@16  	
+@256  	
 
 // This is also a comment.
 D=M     
+@i
 MD=0   
+@j
 AD=D|M;JGE	
+@i
 AMD=D+1;JLT   	
+@j
 M+1;JLT
--1;JGT
-
 
 (LOOP)     
 	@17 // indent spaces
@@ -29,20 +31,26 @@ M+1;JLT
 	D;JEQ
 
 (END)
+	@END
 	0;JMP
 `
 
 // expected binary code converted from testAsm
-var wantHack = `0000000000010000
+var wantHack = `0000000100000000
 1111110000010000
+0000000000010000
 1110101010011000
+0000000000010001
 1111010101110011
+0000000000010000
 1110011111111100
+0000000000010001
 1111110111000100
-1110111010000001
 0000000000010001
 1110110000010000
+0000000000001010
 1110001100000010
+0000000000001111
 1110101010000111
 `
 
@@ -56,7 +64,7 @@ func TestDefineSymbols(t *testing.T) {
 		"R0":     0x0,
 		"R4":     0x4,
 		"R5":     0x5,
-		"R16":    0xF,
+		"R15":    0xF,
 		"SCREEN": 0x4000,
 		"KBD":    0x6000,
 	}
@@ -90,6 +98,10 @@ func TestRun(t *testing.T) {
 		{"1;JMP", "1110111111000111\n"},
 		{"A-1;JNE", "1110110010000101\n"},
 		{"AM=D&A;JLE", "1110000000101110\n"},
+		{"@i\n@j", "0000000000010000\n0000000000010001\n"},
+		{"(LOOP)\nD=0\n@LOOP", "1110101010010000\n0000000000000000\n"},
+		{"@32\nM=1\n@a\nMD=-1",
+			"0000000000100000\n1110111111001000\n0000000000010000\n1110111010011000\n"},
 		{testAsm, wantHack},
 	}
 
@@ -106,7 +118,7 @@ func TestRun(t *testing.T) {
 
 		got := out.String()
 		if got != tt.want {
-			t.Errorf("src: %s\ngot:\n%s\nwant:\n%s", tt.src, got, tt.want)
+			t.Errorf("\nsrc:\n%s\n\ngot:\n%s\nwant:\n%s", tt.src, got, tt.want)
 		}
 	}
 }
