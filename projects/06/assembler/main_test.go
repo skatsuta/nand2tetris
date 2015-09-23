@@ -1,6 +1,28 @@
 package main
 
-import "testing"
+import (
+	"io/ioutil"
+	"strings"
+	"testing"
+)
+
+func TestConvert(t *testing.T) {
+	convert("../max/Max.asm")
+
+	gotb, _ := ioutil.ReadFile("../max/Max.hack")
+	wantb, _ := ioutil.ReadFile("../max/MaxL.hack")
+	got := strings.Split(string(gotb), "\n")
+	want := strings.Split(string(wantb), "\n")
+
+	if len(got) != len(want) {
+		t.Fatalf("the number of lines should be %d, but got %d", len(want), len(got))
+	}
+	for i := range got {
+		if got[i] != want[i] {
+			t.Errorf("line %2d: got %s != want %s", i+1, got[i], want[i])
+		}
+	}
+}
 
 func TestFileName(t *testing.T) {
 	fileNameTests := []struct {
