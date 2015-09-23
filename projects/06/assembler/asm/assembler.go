@@ -62,8 +62,11 @@ func (a *Asm) Run(out io.Writer) error {
 
 		switch a.p.CommandType() {
 		case parser.LCommand: // add the current ROM address
+			// get next address
+			addr := a.p.ROMAddr()
+			addr++
 			// LCommand is a top level definition, so it may override previously defined symbol address
-			a.st.AddEntry(a.p.Symbol(), a.p.ROMAddr())
+			a.st.AddEntry(a.p.Symbol(), addr)
 		case parser.ACommand: // add a variable symbol address
 			symb := a.p.Symbol()
 			// add the symbol only if it is not an integer and is not contained yet in symbol table
