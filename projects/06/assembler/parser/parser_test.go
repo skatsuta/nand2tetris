@@ -46,7 +46,7 @@ func TestNewParser(t *testing.T) {
 	}
 }
 
-func TestHasMoreCommandsAndROMAddr(t *testing.T) {
+func TestHasMoreCommands(t *testing.T) {
 	p := NewParser(strings.NewReader(testAsm))
 
 	hmcTests := []struct {
@@ -61,15 +61,12 @@ func TestHasMoreCommandsAndROMAddr(t *testing.T) {
 		{"0;JMP"},
 	}
 
-	for i, tt := range hmcTests {
+	for _, tt := range hmcTests {
 		if !p.HasMoreCommands() {
 			t.Errorf("HasMoreCommands should not return false: %s", tt.want)
 		}
 		if p.line != tt.want {
 			t.Errorf("expected %q but got %q", tt.want, p.line)
-		}
-		if p.ROMAddr() != uintptr(i) {
-			t.Errorf("ROM address: got = 0x%X but want = 0x%X", p.ROMAddr(), i)
 		}
 	}
 }
@@ -94,6 +91,38 @@ func TestAdvance(t *testing.T) {
 			if !reflect.DeepEqual(p.command, want) {
 				t.Errorf("got: %+v; want: %+v", p.command, want)
 			}
+		}
+	}
+}
+
+func TestROMAddr(t *testing.T) {
+	p := NewParser(strings.NewReader(testAsm))
+
+	romAddrTests := []struct {
+		want string
+		addr uintptr
+	}{
+		{"@16", 0x0},
+		{"D=M", 0x1},
+		{"(LOOP)", 0x1},
+		{"@17", 0x2},
+		{"D=A", 0x3},
+		{"@LOOP", 0x4},
+		{"0;JMP", 0x5},
+	}
+
+	for _, tt := range romAddrTests {
+		if p.HasMoreCommands() {
+			if e := p.Advance(); e != nil {
+				t.Fatalf("Advance failed: %s", e.Error())
+			}
+		}
+
+		if p.command.cmd != tt.want {
+			t.Errorf("command: got = %s but want = %s", p.command.cmd, tt.want)
+		}
+		if p.ROMAddr() != tt.addr {
+			t.Errorf("ROM address: got = 0x%X but want = 0x%X", p.ROMAddr(), tt.addr)
 		}
 	}
 }

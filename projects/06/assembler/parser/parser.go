@@ -70,7 +70,6 @@ func (p *Parser) HasMoreCommands() bool {
 
 		// return true if the line is not empty and not a comment, that is, a command
 		if p.line != "" && !strings.HasPrefix(p.line, prefixComment) {
-			p.romaddr++
 			return true
 		}
 	}
@@ -100,6 +99,7 @@ func (p *Parser) Advance() error {
 	case '@':
 		typ = ACommand
 		symb = cmd[1:]
+		p.romaddr++
 	// lobal command
 	case '(':
 		lastc := cmd[len(cmd)-1]
@@ -142,6 +142,7 @@ func (p *Parser) Advance() error {
 			jump = s2[1]
 		}
 		typ = CCommand
+		p.romaddr++
 	}
 
 	// assgin into fields if no error occurs
