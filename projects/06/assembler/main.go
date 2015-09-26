@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sync"
@@ -78,6 +79,7 @@ func convert(path string) string {
 	if err != nil {
 		return err.Error()
 	}
+	defer close0(in)
 
 	// create destination file
 	outName := outPath(path, binExt)
@@ -85,6 +87,7 @@ func convert(path string) string {
 	if err != nil {
 		return err.Error()
 	}
+	defer close0(out)
 
 	// create a new Asm object
 	asmblr, err := asm.New(in)
@@ -107,4 +110,11 @@ func convert(path string) string {
 func outPath(path string, newExt string) string {
 	oldExt := filepath.Ext(path)
 	return path[:len(path)-len(oldExt)] + "." + newExt
+}
+
+// close0 closes cl. If an error occurs, it writes it out to os.Stderr.
+func close0(cl io.Closer) {
+	if e := cl.Close(); e != nil {
+		fmt.Fprintln(os.Stderr, e.Error())
+	}
 }
