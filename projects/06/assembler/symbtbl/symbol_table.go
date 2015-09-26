@@ -28,6 +28,9 @@ func (st *SymbolTable) AddEntry(symb string, addr uintptr) {
 
 // AddEntries adds all the elements of m into the symbol table st.
 func (st *SymbolTable) AddEntries(ent map[string]uintptr) {
+	st.mu.Lock()
+	defer st.mu.Unlock()
+
 	// copy the given map to ensure an internal map is not changed by external reference.
 	for k, v := range ent {
 		st.m[k] = v
