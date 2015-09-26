@@ -50,8 +50,8 @@ type Parser struct {
 	cmd    command
 }
 
-// NewParser creates a new parser object that reads and parses r.
-func NewParser(src io.Reader) *Parser {
+// New creates a new parser object that reads and parses r.
+func New(src io.Reader) *Parser {
 	return &Parser{
 		src: bufio.NewScanner(src),
 	}

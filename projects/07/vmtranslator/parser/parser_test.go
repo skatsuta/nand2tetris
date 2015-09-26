@@ -42,7 +42,7 @@ func TestNewParser(t *testing.T) {
 */
 
 func TestHasMoreCommands(t *testing.T) {
-	p := NewParser(strings.NewReader(testVM))
+	p := New(strings.NewReader(testVM))
 
 	testCases := []struct {
 		next   bool
@@ -78,7 +78,7 @@ func TestAdvance(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		p := NewParser(strings.NewReader(tt.src))
+		p := New(strings.NewReader(tt.src))
 		if p.HasMoreCommands() {
 			if e := p.Advance(); e != nil {
 				t.Errorf("advance failed: %s", e.Error())
@@ -103,7 +103,7 @@ func TestAdvanceError(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		p := NewParser(strings.NewReader(tt.src))
+		p := New(strings.NewReader(tt.src))
 		if p.HasMoreCommands() {
 			if e := p.Advance(); e == nil {
 				t.Errorf("expected error but got <nil>")
