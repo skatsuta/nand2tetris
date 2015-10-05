@@ -17,30 +17,6 @@ push  constant	 1
 sub	 //  inline comment 2
 `
 
-/*
-func TestNewParser(t *testing.T) {
-	filename := "../../StackArithmetic/SimpleAdd/SimpleAdd.vm"
-	file, err := os.Open(filename)
-	if err != nil {
-		t.Fatalf("failed to open %s: %s", filename, err.Error())
-	}
-
-	testCases := []struct {
-		r io.Reader
-	}{
-		{strings.NewReader(testVM)},
-		{file},
-	}
-
-	for _, tt := range testCases {
-		got := NewParser(tt.r)
-		if got.in == nil {
-			t.Error("input is nil")
-		}
-	}
-}
-*/
-
 func TestHasMoreCommands(t *testing.T) {
 	p := New(strings.NewReader(testVM))
 
