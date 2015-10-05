@@ -12,6 +12,39 @@ import (
 // baseLabel is a base name of labels.
 const baseLabel = "LABEL"
 
+// Mneumonic is a mneumonic of an instruction.
+type Mneumonic string
+
+// Mneumonics.
+const (
+	Add  Mneumonic = "add"
+	Sub            = "sub"
+	Neg            = "neg"
+	Eq             = "eq"
+	Gt             = "gt"
+	Lt             = "lt"
+	And            = "and"
+	Or             = "or"
+	Not            = "not"
+	Push           = "push"
+	Pop            = "pop"
+)
+
+// Segment is a memory segment.
+type Segment string
+
+// Memory segments.
+const (
+	Argument Segment = "argument"
+	Local            = "local"
+	Static           = "static"
+	Constant         = "constant"
+	This             = "this"
+	That             = "that"
+	Pointer          = "pointer"
+	Temp             = "temp"
+)
+
 // CodeWriter converts VM commands to Hack assembly codes and write them out to a destination.
 type CodeWriter struct {
 	err      error
