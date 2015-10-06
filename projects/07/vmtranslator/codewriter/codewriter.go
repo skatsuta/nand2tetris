@@ -140,7 +140,7 @@ func (cw *CodeWriter) binary(cmd string) {
 		op = "D|M"
 	}
 
-	cw.pop()
+	cw.popStack()
 	cw.decrSP()
 	cw.ccmd("M", op)
 	cw.incrSP()
@@ -156,7 +156,7 @@ func (cw *CodeWriter) compare(cmd string) {
 	op := "J" + strings.ToUpper(cmd)
 	label1, label2 := cw.label(), cw.label()
 
-	cw.pop()
+	cw.popStack()
 	cw.decrSP()
 	cw.ccmd("D", "M-D")
 	cw.acmd(label1)
@@ -183,10 +183,10 @@ func (cw *CodeWriter) countUp() {
 	cw.cnt++
 }
 
-// push pushes v to the top of the stack. Internally,
+// pushStack pushes v to the top of the stack. Internally,
 // it assgins v to *SP and increments SP.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) push(v string) {
+func (cw *CodeWriter) pushStack(v string) {
 	cw.loadToSP(v)
 	cw.incrSP()
 }
@@ -198,10 +198,10 @@ func (cw *CodeWriter) loadToSP(v string) {
 	cw.ccmd("M", v)
 }
 
-// pop pops a value at the top of the stack. Internally,
+// popStack pops a value at the top of the stack. Internally,
 // it decrements SP and assigns a value pointed by SP to D.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) pop() {
+func (cw *CodeWriter) popStack() {
 	cw.decrSP()
 	cw.ccmd("D", "M")
 }
