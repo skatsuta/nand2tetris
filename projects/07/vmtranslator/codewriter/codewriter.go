@@ -229,9 +229,11 @@ func (cw *CodeWriter) sp(op string) {
 
 // acmd writes @ command. If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) acmd(addr string) {
-	if _, e := cw.buf.WriteString("@" + addr + "\n"); cw.err == nil {
-		cw.err = e
+	if cw.err != nil {
+		return
 	}
+
+	_, cw.err = cw.buf.WriteString("@" + addr + "\n")
 }
 
 // ccmd writes C command with no jump. If an error occurs, it is set at cw.err.
@@ -241,6 +243,10 @@ func (cw *CodeWriter) ccmd(dest, comp string) {
 
 // ccmdj writes C command with jump. If an error occurs, it is set at cw.err.
 func (cw *CodeWriter) ccmdj(dest, comp, jump string) {
+	if cw.err != nil {
+		return
+	}
+
 	// allocate a slice whose length is len(dest=comp;jump\n)
 	opc := make([]byte, 0, len(dest)+1+len(comp)+1+len(jump)+1)
 
@@ -260,14 +266,14 @@ func (cw *CodeWriter) ccmdj(dest, comp, jump string) {
 	// append \n
 	opc = append(opc, '\n')
 
-	if _, e := cw.buf.Write(opc); cw.err == nil {
-		cw.err = e
-	}
+	_, cw.err = cw.buf.Write(opc)
 }
 
 // lcmd writes label command. If an error occurs, it is set at cw.err.
 func (cw *CodeWriter) lcmd(label string) {
-	if _, e := cw.buf.WriteString("(" + label + ")\n"); cw.err == nil {
-		cw.err = e
+	if cw.err != nil {
+		return
 	}
+
+	_, cw.err = cw.buf.WriteString("(" + label + ")\n")
 }
