@@ -63,10 +63,10 @@ func TestPushStack(t *testing.T) {
 		v    uint
 		want string
 	}{
-		{0, asmPushConst(0)},
+		{bitFalse, asmPushConst(bitFalse)},
 		{1, asmPushConst(1)},
 		{2, asmPushConst(2)},
-		{0xFFFF, asmPushConst(0xFFFF)},
+		{bitTrue, asmPushConst(bitTrue)},
 	}
 
 	var buf bytes.Buffer

@@ -9,6 +9,12 @@ import (
 	"sync"
 )
 
+// binary representation of logical values
+const (
+	bitTrue  = 0xFFFF
+	bitFalse = 0x0000
+)
+
 // baseLabel is a base name of labels.
 const baseLabel = "LABEL"
 
@@ -161,11 +167,11 @@ func (cw *CodeWriter) compare(cmd string) {
 	cw.ccmd("D", "M-D")
 	cw.acmd(label1)
 	cw.ccmdj("", "D", op)
-	cw.loadToSP(0x0000) // set to false (0x0000 means false)
+	cw.loadToSP(bitFalse)
 	cw.acmd(label2)
 	cw.ccmdj("", "0", "JMP")
 	cw.lcmd(label1)
-	cw.loadToSP(0xFFFF) // set to true (0xFFFF means true)
+	cw.loadToSP(bitTrue)
 	cw.lcmd(label2)
 	cw.incrSP()
 }
