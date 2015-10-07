@@ -161,11 +161,11 @@ func (cw *CodeWriter) compare(cmd string) {
 	cw.ccmd("D", "M-D")
 	cw.acmd(label1)
 	cw.ccmdj("", "D", op)
-	cw.loadToSP("0")
+	cw.loadToSP(0x0000) // set to false (0x0000 means false)
 	cw.acmd(label2)
 	cw.ccmdj("", "0", "JMP")
 	cw.lcmd(label1)
-	cw.loadToSP("-1")
+	cw.loadToSP(0xFFFF) // set to true (0xFFFF means true)
 	cw.lcmd(label2)
 	cw.incrSP()
 }
@@ -186,16 +186,18 @@ func (cw *CodeWriter) countUp() {
 // pushStack pushes v to the top of the stack. Internally,
 // it assgins v to *SP and increments SP.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) pushStack(v string) {
+func (cw *CodeWriter) pushStack(v uint) {
 	cw.loadToSP(v)
 	cw.incrSP()
 }
 
-// loadToSP loads v to *SP.
-func (cw *CodeWriter) loadToSP(v string) {
+// loadToSP loads v to *SP. v should be greater than or equal -1 (v >= -1).
+func (cw *CodeWriter) loadToSP(v uint) {
+	cw.acmd(fmt.Sprintf("%d", v))
+	cw.ccmd("D", "A")
 	cw.acmd("SP")
 	cw.ccmd("A", "M")
-	cw.ccmd("M", v)
+	cw.ccmd("M", "D")
 }
 
 // popStack pops a value at the top of the stack. Internally,

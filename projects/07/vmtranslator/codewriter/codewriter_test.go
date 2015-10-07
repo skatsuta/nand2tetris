@@ -58,6 +58,49 @@ func TestWriteArithmeticError(t *testing.T) {
 	}
 }
 
+func TestPushStack(t *testing.T) {
+	testCases := []struct {
+		v    uint
+		want string
+	}{
+		{0, asmPushConst(0)},
+		{1, asmPushConst(1)},
+		{2, asmPushConst(2)},
+		{0xFFFF, asmPushConst(0xFFFF)},
+	}
+
+	var buf bytes.Buffer
+	cw := New(&buf)
+	for _, tt := range testCases {
+		if cw.pushStack(tt.v); cw.err != nil {
+			t.Fatalf("pushStack failed: %v", cw.err)
+		}
+		if e := cw.Close(); e != nil {
+			t.Fatalf("Close failed: %s", e.Error())
+		}
+
+		got := buf.String()
+		if got != tt.want {
+			t.Errorf("v = %d\ngot =\n%s\nwant =\n%s", tt.v, got, tt.want)
+		}
+
+		buf.Reset()
+		cw.err = nil
+	}
+}
+
+func asmPushConst(v uint) string {
+	tpl := `@%d
+D=A
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+`
+	return fmt.Sprintf(tpl, v)
+}
+
 func asmUnary(op string) string {
 	tpl := `@SP
 AM=M-1
@@ -138,15 +181,19 @@ AM=M-1
 D=M-D
 @%s
 D;%s
+@0
+D=A
 @SP
 A=M
-M=0
+M=D
 @%s
 0;JMP
 (%s)
+@65535
+D=A
 @SP
 A=M
-M=-1
+M=D
 (%s)
 @SP
 AM=M+1
