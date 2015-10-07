@@ -169,6 +169,7 @@ func (*Parser) dispatchCommand(cmd string) CommandType {
 type segments []string
 
 // segs is a collection of all the segments on VM.
+// TODO use map[string]struct{}
 var segs = segments{
 	"argument",
 	"local",
