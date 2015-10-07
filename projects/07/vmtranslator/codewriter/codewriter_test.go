@@ -58,6 +58,38 @@ func TestWriteArithmeticError(t *testing.T) {
 	}
 }
 
+func TestWritePushPop(t *testing.T) {
+	testCases := []struct {
+		cmd  string
+		seg  string
+		idx  uint
+		want string
+	}{
+		{"push", "constant", 0x0000, asmPushConst(0x0000)},
+		{"push", "constant", 0xFFFF, asmPushConst(0xFFFF)},
+	}
+
+	for _, tt := range testCases {
+		var buf bytes.Buffer
+		cw := New(&buf)
+
+		if e := cw.WritePushPop(tt.cmd, tt.seg, tt.idx); e != nil {
+			t.Fatalf("WritePushPop failed: %s", e.Error())
+		}
+		if e := cw.Close(); e != nil {
+			t.Fatalf("Close failed: %s", e.Error())
+		}
+
+		got := buf.String()
+		if got != tt.want {
+			t.Errorf("src = %s %s %d\ngot =\n%s\nwant =\n%s", tt.cmd, tt.seg, tt.idx, got, tt.want)
+		}
+
+		buf.Reset()
+		cw.err = nil
+	}
+}
+
 func TestPushStack(t *testing.T) {
 	testCases := []struct {
 		v    uint

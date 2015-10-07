@@ -94,6 +94,16 @@ func (cw *CodeWriter) WriteArithmetic(cmd string) error {
 	return nil
 }
 
+// WritePushPop converts the given push or pop command to assembly code and writes it out.
+func (cw *CodeWriter) WritePushPop(cmd, seg string, idx uint) error {
+	switch cmd {
+	case "push":
+		return cw.push(seg, idx)
+	default:
+		return fmt.Errorf("unknown command: %s", cmd)
+	}
+}
+
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {
@@ -107,6 +117,18 @@ func (cw *CodeWriter) Close() error {
 		return fmt.Errorf("error flushing bufferred data: %s", e)
 	}
 	return nil
+}
+
+// push converts the ginev push command to assembly and writes it out.
+func (cw *CodeWriter) push(seg string, idx uint) error {
+	switch seg {
+	case "constant":
+		cw.pushStack(idx)
+	default:
+		return fmt.Errorf("unknown segment: %s", seg)
+	}
+
+	return cw.err
 }
 
 // unary writes a unary operation for a value at the top of the stack.
