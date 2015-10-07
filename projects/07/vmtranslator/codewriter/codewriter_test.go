@@ -147,7 +147,7 @@ AM=M+1
 	return fmt.Sprintf(tpl, op)
 }
 
-func Test_binary(t *testing.T) {
+func TestBinary(t *testing.T) {
 	testCases := []struct {
 		cmd  string
 		want string
@@ -201,7 +201,7 @@ AM=M+1
 	return fmt.Sprintf(tpl, labelJmp, op, labelEnd, labelJmp, labelEnd)
 }
 
-func Test_compare(t *testing.T) {
+func TestCompare(t *testing.T) {
 	testCases := []struct {
 		cmd  string
 		want string
@@ -225,7 +225,7 @@ func Test_compare(t *testing.T) {
 	}
 }
 
-func Test_acmd(t *testing.T) {
+func TestAcmd(t *testing.T) {
 	testCases := []struct {
 		addr string
 		want string
@@ -251,7 +251,7 @@ func Test_acmd(t *testing.T) {
 	}
 }
 
-func Test_ccmdj(t *testing.T) {
+func TestCcmdj(t *testing.T) {
 	testCases := []struct {
 		dest, comp, jump string
 		want             string
@@ -278,7 +278,7 @@ func Test_ccmdj(t *testing.T) {
 	}
 }
 
-func Test_lcmd(t *testing.T) {
+func TestLcmd(t *testing.T) {
 	testCases := []struct {
 		label string
 		want  string
