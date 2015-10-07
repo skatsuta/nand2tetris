@@ -11,7 +11,7 @@ func TestWriteArithmetic(t *testing.T) {
 		cmd  string
 		want string
 	}{
-		{"add", asmBinary("M=M+D")},
+		{"add", asmBinary("M=D+M")},
 		{"sub", asmBinary("M=M-D")},
 		{"and", asmBinary("M=D&M")},
 		{"or", asmBinary("M=D|M")},
@@ -184,7 +184,7 @@ func TestBinary(t *testing.T) {
 		cmd  string
 		want string
 	}{
-		{"add", asmBinary("M=M+D")},
+		{"add", asmBinary("M=D+M")},
 		{"sub", asmBinary("M=M-D")},
 		{"and", asmBinary("M=D&M")},
 		{"or", asmBinary("M=D|M")},

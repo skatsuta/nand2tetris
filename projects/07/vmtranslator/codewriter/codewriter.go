@@ -71,6 +71,7 @@ func New(dest io.Writer) *CodeWriter {
 }
 
 // SetFileName sets an input VM file name to filename.
+// TODO write file name
 func (cw *CodeWriter) SetFileName(filename string) {
 	cw.filename = filename
 }
@@ -159,7 +160,7 @@ func (cw *CodeWriter) binary(cmd string) {
 	var op string
 	switch cmd {
 	case "add":
-		op = "M+D"
+		op = "D+M"
 	case "sub":
 		op = "M-D"
 	case "and":
