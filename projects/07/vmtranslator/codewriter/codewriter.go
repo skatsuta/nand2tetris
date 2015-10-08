@@ -70,10 +70,13 @@ func New(dest io.Writer) *CodeWriter {
 	}
 }
 
-// SetFileName sets an input VM file name to filename.
-// TODO write file name
-func (cw *CodeWriter) SetFileName(filename string) {
+// SetFileName sets an input VM file name and writes it to the output file as comment.
+func (cw *CodeWriter) SetFileName(filename string) error {
 	cw.filename = filename
+
+	comment := fmt.Sprintf("\n// %s\n", filename)
+	_, err := cw.buf.WriteString(comment)
+	return err
 }
 
 // WriteArithmetic converts the given arithmetic command to assembly code and writes it out.

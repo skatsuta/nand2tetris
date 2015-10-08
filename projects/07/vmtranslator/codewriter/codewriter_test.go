@@ -6,6 +6,33 @@ import (
 	"testing"
 )
 
+func TestSetFileName(t *testing.T) {
+	testCases := []struct {
+		filename string
+		want     string
+	}{
+		{"foo.txt", "\n// foo.txt\n"},
+	}
+
+	var buf bytes.Buffer
+	cw := New(&buf)
+	for _, tt := range testCases {
+		if e := cw.SetFileName(tt.filename); e != nil {
+			t.Fatalf("SetFileName failed: %v", e)
+		}
+		if e := cw.Close(); e != nil {
+			t.Fatalf("Close failed: %v", e)
+		}
+
+		got := buf.String()
+		if got != tt.want {
+			t.Errorf("got = %q; want = %q", got, tt.want)
+		}
+
+		buf.Reset()
+	}
+}
+
 func TestWriteArithmetic(t *testing.T) {
 	testCases := []struct {
 		cmd  string
@@ -143,7 +170,7 @@ AM=M+1
 	return fmt.Sprintf(tpl, op)
 }
 
-func Test_unary(t *testing.T) {
+func TestUnary(t *testing.T) {
 	testCases := []struct {
 		cmd  string
 		want string
