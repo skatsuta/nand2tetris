@@ -74,7 +74,7 @@ func New(dest io.Writer) *CodeWriter {
 func (cw *CodeWriter) SetFileName(filename string) error {
 	cw.filename = filename
 
-	comment := fmt.Sprintf("\n// %s\n", filename)
+	comment := fmt.Sprintf("// %s\n", filename)
 	_, err := cw.buf.WriteString(comment)
 	return err
 }

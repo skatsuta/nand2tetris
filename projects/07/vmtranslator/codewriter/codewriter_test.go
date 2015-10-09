@@ -11,7 +11,8 @@ func TestSetFileName(t *testing.T) {
 		filename string
 		want     string
 	}{
-		{"foo.txt", "\n// foo.txt\n"},
+		{"", "// \n"},
+		{"foo.txt", "// foo.txt\n"},
 	}
 
 	var buf bytes.Buffer
