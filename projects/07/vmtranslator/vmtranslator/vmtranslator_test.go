@@ -2,38 +2,21 @@ package vmtranslator
 
 import (
 	"bytes"
-	"io"
 	"strings"
 	"testing"
 )
 
 func TestNew(t *testing.T) {
-	testCases := []struct {
-		src []io.Reader
-	}{
-		{[]io.Reader{strings.NewReader("foo")}},
-		{[]io.Reader{strings.NewReader("foo"), strings.NewReader("bar")}},
-	}
+	vmtransl := New(&bytes.Buffer{})
 
-	var (
-		vmtransl *VMTranslator
-		out      bytes.Buffer
-	)
-	for _, tt := range testCases {
-		vmtransl = New(tt.src, &out)
-
-		lv, ls := len(vmtransl.parsers), len(tt.src)
-		if lv != ls {
-			t.Errorf("length of parsers: got = %d, but want = %d", lv, ls)
-		}
-		if vmtransl.cw == nil {
-			t.Errorf("VMTranslator.cw is nil")
-		}
+	if vmtransl.cw == nil {
+		t.Errorf("VMTranslator.cw is nil")
 	}
 }
 
 var (
-	wantPushConst0 = `@0
+	wantPushConst0 = `
+@0
 D=A
 @SP
 A=M
@@ -42,7 +25,8 @@ M=D
 AM=M+1
 `
 
-	wantAdd = `@1
+	wantAdd = `
+@1
 D=A
 @SP
 A=M
@@ -69,11 +53,12 @@ AM=M+1
 
 func TestRun(t *testing.T) {
 	testCases := []struct {
-		src  string
-		want string
+		filename string
+		src      string
+		want     string
 	}{
-		{"push constant 0", wantPushConst0},
-		{"push constant 1\npush constant 2\nadd", wantAdd},
+		{"foo.vm", "// foo.vm\npush constant 0", "// foo.vm" + wantPushConst0},
+		{"bar.vm", "// bar.vm\npush constant 1\npush constant 2\nadd", "// bar.vm" + wantAdd},
 	}
 
 	var (
@@ -81,8 +66,8 @@ func TestRun(t *testing.T) {
 		vmtransl *VMTranslator
 	)
 	for _, tt := range testCases {
-		vmtransl = New([]io.Reader{strings.NewReader(tt.src)}, &buf)
-		if e := vmtransl.Run(); e != nil {
+		vmtransl = New(&buf)
+		if e := vmtransl.Run(tt.filename, strings.NewReader(tt.src)); e != nil {
 			t.Fatalf("Run failed: %v", e)
 		}
 

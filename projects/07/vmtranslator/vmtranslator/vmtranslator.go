@@ -10,43 +10,43 @@ import (
 
 // VMTranslator is a translator that converts VM code to Hack assembly code.
 type VMTranslator struct {
-	parsers []*parser.Parser
-	cw      *codewriter.CodeWriter
+	p  *parser.Parser
+	cw *codewriter.CodeWriter
 }
 
 // New creates a new VMTranslator that translates srces into one assembly code.
-func New(src []io.Reader, out io.Writer) *VMTranslator {
-	parsers := make([]*parser.Parser, 0, len(src))
-	for _, s := range src {
-		parsers = append(parsers, parser.New(s))
-	}
-
+func New(out io.Writer) *VMTranslator {
 	return &VMTranslator{
-		parsers: parsers,
-		cw:      codewriter.New(out),
+		cw: codewriter.New(out),
 	}
 }
 
 // Run runs the translation from source VM files tr holds to out.
-func (tr *VMTranslator) Run() error {
-	var err error
+func (tr *VMTranslator) Run(filename string, src io.Reader) error {
+	// write the file name as a comment
+	if e := tr.cw.SetFileName(filename); e != nil {
+		return fmt.Errorf("cannot write file name: %v", e)
+	}
 
-	for _, p := range tr.parsers {
-		for p.HasMoreCommands() {
-			if e := p.Advance(); e != nil {
-				return fmt.Errorf("error parsing a command: %v", e)
-			}
+	var (
+		err error
+		p   = parser.New(src)
+	)
 
-			switch p.CommandType() {
-			case parser.Arithmetic:
-				err = tr.cw.WriteArithmetic(p.Arg1())
-			case parser.Push:
-				err = tr.cw.WritePushPop("push", p.Arg1(), p.Arg2())
-			}
+	for p.HasMoreCommands() {
+		if e := p.Advance(); e != nil {
+			return fmt.Errorf("error parsing a command: %v", e)
+		}
 
-			if err != nil {
-				return fmt.Errorf("error writing a command: %v", err)
-			}
+		switch p.CommandType() {
+		case parser.Arithmetic:
+			err = tr.cw.WriteArithmetic(p.Arg1())
+		case parser.Push:
+			err = tr.cw.WritePushPop("push", p.Arg1(), p.Arg2())
+		}
+
+		if err != nil {
+			return fmt.Errorf("error writing a command: %v", err)
 		}
 	}
 
