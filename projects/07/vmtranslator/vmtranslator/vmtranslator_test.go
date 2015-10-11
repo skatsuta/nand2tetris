@@ -50,6 +50,47 @@ M=D+M
 AM=M+1
 `
 
+	wantEq = `
+@1
+D=A
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@1
+D=A
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+D=M-D
+@LABEL0
+D;JEQ
+@0
+D=A
+@SP
+A=M
+M=D
+@LABEL1
+0;JMP
+(LABEL0)
+@65535
+D=A
+@SP
+A=M
+M=D
+(LABEL1)
+@SP
+AM=M+1
+`
+
 	end = `(END)
 @END
 0;JMP
@@ -63,7 +104,8 @@ func TestRun(t *testing.T) {
 		want     string
 	}{
 		{"foo.vm", "// foo.vm\npush constant 0", "// foo.vm" + wantPushConst0 + end},
-		{"bar.vm", "// bar.vm\npush constant 1\npush constant 2\nadd", "// bar.vm" + wantAdd + end},
+		{"add.vm", "// add.vm\npush constant 1\npush constant 2\nadd", "// add.vm" + wantAdd + end},
+		{"eq.vm", "// eq.vm\npush constant 1\npush constant 1\neq", "// eq.vm" + wantEq + end},
 	}
 
 	var (
@@ -79,9 +121,15 @@ func TestRun(t *testing.T) {
 			t.Fatalf("Close failed: %v", e)
 		}
 
-		got := buf.String()
-		if got != tt.want {
-			t.Errorf("src = %s\n\ngot =\n%s\nwant =\n%s", tt.src, got, tt.want)
+		got := strings.Split(buf.String(), "\n")
+		want := strings.Split(tt.want, "\n")
+		if len(got) != len(want) {
+			t.Fatalf("%s: the number of lines should be %d, but got %d", tt.filename, len(want), len(got))
+		}
+		for i := range got {
+			if got[i] != want[i] {
+				t.Errorf("in %s\ngot = %q; want = %q", tt.filename, got[i], want[i])
+			}
 		}
 
 		buf.Reset()
