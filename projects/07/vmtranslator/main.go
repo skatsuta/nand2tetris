@@ -59,6 +59,10 @@ func convert(path string) error {
 	}
 
 	vmt := vmtranslator.New(out)
+	defer func() {
+		_ = vmt.Close()
+	}()
+
 	// walk throuth path and run conversion
 	if e := filepath.Walk(path, vmt.Run); e != nil {
 		return fmt.Errorf("failed to convert: %v", e)
