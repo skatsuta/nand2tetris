@@ -141,6 +141,16 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 	switch seg {
 	case "constant":
 		cw.pushVal(idx)
+	case "local":
+		cw.pushMem("LCL", idx)
+	case "argument":
+		cw.pushMem("ARG", idx)
+	case "this":
+		cw.pushMem("THIS", idx)
+	case "that":
+		cw.pushMem("THAT", idx)
+	case "temp":
+		cw.pushMem("R5", idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
@@ -233,6 +243,20 @@ func (cw *CodeWriter) countUp() {
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pushVal(v uint) {
 	cw.loadToSP(int(v))
+	cw.incrSP()
+}
+
+// pushMem pushes a value of the symbol (LCL, ARG, THIS, THAT) in memory to the top of the stack.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) pushMem(symb string, idx uint) {
+	cw.acmd(fmt.Sprintf("%d", idx))
+	cw.ccmd("D", "A")
+	cw.acmd(symb)
+	cw.ccmd("A", "D+M")
+	cw.ccmd("D", "M")
+	cw.acmd("SP")
+	cw.ccmd("A", "M")
+	cw.ccmd("M", "D")
 	cw.incrSP()
 }
 

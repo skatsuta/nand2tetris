@@ -93,8 +93,14 @@ func TestWritePushPop(t *testing.T) {
 		idx  uint
 		want string
 	}{
-		{"push", "constant", 0x0000, asmPushConst(0x0000) + asmEnd},
-		{"push", "constant", 0xFFFF, asmPushConst(0xFFFF) + asmEnd},
+		{"push", "constant", 0, asmPushConst(0) + asmEnd},
+		{"push", "constant", 1, asmPushConst(1) + asmEnd},
+		{"push", "local", 0, asmPush("LCL", 0) + asmEnd},
+		{"push", "argument", 0, asmPush("ARG", 0) + asmEnd},
+		{"push", "this", 0, asmPush("THIS", 0) + asmEnd},
+		{"push", "that", 0, asmPush("THAT", 0) + asmEnd},
+		{"push", "temp", 0, asmPush("R5", 0) + asmEnd},
+		{"push", "temp", 7, asmPush("R5", 7) + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -158,6 +164,21 @@ M=D
 AM=M+1
 `
 	return fmt.Sprintf(tpl, v)
+}
+
+func asmPush(symb string, idx uint) string {
+	tpl := `@%d
+D=A
+@%s
+A=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+`
+	return fmt.Sprintf(tpl, idx, symb)
 }
 
 func asmUnary(op string) string {
