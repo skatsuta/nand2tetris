@@ -67,7 +67,7 @@ func TestRun(t *testing.T) {
 	)
 	for _, tt := range testCases {
 		vmtransl = New(&buf)
-		if e := vmtransl.Run(tt.filename, strings.NewReader(tt.src)); e != nil {
+		if e := vmtransl.run(tt.filename, strings.NewReader(tt.src)); e != nil {
 			t.Fatalf("Run failed: %v", e)
 		}
 

@@ -21,8 +21,8 @@ func New(out io.Writer) *VMTranslator {
 	}
 }
 
-// Run runs the translation from source VM files tr holds to out.
-func (tr *VMTranslator) Run(filename string, src io.Reader) error {
+// run runs the translation from source VM files tr holds to out.
+func (tr *VMTranslator) run(filename string, src io.Reader) error {
 	// write the file name as a comment
 	if e := tr.cw.SetFileName(filename); e != nil {
 		return fmt.Errorf("cannot write file name: %v", e)
