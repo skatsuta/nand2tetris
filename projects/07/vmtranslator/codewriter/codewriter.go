@@ -11,8 +11,8 @@ import (
 
 // binary representation of logical values
 const (
-	bitTrue  = 0xFFFF
-	bitFalse = 0x0000
+	bitTrue  = -1
+	bitFalse = 0
 )
 
 // baseLabel is a base name of labels.
@@ -232,12 +232,19 @@ func (cw *CodeWriter) countUp() {
 // it assgins v to *SP and increments SP.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pushStack(v uint) {
-	cw.loadToSP(v)
+	cw.loadToSP(int(v))
 	cw.incrSP()
 }
 
 // loadToSP loads v to *SP. v should be greater than or equal -1 (v >= -1).
-func (cw *CodeWriter) loadToSP(v uint) {
+func (cw *CodeWriter) loadToSP(v int) {
+	if v < 0 {
+		cw.acmd("SP")
+		cw.ccmd("A", "M")
+		cw.ccmd("M", strconv.Itoa(v))
+		return
+	}
+
 	cw.acmd(fmt.Sprintf("%d", v))
 	cw.ccmd("D", "A")
 	cw.acmd("SP")

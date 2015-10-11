@@ -81,11 +81,9 @@ M=D
 @LABEL1
 0;JMP
 (LABEL0)
-@65535
-D=A
 @SP
 A=M
-M=D
+M=-1
 (LABEL1)
 @SP
 AM=M+1

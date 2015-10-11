@@ -126,7 +126,6 @@ func TestPushStack(t *testing.T) {
 		{bitFalse, asmPushConst(bitFalse) + asmEnd},
 		{1, asmPushConst(1) + asmEnd},
 		{2, asmPushConst(2) + asmEnd},
-		{bitTrue, asmPushConst(bitTrue) + asmEnd},
 	}
 
 	var buf bytes.Buffer
@@ -249,11 +248,9 @@ M=D
 @%s
 0;JMP
 (%s)
-@65535
-D=A
 @SP
 A=M
-M=D
+M=-1
 (%s)
 @SP
 AM=M+1
