@@ -3,6 +3,8 @@ package vmtranslator
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/skatsuta/nand2tetris/projects/07/vmtranslator/codewriter"
 	"github.com/skatsuta/nand2tetris/projects/07/vmtranslator/parser"
@@ -52,4 +54,24 @@ func (tr *VMTranslator) run(filename string, src io.Reader) error {
 
 	// flush and close
 	return tr.cw.Close()
+}
+
+// Run is a callback function when a file is found.
+// It implements filepath.WalkFunc.
+func (tr *VMTranslator) Run(path string, info os.FileInfo, err error) error {
+	if err != nil {
+		return err
+	}
+
+	// skip if path is a directory or not a ".vm" file
+	if info.IsDir() || filepath.Ext(path) != ".vm" {
+		return nil
+	}
+
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	return tr.run(path, f)
 }
