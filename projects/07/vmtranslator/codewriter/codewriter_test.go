@@ -118,7 +118,7 @@ func TestWritePushPop(t *testing.T) {
 	}
 }
 
-func TestPushStack(t *testing.T) {
+func TestPushVal(t *testing.T) {
 	testCases := []struct {
 		v    uint
 		want string
@@ -131,7 +131,7 @@ func TestPushStack(t *testing.T) {
 	var buf bytes.Buffer
 	cw := New(&buf)
 	for _, tt := range testCases {
-		if cw.pushStack(tt.v); cw.err != nil {
+		if cw.pushVal(tt.v); cw.err != nil {
 			t.Fatalf("pushStack failed: %v", cw.err)
 		}
 		if e := cw.Close(); e != nil {

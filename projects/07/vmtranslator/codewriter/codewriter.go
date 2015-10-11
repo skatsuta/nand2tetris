@@ -140,7 +140,7 @@ func (cw *CodeWriter) end() error {
 func (cw *CodeWriter) push(seg string, idx uint) error {
 	switch seg {
 	case "constant":
-		cw.pushStack(idx)
+		cw.pushVal(idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
@@ -228,10 +228,10 @@ func (cw *CodeWriter) countUp() {
 	cw.cnt++
 }
 
-// pushStack pushes v to the top of the stack. Internally,
+// pushVal pushes v to the top of the stack. Internally,
 // it assgins v to *SP and increments SP.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) pushStack(v uint) {
+func (cw *CodeWriter) pushVal(v uint) {
 	cw.loadToSP(int(v))
 	cw.incrSP()
 }
