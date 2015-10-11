@@ -52,8 +52,7 @@ func (tr *VMTranslator) run(filename string, src io.Reader) error {
 		}
 	}
 
-	// flush and close
-	return tr.cw.Close()
+	return nil
 }
 
 // Run is a callback function when a file is found.
@@ -74,4 +73,9 @@ func (tr *VMTranslator) Run(path string, info os.FileInfo, err error) error {
 	}
 
 	return tr.run(path, f)
+}
+
+// Close flush the bufferred output into the output file and closes it.
+func (tr *VMTranslator) Close() error {
+	return tr.cw.Close()
 }

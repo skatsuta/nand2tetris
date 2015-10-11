@@ -70,6 +70,9 @@ func TestRun(t *testing.T) {
 		if e := vmtransl.run(tt.filename, strings.NewReader(tt.src)); e != nil {
 			t.Fatalf("Run failed: %v", e)
 		}
+		if e := vmtransl.Close(); e != nil {
+			t.Fatalf("Close failed: %v", e)
+		}
 
 		got := buf.String()
 		if got != tt.want {
