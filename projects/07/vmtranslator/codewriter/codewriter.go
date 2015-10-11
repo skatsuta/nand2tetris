@@ -117,13 +117,26 @@ func (cw *CodeWriter) Close() error {
 		}
 	}()
 
+	// write the end infinite loop
+	if e := cw.end(); e != nil {
+		return fmt.Errorf("error writing the end infinite loop: %v", e)
+	}
+
 	if e := cw.buf.Flush(); e != nil {
 		return fmt.Errorf("error flushing bufferred data: %s", e)
 	}
 	return nil
 }
 
-// push converts the ginev push command to assembly and writes it out.
+// end writes the end infinite loop.
+func (cw *CodeWriter) end() error {
+	cw.lcmd("END")
+	cw.acmd("END")
+	cw.ccmdj("", "0", "JMP")
+	return cw.err
+}
+
+// push converts the given push command to assembly and writes it out.
 func (cw *CodeWriter) push(seg string, idx uint) error {
 	switch seg {
 	case "constant":

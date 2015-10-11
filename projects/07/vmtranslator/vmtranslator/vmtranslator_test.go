@@ -49,6 +49,11 @@ M=D+M
 @SP
 AM=M+1
 `
+
+	end = `(END)
+@END
+0;JMP
+`
 )
 
 func TestRun(t *testing.T) {
@@ -57,8 +62,8 @@ func TestRun(t *testing.T) {
 		src      string
 		want     string
 	}{
-		{"foo.vm", "// foo.vm\npush constant 0", "// foo.vm" + wantPushConst0},
-		{"bar.vm", "// bar.vm\npush constant 1\npush constant 2\nadd", "// bar.vm" + wantAdd},
+		{"foo.vm", "// foo.vm\npush constant 0", "// foo.vm" + wantPushConst0 + end},
+		{"bar.vm", "// bar.vm\npush constant 1\npush constant 2\nadd", "// bar.vm" + wantAdd + end},
 	}
 
 	var (

@@ -11,8 +11,8 @@ func TestSetFileName(t *testing.T) {
 		filename string
 		want     string
 	}{
-		{"", "// \n"},
-		{"foo.txt", "// foo.txt\n"},
+		{"", "// \n" + asmEnd},
+		{"foo.txt", "// foo.txt\n" + asmEnd},
 	}
 
 	var buf bytes.Buffer
@@ -39,15 +39,15 @@ func TestWriteArithmetic(t *testing.T) {
 		cmd  string
 		want string
 	}{
-		{"add", asmBinary("M=D+M")},
-		{"sub", asmBinary("M=M-D")},
-		{"and", asmBinary("M=D&M")},
-		{"or", asmBinary("M=D|M")},
-		{"neg", asmUnary("-")},
-		{"not", asmUnary("!")},
-		{"eq", asmCompare("JEQ", "LABEL0", "LABEL1")},
-		{"gt", asmCompare("JGT", "LABEL0", "LABEL1")},
-		{"lt", asmCompare("JLT", "LABEL0", "LABEL1")},
+		{"add", asmBinary("M=D+M") + asmEnd},
+		{"sub", asmBinary("M=M-D") + asmEnd},
+		{"and", asmBinary("M=D&M") + asmEnd},
+		{"or", asmBinary("M=D|M") + asmEnd},
+		{"neg", asmUnary("-") + asmEnd},
+		{"not", asmUnary("!") + asmEnd},
+		{"eq", asmCompare("JEQ", "LABEL0", "LABEL1") + asmEnd},
+		{"gt", asmCompare("JGT", "LABEL0", "LABEL1") + asmEnd},
+		{"lt", asmCompare("JLT", "LABEL0", "LABEL1") + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -93,8 +93,8 @@ func TestWritePushPop(t *testing.T) {
 		idx  uint
 		want string
 	}{
-		{"push", "constant", 0x0000, asmPushConst(0x0000)},
-		{"push", "constant", 0xFFFF, asmPushConst(0xFFFF)},
+		{"push", "constant", 0x0000, asmPushConst(0x0000) + asmEnd},
+		{"push", "constant", 0xFFFF, asmPushConst(0xFFFF) + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -123,10 +123,10 @@ func TestPushStack(t *testing.T) {
 		v    uint
 		want string
 	}{
-		{bitFalse, asmPushConst(bitFalse)},
-		{1, asmPushConst(1)},
-		{2, asmPushConst(2)},
-		{bitTrue, asmPushConst(bitTrue)},
+		{bitFalse, asmPushConst(bitFalse) + asmEnd},
+		{1, asmPushConst(1) + asmEnd},
+		{2, asmPushConst(2) + asmEnd},
+		{bitTrue, asmPushConst(bitTrue) + asmEnd},
 	}
 
 	var buf bytes.Buffer
@@ -176,8 +176,8 @@ func TestUnary(t *testing.T) {
 		cmd  string
 		want string
 	}{
-		{"neg", asmUnary("-")},
-		{"not", asmUnary("!")},
+		{"neg", asmUnary("-") + asmEnd},
+		{"not", asmUnary("!") + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -212,10 +212,10 @@ func TestBinary(t *testing.T) {
 		cmd  string
 		want string
 	}{
-		{"add", asmBinary("M=D+M")},
-		{"sub", asmBinary("M=M-D")},
-		{"and", asmBinary("M=D&M")},
-		{"or", asmBinary("M=D|M")},
+		{"add", asmBinary("M=D+M") + asmEnd},
+		{"sub", asmBinary("M=M-D") + asmEnd},
+		{"and", asmBinary("M=D&M") + asmEnd},
+		{"or", asmBinary("M=D|M") + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -266,9 +266,9 @@ func TestCompare(t *testing.T) {
 		cmd  string
 		want string
 	}{
-		{"eq", asmCompare("JEQ", "LABEL0", "LABEL1")},
-		{"gt", asmCompare("JGT", "LABEL0", "LABEL1")},
-		{"lt", asmCompare("JLT", "LABEL0", "LABEL1")},
+		{"eq", asmCompare("JEQ", "LABEL0", "LABEL1") + asmEnd},
+		{"gt", asmCompare("JGT", "LABEL0", "LABEL1") + asmEnd},
+		{"lt", asmCompare("JLT", "LABEL0", "LABEL1") + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -290,8 +290,8 @@ func TestAcmd(t *testing.T) {
 		addr string
 		want string
 	}{
-		{"16", "@16\n"},
-		{"i", "@i\n"},
+		{"16", "@16\n" + asmEnd},
+		{"i", "@i\n" + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -316,9 +316,9 @@ func TestCcmdj(t *testing.T) {
 		dest, comp, jump string
 		want             string
 	}{
-		{"M", "M+D", "", "M=M+D\n"},
-		{"", "D", "JMP", "D;JMP\n"},
-		{"AMD", "D|M", "JEQ", "AMD=D|M;JEQ\n"},
+		{"M", "M+D", "", "M=M+D\n" + asmEnd},
+		{"", "D", "JMP", "D;JMP\n" + asmEnd},
+		{"AMD", "D|M", "JEQ", "AMD=D|M;JEQ\n" + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -343,7 +343,7 @@ func TestLcmd(t *testing.T) {
 		label string
 		want  string
 	}{
-		{"LABEL", "(LABEL)\n"},
+		{"LABEL", "(LABEL)\n" + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -362,3 +362,8 @@ func TestLcmd(t *testing.T) {
 		}
 	}
 }
+
+var asmEnd = `(END)
+@END
+0;JMP
+`
