@@ -25,7 +25,7 @@ D=M
 `
 
 func TestNewParser(t *testing.T) {
-	filename := "../../add/Add.asm"
+	filename := "../../projects/06/add/Add.asm"
 	file, err := os.Open(filename)
 	if err != nil {
 		t.Fatalf("failed to open %s: %s", filename, err.Error())
