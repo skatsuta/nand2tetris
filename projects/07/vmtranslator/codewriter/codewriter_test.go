@@ -3,6 +3,9 @@ package codewriter
 import (
 	"bytes"
 	"fmt"
+	"math"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -120,9 +123,18 @@ func TestWritePushPop(t *testing.T) {
 			t.Fatalf("Close failed: %s", e.Error())
 		}
 
-		got := buf.String()
-		if got != tt.want {
-			t.Errorf("src = %s %s %d\ngot =\n%s\nwant =\n%s", tt.cmd, tt.seg, tt.idx, got, tt.want)
+		got := strings.Split(buf.String(), "\n")
+		want := strings.Split(tt.want, "\n")
+		if !reflect.DeepEqual(got, want) {
+			var b bytes.Buffer
+			_, _ = b.WriteString("<got>\t\t\t<want>\n-------\t\t\t-------\n")
+			minlen := int(math.Min(float64(len(got)), float64(len(want))))
+			for i := 0; i < minlen; i++ {
+				line := fmt.Sprintf("%s\t\t\t%s\n", got[i], want[i])
+				_, _ = b.WriteString(line)
+			}
+
+			t.Errorf("src = \"%s %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, b.String())
 		}
 
 		buf.Reset()
