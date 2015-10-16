@@ -12,8 +12,8 @@ func TestConvert(t *testing.T) {
 		got  string
 		want string
 	}{
-		{"../StackArithmetic/SimpleAdd/SimpleAdd.vm",
-			"../StackArithmetic/SimpleAdd/SimpleAdd.asm", simpleAdd},
+		{"../projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm",
+			"../projects/07/StackArithmetic/SimpleAdd/SimpleAdd.asm", simpleAdd},
 	}
 
 	for _, tt := range testCases {
@@ -54,7 +54,7 @@ func TestOutpath(t *testing.T) {
 	}
 }
 
-var simpleAdd = `// ../StackArithmetic/SimpleAdd/SimpleAdd.vm
+var simpleAdd = `// ../projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm
 @7
 D=A
 @SP

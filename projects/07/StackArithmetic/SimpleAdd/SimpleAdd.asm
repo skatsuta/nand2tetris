@@ -1,4 +1,4 @@
-// ../StackArithmetic/SimpleAdd/SimpleAdd.vm
+// ../projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm
 @7
 D=A
 @SP
