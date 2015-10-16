@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/skatsuta/nand2tetris/projects/06/assembler/code"
+	"github.com/skatsuta/nand2tetris/assembler/code"
 )
 
 const (

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/skatsuta/nand2tetris/projects/06/assembler/asm"
+	"github.com/skatsuta/nand2tetris/assembler/asm"
 )
 
 const (

@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/skatsuta/nand2tetris/projects/06/assembler/code"
-	"github.com/skatsuta/nand2tetris/projects/06/assembler/parser"
-	"github.com/skatsuta/nand2tetris/projects/06/assembler/symbtbl"
+	"github.com/skatsuta/nand2tetris/assembler/code"
+	"github.com/skatsuta/nand2tetris/assembler/parser"
+	"github.com/skatsuta/nand2tetris/assembler/symbtbl"
 )
 
 const (
