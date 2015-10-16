@@ -170,6 +170,19 @@ func (cw *CodeWriter) pop(seg string, idx uint) error {
 	switch seg {
 	case "local":
 		cw.popMem("LCL", idx)
+	case "argument":
+		cw.popMem("ARG", idx)
+	case "this":
+		cw.popMem("THIS", idx)
+	case "that":
+		cw.popMem("THAT", idx)
+	case "temp":
+		if idx > 7 {
+			return fmt.Errorf("index exceeds 7 for temp segment")
+		}
+		// temp: R5 ~ R12
+		reg := fmt.Sprintf("R%d", 5+int(idx))
+		cw.popMem(reg, 0)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
