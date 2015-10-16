@@ -249,7 +249,7 @@ func (cw *CodeWriter) pushVal(v uint) {
 // pushMem pushes a value of the symbol (LCL, ARG, THIS, THAT) in memory to the top of the stack.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pushMem(symb string, idx uint) {
-	cw.acmd(fmt.Sprintf("%d", idx))
+	cw.acmd(idx)
 	cw.ccmd("D", "A")
 	cw.acmd(symb)
 	cw.ccmd("AD", "D+M")
@@ -269,7 +269,7 @@ func (cw *CodeWriter) loadToSP(v int) {
 		return
 	}
 
-	cw.acmd(fmt.Sprintf("%d", v))
+	cw.acmd(v)
 	cw.ccmd("D", "A")
 	cw.acmd("SP")
 	cw.ccmd("A", "M")
@@ -306,12 +306,12 @@ func (cw *CodeWriter) sp(op string) {
 }
 
 // acmd writes @ command. If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) acmd(addr string) {
+func (cw *CodeWriter) acmd(addr interface{}) {
 	if cw.err != nil {
 		return
 	}
 
-	_, cw.err = cw.buf.WriteString("@" + addr + "\n")
+	_, cw.err = cw.buf.WriteString("@" + fmt.Sprintf("%v", addr) + "\n")
 }
 
 // ccmd writes C command with no jump. If an error occurs, it is set at cw.err.
