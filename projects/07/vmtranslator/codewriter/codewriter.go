@@ -210,7 +210,7 @@ func (cw *CodeWriter) pushStatic(idx uint) {
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
 	if symb == "STATIC" {
-		cw.acmd(fmt.Sprintf("%s.%d", cw.filename, idx))
+		cw.acmd(fmt.Sprintf("%s.%d", cw.fnbase, idx))
 	} else {
 		cw.loadSeg(symb, idx, direct)
 	}
@@ -259,7 +259,7 @@ func (cw *CodeWriter) popReg(reg string, idx uint) {
 func (cw *CodeWriter) popStatic(idx uint) {
 	cw.decrSP()
 	cw.ccmd("D", "M")
-	cw.acmd(fmt.Sprintf("%s.%d", cw.filename, idx))
+	cw.acmd(fmt.Sprintf("%s.%d", cw.fnbase, idx))
 	cw.ccmd("M", "D")
 }
 

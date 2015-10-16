@@ -174,10 +174,10 @@ func TestWritePushPopStatic(t *testing.T) {
 		idx      uint
 		want     string
 	}{
-		{"push0.vm", "push", "static", 0, asmPushStatic("push0.vm", 0) + asmEnd},
-		{"push5.vm", "push", "static", 5, asmPushStatic("push5.vm", 5) + asmEnd},
-		{"pop0.vm", "pop", "static", 0, asmPopStatic("pop0.vm", 0) + asmEnd},
-		{"pop5.vm", "pop", "static", 5, asmPopStatic("pop5.vm", 5) + asmEnd},
+		{"push0.vm", "push", "static", 0, asmPushStatic("push0.vm", "push0", 0) + asmEnd},
+		{"push5.vm", "push", "static", 5, asmPushStatic("push5.vm", "push5", 5) + asmEnd},
+		{"pop0.vm", "pop", "static", 0, asmPopStatic("pop0.vm", "pop0", 0) + asmEnd},
+		{"pop5.vm", "pop", "static", 5, asmPopStatic("pop5.vm", "pop5", 5) + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -319,7 +319,7 @@ M=D
 	return fmt.Sprintf(tpl, idx, symb)
 }
 
-func asmPushStatic(filename string, idx uint) string {
+func asmPushStatic(filename, base string, idx uint) string {
 	tpl := `// %s
 @%s.%d
 D=M
@@ -329,10 +329,10 @@ M=D
 @SP
 AM=M+1
 `
-	return fmt.Sprintf(tpl, filename, filename, idx)
+	return fmt.Sprintf(tpl, filename, base, idx)
 }
 
-func asmPopStatic(filename string, idx uint) string {
+func asmPopStatic(filename, base string, idx uint) string {
 	tpl := `// %s
 @SP
 AM=M-1
@@ -340,7 +340,7 @@ D=M
 @%s.%d
 M=D
 `
-	return fmt.Sprintf(tpl, filename, filename, idx)
+	return fmt.Sprintf(tpl, filename, base, idx)
 }
 
 func asmUnary(op string) string {
