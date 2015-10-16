@@ -165,20 +165,16 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 func (cw *CodeWriter) pop(seg string, idx uint) error {
 	switch seg {
 	case "local":
-		cw.popMem("LCL", idx)
+		cw.pop0("LCL", idx, false)
 	case "argument":
-		cw.popMem("ARG", idx)
+		cw.pop0("ARG", idx, false)
 	case "this":
-		cw.popMem("THIS", idx)
+		cw.pop0("THIS", idx, false)
 	case "that":
-		cw.popMem("THAT", idx)
+		cw.pop0("THAT", idx, false)
 	case "temp":
-		if idx > 7 {
-			return fmt.Errorf("index exceeds 7 for temp segment")
-		}
 		// temp: R5 ~ R12
-		reg := fmt.Sprintf("R%d", 5+int(idx))
-		cw.popMem(reg, 0)
+		cw.pop0("R5", idx, true)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
@@ -285,12 +281,14 @@ func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
 	cw.incrSP()
 }
 
-// popMem pops a value from the top of the stack to the symbol (LCL, ARG, THIS, THAT) in memory.
+// pop0 pops a value from the top of the stack to symb.
+// If direct is true a value in symb is popped directly,
+// otherwise a value pointed by an address in symb indirectly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) popMem(symb string, idx uint) {
+func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
 	tmpreg := "R13"
 
-	cw.loadSeg(symb, idx, false)
+	cw.loadSeg(symb, idx, direct)
 	cw.acmd(tmpreg)
 	cw.ccmd("M", "D")
 	cw.popStack()

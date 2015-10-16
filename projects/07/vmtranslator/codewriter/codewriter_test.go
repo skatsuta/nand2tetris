@@ -108,8 +108,8 @@ func TestWritePushPop(t *testing.T) {
 		{"pop", "argument", 2, asmPopMem("ARG", 2) + asmEnd},
 		{"pop", "this", 3, asmPopMem("THIS", 3) + asmEnd},
 		{"pop", "that", 4, asmPopMem("THAT", 4) + asmEnd},
-		{"pop", "temp", 0, asmPopMem("R5", 0) + asmEnd},
-		{"pop", "temp", 7, asmPopMem("R12", 0) + asmEnd},
+		{"pop", "temp", 0, asmPopReg("R5", 0) + asmEnd},
+		{"pop", "temp", 7, asmPopReg("R5", 7) + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -227,6 +227,23 @@ A=M
 M=D
 @SP
 AM=M+1
+`
+	return fmt.Sprintf(tpl, idx, symb)
+}
+
+func asmPopReg(symb string, idx uint) string {
+	tpl := `@%d
+D=A
+@%s
+AD=D+A
+@R13
+M=D
+@SP
+AM=M-1
+D=M
+@R13
+A=M
+M=D
 `
 	return fmt.Sprintf(tpl, idx, symb)
 }
