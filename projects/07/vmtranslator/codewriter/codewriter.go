@@ -178,6 +178,9 @@ func (cw *CodeWriter) pop(seg string, idx uint) error {
 	case "temp":
 		// temp: R5 ~ R12
 		cw.pop0("R5", idx, true)
+	case "pointer":
+		// pointer R3 ~ R4
+		cw.pop0("R3", idx, true)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
