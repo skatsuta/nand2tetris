@@ -171,7 +171,7 @@ func asmPush(symb string, idx uint) string {
 	tpl := `@%d
 D=A
 @%s
-A=D+M
+AD=D+M
 D=M
 @SP
 A=M

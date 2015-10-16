@@ -252,7 +252,7 @@ func (cw *CodeWriter) pushMem(symb string, idx uint) {
 	cw.acmd(fmt.Sprintf("%d", idx))
 	cw.ccmd("D", "A")
 	cw.acmd(symb)
-	cw.ccmd("A", "D+M")
+	cw.ccmd("AD", "D+M")
 	cw.ccmd("D", "M")
 	cw.acmd("SP")
 	cw.ccmd("A", "M")
