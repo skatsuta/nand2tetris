@@ -146,19 +146,19 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 	case "constant":
 		cw.pushVal(idx)
 	case "local":
-		cw.push0("LCL", idx, false)
+		cw.pushMem("LCL", idx)
 	case "argument":
-		cw.push0("ARG", idx, false)
+		cw.pushMem("ARG", idx)
 	case "this":
-		cw.push0("THIS", idx, false)
+		cw.pushMem("THIS", idx)
 	case "that":
-		cw.push0("THAT", idx, false)
+		cw.pushMem("THAT", idx)
 	case "temp":
 		// temp: R5 ~ R12
-		cw.push0("R5", idx, true)
+		cw.pushReg("R5", idx)
 		// pointer: R3 ~ R4
 	case "pointer":
-		cw.push0("R3", idx, true)
+		cw.pushReg("R3", idx)
 	case "static":
 		cw.pushStatic(idx)
 	default:
@@ -166,6 +166,46 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 	}
 
 	return cw.err
+}
+
+// pushVal pushes v to the top of the stack. Internally,
+// it assgins v to *SP and increments SP.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) pushVal(v uint) {
+	cw.loadVal(int(v))
+	cw.incrSP()
+}
+
+// pushMem pushes a value pointed by an address in seg to the stack.
+func (cw *CodeWriter) pushMem(seg string, idx uint) {
+	cw.push0(seg, idx, false)
+}
+
+// pushReg pushes a value in reg to the stack.
+func (cw *CodeWriter) pushReg(reg string, idx uint) {
+	cw.push0(reg, idx, true)
+}
+
+// pushStatic loads a value of the static segment to *SP.
+func (cw *CodeWriter) pushStatic(idx uint) {
+	// direct is ignored so meaningless
+	cw.push0("STATIC", idx, false)
+}
+
+// push0 pushes a value of symb to the top of the stack.
+// If symb is "STATIC", it pushes idx-th static variable.
+// If direct is true a value in symb is pushed directly,
+// otherwise a value pointed by an address in symb indirectly.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
+	if symb == "STATIC" {
+		cw.acmd(fmt.Sprintf("%s.%d", cw.filename, idx))
+	} else {
+		cw.loadSeg(symb, idx, direct)
+	}
+	cw.ccmd("D", "M")
+	cw.saveTo("SP")
+	cw.incrSP()
 }
 
 // pop converts the given pop command to assembly and writes it out.
@@ -270,33 +310,6 @@ func (cw *CodeWriter) countUp() {
 	cw.mu.Lock()
 	defer cw.mu.Unlock()
 	cw.cnt++
-}
-
-// pushVal pushes v to the top of the stack. Internally,
-// it assgins v to *SP and increments SP.
-// If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) pushVal(v uint) {
-	cw.loadVal(int(v))
-	cw.incrSP()
-}
-
-// push0 pushes a value of symb to the top of the stack.
-// If direct is true a value in symb is pushed directly,
-// otherwise a value pointed by an address in symb indirectly.
-// If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
-	cw.loadSeg(symb, idx, direct)
-	cw.ccmd("D", "M")
-	cw.saveTo("SP")
-	cw.incrSP()
-}
-
-// pushStatic loads a value of the static segment to *SP.
-func (cw *CodeWriter) pushStatic(idx uint) {
-	cw.acmd(fmt.Sprintf("%s.%d", cw.filename, idx))
-	cw.ccmd("D", "M")
-	cw.saveTo("SP")
-	cw.incrSP()
 }
 
 // pop0 pops a value from the top of the stack to symb.
