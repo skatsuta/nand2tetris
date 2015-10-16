@@ -159,6 +159,8 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 		// pointer: R3 ~ R4
 	case "pointer":
 		cw.push0("R3", idx, true)
+	case "static":
+		cw.pushStatic(idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
@@ -284,6 +286,14 @@ func (cw *CodeWriter) pushVal(v uint) {
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
 	cw.loadSeg(symb, idx, direct)
+	cw.ccmd("D", "M")
+	cw.saveTo("SP")
+	cw.incrSP()
+}
+
+// pushStatic loads a value of the static segment to *SP.
+func (cw *CodeWriter) pushStatic(idx uint) {
+	cw.acmd(fmt.Sprintf("%s.%d", cw.filename, idx))
 	cw.ccmd("D", "M")
 	cw.saveTo("SP")
 	cw.incrSP()
