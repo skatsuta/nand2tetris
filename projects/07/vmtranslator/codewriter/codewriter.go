@@ -212,24 +212,48 @@ func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
 func (cw *CodeWriter) pop(seg string, idx uint) error {
 	switch seg {
 	case "local":
-		cw.pop0("LCL", idx, false)
+		cw.popMem("LCL", idx)
 	case "argument":
-		cw.pop0("ARG", idx, false)
+		cw.popMem("ARG", idx)
 	case "this":
-		cw.pop0("THIS", idx, false)
+		cw.popMem("THIS", idx)
 	case "that":
-		cw.pop0("THAT", idx, false)
+		cw.popMem("THAT", idx)
 	case "temp":
 		// temp: R5 ~ R12
-		cw.pop0("R5", idx, true)
+		cw.popReg("R5", idx)
 	case "pointer":
 		// pointer R3 ~ R4
-		cw.pop0("R3", idx, true)
+		cw.popReg("R3", idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
 
 	return cw.err
+}
+
+// popMem pops a value from the stack and stores it to an address seg points to.
+func (cw *CodeWriter) popMem(seg string, idx uint) {
+	cw.pop0(seg, idx, false)
+}
+
+// popReg pops a value from the stack and stores it to reg directly.
+func (cw *CodeWriter) popReg(reg string, idx uint) {
+	cw.pop0(reg, idx, true)
+}
+
+// pop0 pops a value from the top of the stack to symb.
+// If direct is true a value in symb is popped directly,
+// otherwise a value pointed by an address in symb indirectly.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
+	tmpreg := "R13"
+
+	cw.loadSeg(symb, idx, direct)
+	cw.acmd(tmpreg)
+	cw.ccmd("M", "D")
+	cw.popStack()
+	cw.saveTo(tmpreg)
 }
 
 // unary writes a unary operation for a value at the top of the stack.
@@ -310,20 +334,6 @@ func (cw *CodeWriter) countUp() {
 	cw.mu.Lock()
 	defer cw.mu.Unlock()
 	cw.cnt++
-}
-
-// pop0 pops a value from the top of the stack to symb.
-// If direct is true a value in symb is popped directly,
-// otherwise a value pointed by an address in symb indirectly.
-// If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
-	tmpreg := "R13"
-
-	cw.loadSeg(symb, idx, direct)
-	cw.acmd(tmpreg)
-	cw.ccmd("M", "D")
-	cw.popStack()
-	cw.saveTo(tmpreg)
 }
 
 // loadSeg load a value of the symb segment to D.
