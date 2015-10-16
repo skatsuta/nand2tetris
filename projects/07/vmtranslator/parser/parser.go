@@ -59,6 +59,9 @@ func New(src io.Reader) *Parser {
 
 // HasMoreCommands reports whether there exist more commands in input.
 func (p *Parser) HasMoreCommands() bool {
+	var sc scanner.Scanner
+	sc.Mode = vmScanMode
+
 	// if Scan() == true && Text() is not a comment, return true
 	// if Scan() == false, return false
 	for p.src.Scan() {
@@ -66,8 +69,6 @@ func (p *Parser) HasMoreCommands() bool {
 		p.tokens = p.tokens[:0]
 
 		// prepare a Scanner
-		var sc scanner.Scanner
-		sc.Mode = vmScanMode
 		sc.Init(strings.NewReader(p.line))
 
 		// tokenize the current line
