@@ -101,7 +101,7 @@ func TestWritePushPop(t *testing.T) {
 		{"push", "that", 0, asmPush("THAT", 0) + asmEnd},
 		{"push", "temp", 0, asmPush("R5", 0) + asmEnd},
 		{"push", "temp", 7, asmPush("R5", 7) + asmEnd},
-		{"pop", "local", 0, asmPush("R5", 0) + asmEnd},
+		{"pop", "local", 0, asmPop("LCL", 0) + asmEnd},
 	}
 
 	for _, tt := range testCases {

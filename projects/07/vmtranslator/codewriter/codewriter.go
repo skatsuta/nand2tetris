@@ -103,6 +103,8 @@ func (cw *CodeWriter) WritePushPop(cmd, seg string, idx uint) error {
 	switch cmd {
 	case "push":
 		return cw.push(seg, idx)
+	case "pop":
+		return cw.pop(seg, idx)
 	default:
 		return fmt.Errorf("unknown command: %s", cmd)
 	}
@@ -151,6 +153,18 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 		cw.pushMem("THAT", idx)
 	case "temp":
 		cw.pushMem("R5", idx)
+	default:
+		return fmt.Errorf("unknown segment: %s", seg)
+	}
+
+	return cw.err
+}
+
+// pop converts the given pop command to assembly and writes it out.
+func (cw *CodeWriter) pop(seg string, idx uint) error {
+	switch seg {
+	case "local":
+		cw.popMem("LCL", idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
