@@ -248,11 +248,11 @@ func (cw *CodeWriter) compare(cmd string) {
 	cw.ccmd("D", "M-D")
 	cw.acmd(label1)
 	cw.ccmdj("", "D", op)
-	cw.loadToSP(bitFalse)
+	cw.loadVal(bitFalse)
 	cw.acmd(label2)
 	cw.ccmdj("", "0", "JMP")
 	cw.lcmd(label1)
-	cw.loadToSP(bitTrue)
+	cw.loadVal(bitTrue)
 	cw.lcmd(label2)
 	cw.incrSP()
 }
@@ -274,7 +274,7 @@ func (cw *CodeWriter) countUp() {
 // it assgins v to *SP and increments SP.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pushVal(v uint) {
-	cw.loadToSP(int(v))
+	cw.loadVal(int(v))
 	cw.incrSP()
 }
 
@@ -329,8 +329,8 @@ func (cw *CodeWriter) saveTo(addr string) {
 	cw.ccmd("M", "D")
 }
 
-// loadToSP loads v to *SP. v should be greater than or equal -1 (v >= -1).
-func (cw *CodeWriter) loadToSP(v int) {
+// loadVal loads v to *SP. v should be greater than or equal -1 (v >= -1).
+func (cw *CodeWriter) loadVal(v int) {
 	if v < 0 {
 		cw.acmd("SP")
 		cw.ccmd("A", "M")
