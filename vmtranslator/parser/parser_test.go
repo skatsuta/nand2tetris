@@ -15,6 +15,8 @@ push	 constant 3
   
 push  constant	 1
 sub	 //  inline comment 2
+
+label LABEL0
 `
 
 func TestHasMoreCommands(t *testing.T) {
@@ -29,6 +31,7 @@ func TestHasMoreCommands(t *testing.T) {
 		{true, []string{"add"}},
 		{true, []string{"push", "constant", "1"}},
 		{true, []string{"sub"}},
+		{true, []string{"label", "LABEL0"}},
 		{false, []string{}},
 	}
 
