@@ -152,7 +152,12 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 	case "that":
 		cw.pushMem("THAT", idx)
 	case "temp":
-		cw.pushMem("R5", idx)
+		if idx > 7 {
+			return fmt.Errorf("index exceeds 7 for temp segment")
+		}
+		// temp: R5 ~ R12
+		reg := fmt.Sprintf("R%d", 5+int(idx))
+		cw.pushMem(reg, 0)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
