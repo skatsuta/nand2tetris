@@ -104,6 +104,8 @@ func TestWritePushPop(t *testing.T) {
 		{"push", "that", 0, asmPushMem("THAT", 0) + asmEnd},
 		{"push", "temp", 0, asmPushReg("R5", 0) + asmEnd},
 		{"push", "temp", 7, asmPushReg("R5", 7) + asmEnd},
+		{"push", "pointer", 0, asmPushReg("R3", 0) + asmEnd},
+		{"push", "pointer", 1, asmPushReg("R3", 1) + asmEnd},
 		{"pop", "local", 0, asmPopMem("LCL", 0) + asmEnd},
 		{"pop", "argument", 2, asmPopMem("ARG", 2) + asmEnd},
 		{"pop", "this", 3, asmPopMem("THIS", 3) + asmEnd},

@@ -154,6 +154,9 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 	case "temp":
 		// temp: R5 ~ R12
 		cw.push0("R5", idx, true)
+		// pointer: R3 ~ R4
+	case "pointer":
+		cw.push0("R3", idx, true)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
