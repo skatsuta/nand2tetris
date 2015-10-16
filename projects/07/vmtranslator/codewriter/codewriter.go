@@ -74,6 +74,8 @@ func New(dest io.Writer) *CodeWriter {
 func (cw *CodeWriter) SetFileName(filename string) error {
 	cw.filename = filename
 
+	// TODO print an absolute path or just a base file name,
+	// or a file name if it's a file and dir/file if it's a dir.
 	comment := fmt.Sprintf("// %s\n", filename)
 	_, err := cw.buf.WriteString(comment)
 	return err
