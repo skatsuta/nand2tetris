@@ -1,0 +1,23 @@
+// ../test/testPopTemp.vm
+@100
+D=A
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@6
+D=A
+@R5
+AD=D+A
+@R13
+M=D
+@SP
+AM=M-1
+D=M
+@R13
+A=M
+M=D
+(END)
+@END
+0;JMP
