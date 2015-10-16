@@ -225,6 +225,8 @@ func (cw *CodeWriter) pop(seg string, idx uint) error {
 	case "pointer":
 		// pointer R3 ~ R4
 		cw.popReg("R3", idx)
+	case "static":
+		cw.popStatic(idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
@@ -242,7 +244,16 @@ func (cw *CodeWriter) popReg(reg string, idx uint) {
 	cw.pop0(reg, idx, true)
 }
 
+// popStatic pops a value from the stack and stores it to the static segment.
+func (cw *CodeWriter) popStatic(idx uint) {
+	cw.decrSP()
+	cw.ccmd("D", "M")
+	cw.acmd(fmt.Sprintf("%s.%d", cw.filename, idx))
+	cw.ccmd("M", "D")
+}
+
 // pop0 pops a value from the top of the stack to symb.
+// If symb is "STATIC", it pops idx-th static variable.
 // If direct is true a value in symb is popped directly,
 // otherwise a value pointed by an address in symb indirectly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
