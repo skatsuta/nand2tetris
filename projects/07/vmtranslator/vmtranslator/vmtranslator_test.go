@@ -89,6 +89,28 @@ M=-1
 AM=M+1
 `
 
+	wantPushPop = `
+@0
+D=A
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@LCL
+AD=D+M
+@R13
+M=D
+@SP
+AM=M-1
+D=M
+@R13
+A=M
+M=D
+`
+
 	end = `(END)
 @END
 0;JMP
@@ -101,9 +123,10 @@ func TestRun(t *testing.T) {
 		src      string
 		want     string
 	}{
-		{"foo.vm", "// foo.vm\npush constant 0", "// foo.vm" + wantPushConst0 + end},
+		{"push_const_0.vm", "// push_const_0.vm\npush constant 0", "// push_const_0.vm" + wantPushConst0 + end},
 		{"add.vm", "// add.vm\npush constant 1\npush constant 2\nadd", "// add.vm" + wantAdd + end},
 		{"eq.vm", "// eq.vm\npush constant 1\npush constant 1\neq", "// eq.vm" + wantEq + end},
+		{"push_pop.vm", "// push_pop.vm\npush constant 0\npop local 0", "// push_pop.vm" + wantPushPop + end},
 	}
 
 	var (
