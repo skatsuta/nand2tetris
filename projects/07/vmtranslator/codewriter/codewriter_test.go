@@ -102,8 +102,8 @@ func TestWritePushPop(t *testing.T) {
 		{"push", "argument", 0, asmPushMem("ARG", 0) + asmEnd},
 		{"push", "this", 0, asmPushMem("THIS", 0) + asmEnd},
 		{"push", "that", 0, asmPushMem("THAT", 0) + asmEnd},
-		{"push", "temp", 0, asmPushMem("R5", 0) + asmEnd},
-		{"push", "temp", 7, asmPushMem("R12", 0) + asmEnd},
+		{"push", "temp", 0, asmPushReg("R5", 0) + asmEnd},
+		{"push", "temp", 7, asmPushReg("R5", 7) + asmEnd},
 		{"pop", "local", 0, asmPopMem("LCL", 0) + asmEnd},
 		{"pop", "argument", 2, asmPopMem("ARG", 2) + asmEnd},
 		{"pop", "this", 3, asmPopMem("THIS", 3) + asmEnd},
@@ -212,6 +212,21 @@ D=M
 @R13
 A=M
 M=D
+`
+	return fmt.Sprintf(tpl, idx, symb)
+}
+
+func asmPushReg(symb string, idx uint) string {
+	tpl := `@%d
+D=A
+@%s
+AD=D+A
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
 `
 	return fmt.Sprintf(tpl, idx, symb)
 }

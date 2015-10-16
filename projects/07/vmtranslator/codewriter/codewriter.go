@@ -144,20 +144,16 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 	case "constant":
 		cw.pushVal(idx)
 	case "local":
-		cw.pushMem("LCL", idx)
+		cw.push0("LCL", idx, false)
 	case "argument":
-		cw.pushMem("ARG", idx)
+		cw.push0("ARG", idx, false)
 	case "this":
-		cw.pushMem("THIS", idx)
+		cw.push0("THIS", idx, false)
 	case "that":
-		cw.pushMem("THAT", idx)
+		cw.push0("THAT", idx, false)
 	case "temp":
-		if idx > 7 {
-			return fmt.Errorf("index exceeds 7 for temp segment")
-		}
 		// temp: R5 ~ R12
-		reg := fmt.Sprintf("R%d", 5+int(idx))
-		cw.pushMem(reg, 0)
+		cw.push0("R5", idx, true)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
 	}
@@ -278,10 +274,12 @@ func (cw *CodeWriter) pushVal(v uint) {
 	cw.incrSP()
 }
 
-// pushMem pushes a value of the symbol (LCL, ARG, THIS, THAT) in memory to the top of the stack.
+// push0 pushes a value of symb to the top of the stack.
+// If direct is true a value in symb is pushed directly,
+// otherwise a value pointed by an address in symb indirectly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) pushMem(symb string, idx uint) {
-	cw.loadSeg(symb, idx)
+func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
+	cw.loadSeg(symb, idx, direct)
 	cw.ccmd("D", "M")
 	cw.saveTo("SP")
 	cw.incrSP()
@@ -292,7 +290,7 @@ func (cw *CodeWriter) pushMem(symb string, idx uint) {
 func (cw *CodeWriter) popMem(symb string, idx uint) {
 	tmpreg := "R13"
 
-	cw.loadSeg(symb, idx)
+	cw.loadSeg(symb, idx, false)
 	cw.acmd(tmpreg)
 	cw.ccmd("M", "D")
 	cw.popStack()
@@ -300,12 +298,21 @@ func (cw *CodeWriter) popMem(symb string, idx uint) {
 }
 
 // loadSeg load a value of the symb segment to D.
+// If direct is true a value in symb is loaded directly,
+// otherwise a value pointed by an address in symb indirectly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) loadSeg(symb string, idx uint) {
+func (cw *CodeWriter) loadSeg(symb string, idx uint, direct bool) {
+	var m string
+	if direct {
+		m = "A"
+	} else {
+		m = "M"
+	}
+
 	cw.acmd(idx)
 	cw.ccmd("D", "A")
 	cw.acmd(symb)
-	cw.ccmd("AD", "D+M")
+	cw.ccmd("AD", "D+"+m)
 }
 
 // saveTo save the value of D to addr.
