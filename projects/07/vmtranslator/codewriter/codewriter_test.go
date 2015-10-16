@@ -95,18 +95,18 @@ func TestWritePushPop(t *testing.T) {
 	}{
 		{"push", "constant", 0, asmPushConst(0) + asmEnd},
 		{"push", "constant", 1, asmPushConst(1) + asmEnd},
-		{"push", "local", 0, asmPush("LCL", 0) + asmEnd},
-		{"push", "argument", 0, asmPush("ARG", 0) + asmEnd},
-		{"push", "this", 0, asmPush("THIS", 0) + asmEnd},
-		{"push", "that", 0, asmPush("THAT", 0) + asmEnd},
-		{"push", "temp", 0, asmPush("R5", 0) + asmEnd},
-		{"push", "temp", 7, asmPush("R12", 0) + asmEnd},
-		{"pop", "local", 0, asmPop("LCL", 0) + asmEnd},
-		{"pop", "argument", 2, asmPop("ARG", 2) + asmEnd},
-		{"pop", "this", 3, asmPop("THIS", 3) + asmEnd},
-		{"pop", "that", 4, asmPop("THAT", 4) + asmEnd},
-		{"pop", "temp", 0, asmPop("R5", 0) + asmEnd},
-		{"pop", "temp", 7, asmPop("R12", 0) + asmEnd},
+		{"push", "local", 0, asmPushMem("LCL", 0) + asmEnd},
+		{"push", "argument", 0, asmPushMem("ARG", 0) + asmEnd},
+		{"push", "this", 0, asmPushMem("THIS", 0) + asmEnd},
+		{"push", "that", 0, asmPushMem("THAT", 0) + asmEnd},
+		{"push", "temp", 0, asmPushMem("R5", 0) + asmEnd},
+		{"push", "temp", 7, asmPushMem("R12", 0) + asmEnd},
+		{"pop", "local", 0, asmPopMem("LCL", 0) + asmEnd},
+		{"pop", "argument", 2, asmPopMem("ARG", 2) + asmEnd},
+		{"pop", "this", 3, asmPopMem("THIS", 3) + asmEnd},
+		{"pop", "that", 4, asmPopMem("THAT", 4) + asmEnd},
+		{"pop", "temp", 0, asmPopMem("R5", 0) + asmEnd},
+		{"pop", "temp", 7, asmPopMem("R12", 0) + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -172,7 +172,7 @@ AM=M+1
 	return fmt.Sprintf(tpl, v)
 }
 
-func asmPush(symb string, idx uint) string {
+func asmPushMem(symb string, idx uint) string {
 	tpl := `@%d
 D=A
 @%s
@@ -187,7 +187,7 @@ AM=M+1
 	return fmt.Sprintf(tpl, idx, symb)
 }
 
-func asmPop(symb string, idx uint) string {
+func asmPopMem(symb string, idx uint) string {
 	tpl := `@%d
 D=A
 @%s
