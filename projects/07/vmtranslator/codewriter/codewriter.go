@@ -249,15 +249,39 @@ func (cw *CodeWriter) pushVal(v uint) {
 // pushMem pushes a value of the symbol (LCL, ARG, THIS, THAT) in memory to the top of the stack.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pushMem(symb string, idx uint) {
+	cw.loadSeg(symb, idx)
+	cw.ccmd("D", "M")
+	cw.saveTo("SP")
+	cw.incrSP()
+}
+
+// popMem pops a value from the top of the stack to the symbol (LCL, ARG, THIS, THAT) in memory.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) popMem(symb string, idx uint) {
+	tmpreg := "R13"
+
+	cw.loadSeg(symb, idx)
+	cw.acmd(tmpreg)
+	cw.ccmd("M", "D")
+	cw.popStack()
+	cw.saveTo(tmpreg)
+}
+
+// loadSeg load a value of the symb segment to D.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) loadSeg(symb string, idx uint) {
 	cw.acmd(idx)
 	cw.ccmd("D", "A")
 	cw.acmd(symb)
 	cw.ccmd("AD", "D+M")
-	cw.ccmd("D", "M")
-	cw.acmd("SP")
+}
+
+// saveTo save the value of D to addr.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) saveTo(addr string) {
+	cw.acmd(addr)
 	cw.ccmd("A", "M")
 	cw.ccmd("M", "D")
-	cw.incrSP()
 }
 
 // loadToSP loads v to *SP. v should be greater than or equal -1 (v >= -1).
@@ -271,9 +295,7 @@ func (cw *CodeWriter) loadToSP(v int) {
 
 	cw.acmd(v)
 	cw.ccmd("D", "A")
-	cw.acmd("SP")
-	cw.ccmd("A", "M")
-	cw.ccmd("M", "D")
+	cw.saveTo("SP")
 }
 
 // popStack pops a value at the top of the stack. Internally,
