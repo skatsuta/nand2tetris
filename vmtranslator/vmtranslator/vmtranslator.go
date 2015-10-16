@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/skatsuta/nand2tetris/projects/07/vmtranslator/codewriter"
-	"github.com/skatsuta/nand2tetris/projects/07/vmtranslator/parser"
+	"github.com/skatsuta/nand2tetris/vmtranslator/codewriter"
+	"github.com/skatsuta/nand2tetris/vmtranslator/parser"
 )
 
 // VMTranslator is a translator that converts VM code to Hack assembly code.

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/skatsuta/nand2tetris/projects/07/vmtranslator/vmtranslator"
+	"github.com/skatsuta/nand2tetris/vmtranslator/vmtranslator"
 )
 
 var (
