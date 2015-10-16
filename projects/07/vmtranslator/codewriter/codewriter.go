@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -57,6 +58,7 @@ type CodeWriter struct {
 	dest     io.Writer
 	buf      *bufio.Writer
 	filename string
+	fnbase   string
 
 	mu  sync.Mutex
 	cnt int
@@ -73,12 +75,21 @@ func New(dest io.Writer) *CodeWriter {
 // SetFileName sets an input VM file name and writes it to the output file as comment.
 func (cw *CodeWriter) SetFileName(filename string) error {
 	cw.filename = filename
+	cw.fnbase = cw.fileNameBase(filename)
 
 	// TODO print an absolute path or just a base file name,
 	// or a file name if it's a file and dir/file if it's a dir.
 	comment := fmt.Sprintf("// %s\n", filename)
 	_, err := cw.buf.WriteString(comment)
 	return err
+}
+
+// fileNameBase return a base name of a file.
+// For example, if a filename is "foo.txt", it returns "foo".
+func (cw *CodeWriter) fileNameBase(filename string) string {
+	base := filepath.Base(filename)
+	ext := filepath.Ext(filename)
+	return base[:len(base)-len(ext)]
 }
 
 // WriteArithmetic converts the given arithmetic command to assembly code and writes it out.

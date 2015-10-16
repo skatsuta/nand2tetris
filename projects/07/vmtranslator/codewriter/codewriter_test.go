@@ -37,6 +37,26 @@ func TestSetFileName(t *testing.T) {
 	}
 }
 
+func TestFileNameBase(t *testing.T) {
+	testCases := []struct {
+		filename string
+		want     string
+	}{
+		{"foo.txt", "foo"},
+		{"a/foo.txt", "foo"},
+		{"a/b/foo.txt", "foo"},
+	}
+
+	var buf bytes.Buffer
+	cw := New(&buf)
+	for _, tt := range testCases {
+		got := cw.fileNameBase(tt.filename)
+		if got != tt.want {
+			t.Errorf("filename = %s; got %s; want %s", tt.filename, got, tt.want)
+		}
+	}
+}
+
 func TestWriteArithmetic(t *testing.T) {
 	testCases := []struct {
 		cmd  string
