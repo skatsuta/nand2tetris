@@ -135,18 +135,18 @@ func (p *Parser) parse(tokens []string) (command, error) {
 
 	switch typ {
 	case Arithmetic, Return:
-		return p.parseArithmeticReturn(typ, tokens)
-	case Push, Pop, Function, Call:
-		return p.parsePushPopFuncCall(typ, tokens)
+		return p.parse1(typ, tokens)
 	case Label, Goto, If:
-		return p.parseLabelIfGoto(typ, tokens)
+		return p.parse2(typ, tokens)
+	case Push, Pop, Function, Call:
+		return p.parse3(typ, tokens)
 	default:
 		return command{}, fmt.Errorf("unknown command: %s", cmd)
 	}
 }
 
-// parseArithmetic parses an arithmetic/return command.
-func (p *Parser) parseArithmeticReturn(typ CommandType, tokens []string) (command, error) {
+// parse1 parses a command that should have one token.
+func (p *Parser) parse1(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 1 {
 		return command{}, ErrInvalidCommand
 	}
@@ -159,16 +159,16 @@ func (p *Parser) parseArithmeticReturn(typ CommandType, tokens []string) (comman
 	return command{typ: typ, arg1: arg1}, nil
 }
 
-// parseLabelGoto parses a label/goto command.
-func (p *Parser) parseLabelIfGoto(typ CommandType, tokens []string) (command, error) {
+// parse2 parses a command that should have two tokens.
+func (p *Parser) parse2(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 2 {
 		return command{}, ErrInvalidCommand
 	}
 	return command{typ: typ, arg1: tokens[1]}, nil
 }
 
-// parsePushPopFuncCall parses a push/pop/function/call command.
-func (p *Parser) parsePushPopFuncCall(typ CommandType, tokens []string) (command, error) {
+// parse3 parses a command that should have three tokens.
+func (p *Parser) parse3(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 3 {
 		return command{}, ErrInvalidCommand
 	}
