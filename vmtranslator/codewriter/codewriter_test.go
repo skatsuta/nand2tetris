@@ -236,6 +236,7 @@ func TestWriteLabelGoto(t *testing.T) {
 	}{
 		{"label", "LABEL", asmLabel("LABEL") + asmEnd},
 		{"goto", "LABEL", asmGoto("LABEL") + asmEnd},
+		{"if-goto", "LABEL", asmIf("LABEL") + asmEnd},
 	}
 
 	var (
@@ -252,6 +253,8 @@ func TestWriteLabelGoto(t *testing.T) {
 			err = cw.WriteLabel(tt.label)
 		case "goto":
 			err = cw.WriteGoto(tt.label)
+		case "if-goto":
+			err = cw.WriteIf(tt.label)
 		}
 		if err != nil {
 			t.Fatalf("WriteLabel failed: %v", err)
@@ -269,6 +272,16 @@ func TestWriteLabelGoto(t *testing.T) {
 
 		out.Reset()
 	}
+}
+
+func asmIf(label string) string {
+	tpl := `@SP
+AM=M-1
+D=M
+@%s
+D;JNE
+`
+	return fmt.Sprintf(tpl, label)
 }
 
 func asmGoto(label string) string {

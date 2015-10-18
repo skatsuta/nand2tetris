@@ -144,6 +144,19 @@ func (cw *CodeWriter) WriteGoto(label string) error {
 	return nil
 }
 
+// WriteIf converts the given if-goto command to assembly code and writes it out.
+func (cw *CodeWriter) WriteIf(label string) error {
+	cw.decrSP()
+	cw.ccmd("D", "M")
+	cw.acmd(label)
+	cw.ccmdj("", "D", "JNE")
+
+	if cw.err != nil {
+		return fmt.Errorf("error writing if-goto: %v", cw.err)
+	}
+	return nil
+}
+
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {
