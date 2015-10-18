@@ -196,28 +196,28 @@ func (*Parser) dispatchCommand(cmd string) CommandType {
 }
 
 // segments is a collection of segments.
-type segments []string
+// In order to check an existence of a segment by O(1) segments is a map.
+type segments map[string]struct{}
+
+// dummy is a dummy empty struct for segments.
+var dummy = struct{}{}
 
 // segs is a collection of all the segments on VM.
-// TODO use map[string]struct{}
 var segs = segments{
-	"argument",
-	"local",
-	"static",
-	"constant",
-	"this", "that",
-	"pointer",
-	"temp",
+	"constant": dummy,
+	"local":    dummy,
+	"argument": dummy,
+	"this":     dummy,
+	"that":     dummy,
+	"temp":     dummy,
+	"pointer":  dummy,
+	"static":   dummy,
 }
 
 // contains reports whether text is contained in s.
 func (s segments) contains(text string) bool {
-	for _, seg := range s {
-		if seg == text {
-			return true
-		}
-	}
-	return false
+	_, exists := segs[text]
+	return exists
 }
 
 // CommandType returns a type of a current VM command. In all arithmetic commands
