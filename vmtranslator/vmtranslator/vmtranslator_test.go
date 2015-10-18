@@ -163,7 +163,6 @@ func TestRunErr(t *testing.T) {
 		src      string
 		want     string
 	}{
-		{"2cmd.vm", "// 2cmd.vm\npush constant", "invalid command"},
 		{"4cmd.vm", "// 4cmd.vm\npop local -1", "invalid command"}, // split into [pop, local, -, 1]
 		{"unknown_command.vm", "// unknown_command.vm\nfoo", "unknown command"},
 		{"unknown_segment.vm", "// unknown_segment.vm\npush foo 1", "unknown segment"},

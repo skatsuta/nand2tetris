@@ -99,11 +99,8 @@ func (p *Parser) HasMoreCommands() bool {
 func (p *Parser) Advance() error {
 	tokens := p.tokens
 
-	// check the length of tokens: only 1 or 3 is valid
-	switch len(tokens) {
-	case 1, 3:
-		// valid length; skip
-	default:
+	// check the length of tokens: should be less than 4
+	if len(tokens) > 3 {
 		return fmt.Errorf("invalid command: %q", p.line)
 	}
 

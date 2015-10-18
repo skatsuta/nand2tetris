@@ -74,7 +74,6 @@ func TestAdvanceError(t *testing.T) {
 		src string
 	}{
 		{"foo"},
-		{"add sub"},
 		{"push constant 1 2"},
 		{"posh constant 1"},
 		{"pop argment 0"},
@@ -85,7 +84,7 @@ func TestAdvanceError(t *testing.T) {
 		p := New(strings.NewReader(tt.src))
 		if p.HasMoreCommands() {
 			if e := p.Advance(); e == nil {
-				t.Errorf("expected error but got <nil>")
+				t.Errorf("src = %q: expected error but got <nil>", tt.src)
 			}
 		}
 	}
