@@ -18,6 +18,7 @@ sub	 //  inline comment 2
 
 label LABEL0
   goto 		 END  	
+if-goto SYMBOL
 `
 
 func TestHasMoreCommands(t *testing.T) {
@@ -34,6 +35,7 @@ func TestHasMoreCommands(t *testing.T) {
 		{true, []string{"sub"}},
 		{true, []string{"label", "LABEL0"}},
 		{true, []string{"goto", "END"}},
+		{true, []string{"if-goto", "SYMBOL"}},
 		{false, []string{}},
 	}
 
@@ -60,6 +62,7 @@ func TestAdvance(t *testing.T) {
 		{"pop   argument		4", command{Pop, "argument", 4}},
 		{"label LABEL0", command{Label, "LABEL0", 0}},
 		{"goto END", command{Goto, "END", 0}},
+		{"if-goto SYMBOL", command{If, "SYMBOL", 0}},
 	}
 
 	for _, tt := range testCases {
@@ -84,6 +87,7 @@ func TestAdvanceError(t *testing.T) {
 		{"push"},
 		{"label"},
 		{"goto"},
+		{"if-goto"},
 		{"add sub"},
 		{"pop temp"},
 		{"posh constant 1"},
@@ -91,6 +95,7 @@ func TestAdvanceError(t *testing.T) {
 		{"push local a"},
 		{"label L 0"},
 		{"goto G 1"},
+		{"if-goto I 2"},
 		{"push constant 1 2"},
 	}
 

@@ -161,12 +161,11 @@ func TestRunErr(t *testing.T) {
 	testCases := []struct {
 		filename string
 		src      string
-		want     string
 	}{
-		{"4cmd.vm", "// 4cmd.vm\npop local -1", "invalid command"}, // split into [pop, local, -, 1]
-		{"unknown_command.vm", "// unknown_command.vm\nfoo", "unknown command"},
-		{"unknown_segment.vm", "// unknown_segment.vm\npush foo 1", "unknown segment"},
-		{"not_integer.vm", "// not_integer.vm\npop local a", "not a positive integer"},
+		{"4cmd.vm", "// 4cmd.vm\npop local -1"}, // split into [pop, local, -, 1]
+		{"unknown_command.vm", "// unknown_command.vm\nfoo"},
+		{"unknown_segment.vm", "// unknown_segment.vm\npush foo 1"},
+		{"not_integer.vm", "// not_integer.vm\npop local a"},
 	}
 
 	var (
@@ -175,9 +174,8 @@ func TestRunErr(t *testing.T) {
 	)
 	for _, tt := range testCases {
 		vmtransl = New(&buf)
-		err := vmtransl.run(tt.filename, strings.NewReader(tt.src))
-		if !strings.Contains(err.Error(), tt.want) {
-			t.Errorf("filename = %s\nsrc = %q\nerror should contain %q but got %q", tt.filename, tt.src, tt.want, err.Error())
+		if e := vmtransl.run(tt.filename, strings.NewReader(tt.src)); e == nil {
+			t.Errorf("filename = %s\nsrc = %q\nerror should occur but got <nil>", tt.filename, tt.src)
 		}
 
 		buf.Reset()

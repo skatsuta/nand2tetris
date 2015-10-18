@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"text/scanner"
+	"unicode"
 )
 
 const (
@@ -63,7 +64,14 @@ func New(src io.Reader) *Parser {
 
 // HasMoreCommands reports whether there exist more commands in input.
 func (p *Parser) HasMoreCommands() bool {
-	sc := scanner.Scanner{Mode: vmScanMode}
+	sc := scanner.Scanner{
+		Mode: vmScanMode,
+		IsIdentRune: func(ch rune, i int) bool {
+			// make Scanner recognize '-' as an identifier too
+			// cf. text/scanner.Scanner.isIdentRune()
+			return ch == '_' || ch == '-' || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
+		},
+	}
 
 	// if Scan() == true && Text() is not a comment, return true
 	// if Scan() == false, return false
@@ -130,8 +138,8 @@ func (p *Parser) parse(tokens []string) (command, error) {
 		return p.parseArithmetic(tokens)
 	case Push, Pop:
 		return p.parsePushPop(typ, tokens)
-	case Label, Goto:
-		return p.parseLabelGoto(typ, tokens)
+	case Label, Goto, If:
+		return p.parseLabelIfGoto(typ, tokens)
 	default:
 		return command{}, fmt.Errorf("unknown command: %s", cmd)
 	}
@@ -146,7 +154,7 @@ func (p *Parser) parseArithmetic(tokens []string) (command, error) {
 }
 
 // parseLabelGoto parses a label/goto command.
-func (p *Parser) parseLabelGoto(typ CommandType, tokens []string) (command, error) {
+func (p *Parser) parseLabelIfGoto(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 2 {
 		return command{}, ErrInvalidCommand
 	}
