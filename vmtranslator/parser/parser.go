@@ -18,6 +18,9 @@ const (
 	vmScanMode = scanner.ScanIdents | scanner.ScanInts | scanner.SkipComments
 )
 
+// ErrInvalidCommand is an error represenitng a command is invalid.
+var ErrInvalidCommand = errors.New("invalid command")
+
 // CommandType represents a type of VM command.
 type CommandType int
 
@@ -100,6 +103,9 @@ func (p *Parser) HasMoreCommands() bool {
 func (p *Parser) Advance() error {
 	cmd, err := p.parse(p.tokens)
 	if err != nil {
+		if err == ErrInvalidCommand {
+			return fmt.Errorf("%v: %s", ErrInvalidCommand, p.line)
+		}
 		return err
 	}
 
@@ -124,8 +130,8 @@ func (p *Parser) parse(tokens []string) (command, error) {
 		return p.parseArithmetic(tokens)
 	case Push, Pop:
 		return p.parsePushPop(typ, tokens)
-	case Label:
-		return p.parseLabel(tokens)
+	case Label, Goto:
+		return p.parseLabelGoto(typ, tokens)
 	default:
 		return command{}, fmt.Errorf("unknown command: %s", cmd)
 	}
@@ -134,23 +140,23 @@ func (p *Parser) parse(tokens []string) (command, error) {
 // parseArithmetic parses an arithmetic command.
 func (p *Parser) parseArithmetic(tokens []string) (command, error) {
 	if len(tokens) != 1 {
-		return command{}, fmt.Errorf("invalid arithmetic command: %s", p.line)
+		return command{}, ErrInvalidCommand
 	}
 	return command{typ: Arithmetic, arg1: tokens[0]}, nil
 }
 
-// parseLabel parses a label command.
-func (p *Parser) parseLabel(tokens []string) (command, error) {
+// parseLabelGoto parses a label/goto command.
+func (p *Parser) parseLabelGoto(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 2 {
-		return command{}, fmt.Errorf("invalid label command: %s", p.line)
+		return command{}, ErrInvalidCommand
 	}
-	return command{typ: Label, arg1: tokens[1]}, nil
+	return command{typ: typ, arg1: tokens[1]}, nil
 }
 
 // parsePushPop parses a push/pop command.
 func (p *Parser) parsePushPop(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 3 {
-		return command{}, fmt.Errorf("invalid push/pop command: %s", p.line)
+		return command{}, ErrInvalidCommand
 	}
 
 	arg1 := tokens[1]

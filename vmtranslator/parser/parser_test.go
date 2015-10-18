@@ -17,6 +17,7 @@ push  constant	 1
 sub	 //  inline comment 2
 
 label LABEL0
+  goto 		 END  	
 `
 
 func TestHasMoreCommands(t *testing.T) {
@@ -32,6 +33,7 @@ func TestHasMoreCommands(t *testing.T) {
 		{true, []string{"push", "constant", "1"}},
 		{true, []string{"sub"}},
 		{true, []string{"label", "LABEL0"}},
+		{true, []string{"goto", "END"}},
 		{false, []string{}},
 	}
 
@@ -57,6 +59,7 @@ func TestAdvance(t *testing.T) {
 		{"push local 3", command{Push, "local", 3}},
 		{"pop   argument		4", command{Pop, "argument", 4}},
 		{"label LABEL0", command{Label, "LABEL0", 0}},
+		{"goto END", command{Goto, "END", 0}},
 	}
 
 	for _, tt := range testCases {
@@ -66,7 +69,7 @@ func TestAdvance(t *testing.T) {
 				t.Errorf("advance failed: %s", e.Error())
 			}
 			if !reflect.DeepEqual(p.cmd, tt.want) {
-				t.Errorf("got: %+v; want: %+v", p.cmd, tt.want)
+				t.Errorf("src = %q; got: %+v; want: %+v", tt.src, p.cmd, tt.want)
 			}
 		}
 	}
@@ -80,12 +83,14 @@ func TestAdvanceError(t *testing.T) {
 		{"foo"},
 		{"push"},
 		{"label"},
+		{"goto"},
 		{"add sub"},
 		{"pop temp"},
 		{"posh constant 1"},
 		{"pop argment 0"},
 		{"push local a"},
 		{"label L 0"},
+		{"goto G 1"},
 		{"push constant 1 2"},
 	}
 
