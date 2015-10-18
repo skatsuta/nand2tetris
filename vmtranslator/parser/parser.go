@@ -136,8 +136,8 @@ func (p *Parser) parse(tokens []string) (command, error) {
 	switch typ {
 	case Arithmetic:
 		return p.parseArithmetic(tokens)
-	case Push, Pop:
-		return p.parsePushPop(typ, tokens)
+	case Push, Pop, Function, Call:
+		return p.parsePushPopFuncCall(typ, tokens)
 	case Label, Goto, If:
 		return p.parseLabelIfGoto(typ, tokens)
 	default:
@@ -161,15 +161,18 @@ func (p *Parser) parseLabelIfGoto(typ CommandType, tokens []string) (command, er
 	return command{typ: typ, arg1: tokens[1]}, nil
 }
 
-// parsePushPop parses a push/pop command.
-func (p *Parser) parsePushPop(typ CommandType, tokens []string) (command, error) {
+// parsePushPopFuncCall parses a push/pop/function/call command.
+func (p *Parser) parsePushPopFuncCall(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 3 {
 		return command{}, ErrInvalidCommand
 	}
 
 	arg1 := tokens[1]
-	if !segs.contains(arg1) {
-		return command{}, fmt.Errorf("unknown segment: %s", arg1)
+	if typ == Push || typ == Pop {
+		// check the validation of a segment
+		if !segs.contains(arg1) {
+			return command{}, fmt.Errorf("unknown segment: %s", arg1)
+		}
 	}
 
 	// parse the third token as an integer

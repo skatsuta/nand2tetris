@@ -19,6 +19,9 @@ sub	 //  inline comment 2
 label LABEL0
   goto 		 END  	
 if-goto SYMBOL
+
+function func1 0
+call func2 1
 `
 
 func TestHasMoreCommands(t *testing.T) {
@@ -36,6 +39,8 @@ func TestHasMoreCommands(t *testing.T) {
 		{true, []string{"label", "LABEL0"}},
 		{true, []string{"goto", "END"}},
 		{true, []string{"if-goto", "SYMBOL"}},
+		{true, []string{"function", "func1", "0"}},
+		{true, []string{"call", "func2", "1"}},
 		{false, []string{}},
 	}
 
@@ -63,6 +68,8 @@ func TestAdvance(t *testing.T) {
 		{"label LABEL0", command{Label, "LABEL0", 0}},
 		{"goto END", command{Goto, "END", 0}},
 		{"if-goto SYMBOL", command{If, "SYMBOL", 0}},
+		{"function func1 0", command{Function, "func1", 0}},
+		{"call func2 1", command{Call, "func2", 1}},
 	}
 
 	for _, tt := range testCases {
@@ -88,15 +95,22 @@ func TestAdvanceError(t *testing.T) {
 		{"label"},
 		{"goto"},
 		{"if-goto"},
+		{"function"},
+		{"call"},
 		{"add sub"},
 		{"pop temp"},
+		{"function func1"},
+		{"call func2"},
 		{"posh constant 1"},
 		{"pop argment 0"},
 		{"push local a"},
 		{"label L 0"},
 		{"goto G 1"},
 		{"if-goto I 2"},
+		{"function func1 -1"},
+		{"call func1 a"},
 		{"push constant 1 2"},
+		{"function func1 2 3"},
 	}
 
 	for _, tt := range testCases {
