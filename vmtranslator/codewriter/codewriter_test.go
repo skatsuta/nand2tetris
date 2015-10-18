@@ -3,10 +3,10 @@ package codewriter
 import (
 	"bytes"
 	"fmt"
-	"math"
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
 func TestSetFileName(t *testing.T) {
@@ -86,7 +86,8 @@ func TestWriteArithmetic(t *testing.T) {
 
 		got := buf.String()
 		if got != tt.want {
-			t.Errorf("src = %s\ngot =\n%s\nwant =\n%s", tt.cmd, got, tt.want)
+			diff := diffTexts(got, tt.want)
+			t.Errorf("src = %s\n%s", tt.cmd, diff)
 		}
 	}
 }
@@ -147,18 +148,10 @@ func TestWritePushPop(t *testing.T) {
 			t.Fatalf("Close failed: %s", e.Error())
 		}
 
-		got := strings.Split(buf.String(), "\n")
-		want := strings.Split(tt.want, "\n")
-		if !reflect.DeepEqual(got, want) {
-			var b bytes.Buffer
-			_, _ = b.WriteString("<got>\t\t\t<want>\n-------\t\t\t-------\n")
-			minlen := int(math.Min(float64(len(got)), float64(len(want))))
-			for i := 0; i < minlen; i++ {
-				line := fmt.Sprintf("%s\t\t\t%s\n", got[i], want[i])
-				_, _ = b.WriteString(line)
-			}
-
-			t.Errorf("src = \"%s %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, b.String())
+		got := buf.String()
+		if got != tt.want {
+			diff := diffTexts(got, tt.want)
+			t.Errorf("src = \"%s %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
 		}
 
 		buf.Reset()
@@ -194,18 +187,10 @@ func TestWritePushPopStatic(t *testing.T) {
 			t.Fatalf("Close failed: %s", e.Error())
 		}
 
-		got := strings.Split(out.String(), "\n")
-		want := strings.Split(tt.want, "\n")
-		if !reflect.DeepEqual(got, want) {
-			var buf bytes.Buffer
-			_, _ = buf.WriteString("<< got >>\t\t<< want >>\n-------\t\t\t-------\n")
-			minlen := int(math.Min(float64(len(got)), float64(len(want))))
-			for i := 0; i < minlen; i++ {
-				line := fmt.Sprintf("%s\t\t\t%s\n", got[i], want[i])
-				_, _ = buf.WriteString(line)
-			}
-
-			t.Errorf("src = \"%s %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, buf.String())
+		got := out.String()
+		if got != tt.want {
+			diff := diffTexts(got, tt.want)
+			t.Errorf("src = \"%s %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
 		}
 
 		out.Reset()
@@ -235,7 +220,8 @@ func TestPushVal(t *testing.T) {
 
 		got := buf.String()
 		if got != tt.want {
-			t.Errorf("v = %d\ngot =\n%s\nwant =\n%s", tt.v, got, tt.want)
+			diff := diffTexts(got, tt.want)
+			t.Errorf("v = %d\n%s", tt.v, diff)
 		}
 
 		buf.Reset()
@@ -547,3 +533,23 @@ var asmEnd = `(END)
 @END
 0;JMP
 `
+
+// diffTexts returns a text representing a difference between text1 and text2.
+func diffTexts(text1, text2 string) string {
+	dmp := diffmatchpatch.New()
+	diffs := dmp.DiffMain(text1, text2, false)
+
+	var buf bytes.Buffer
+	for _, diff := range diffs {
+		lines := strings.Split(diff.Text, "\n")
+		for _, line := range lines {
+			if diff.Type < 0 {
+				_, _ = buf.WriteString("< " + line + "\n")
+			} else if diff.Type > 0 {
+				_, _ = buf.WriteString("\t> " + line + "\n")
+			}
+		}
+	}
+
+	return buf.String()
+}
