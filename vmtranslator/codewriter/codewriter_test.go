@@ -3,7 +3,6 @@ package codewriter
 import (
 	"bytes"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -591,17 +590,16 @@ var asmEnd = `(END)
 // diffTexts returns a text representing a difference between text1 and text2.
 func diffTexts(text1, text2 string) string {
 	dmp := diffmatchpatch.New()
-	diffs := dmp.DiffMain(text1, text2, false)
+	a, b, c := dmp.DiffLinesToChars(text1, text2)
+	diffs := dmp.DiffMain(a, b, false)
+	res := dmp.DiffCharsToLines(diffs, c)
 
 	var buf bytes.Buffer
-	for _, diff := range diffs {
-		lines := strings.Split(diff.Text, "\n")
-		for _, line := range lines {
-			if diff.Type < 0 {
-				_, _ = buf.WriteString("< " + line + "\n")
-			} else if diff.Type > 0 {
-				_, _ = buf.WriteString("\t> " + line + "\n")
-			}
+	for _, diff := range res {
+		if diff.Type < 0 {
+			_, _ = buf.WriteString("< " + diff.Text)
+		} else if diff.Type > 0 {
+			_, _ = buf.WriteString("\t\t> " + diff.Text)
 		}
 	}
 
