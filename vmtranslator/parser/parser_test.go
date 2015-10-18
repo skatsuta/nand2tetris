@@ -22,6 +22,8 @@ if-goto SYMBOL
 
 function func1 0
 call func2 1
+
+return
 `
 
 func TestHasMoreCommands(t *testing.T) {
@@ -41,6 +43,7 @@ func TestHasMoreCommands(t *testing.T) {
 		{true, []string{"if-goto", "SYMBOL"}},
 		{true, []string{"function", "func1", "0"}},
 		{true, []string{"call", "func2", "1"}},
+		{true, []string{"return"}},
 		{false, []string{}},
 	}
 
@@ -70,6 +73,7 @@ func TestAdvance(t *testing.T) {
 		{"if-goto SYMBOL", command{If, "SYMBOL", 0}},
 		{"function func1 0", command{Function, "func1", 0}},
 		{"call func2 1", command{Call, "func2", 1}},
+		{"return", command{Return, "", 0}},
 	}
 
 	for _, tt := range testCases {
@@ -101,6 +105,7 @@ func TestAdvanceError(t *testing.T) {
 		{"pop temp"},
 		{"function func1"},
 		{"call func2"},
+		{"return 0"},
 		{"posh constant 1"},
 		{"pop argment 0"},
 		{"push local a"},

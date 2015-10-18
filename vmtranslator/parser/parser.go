@@ -134,8 +134,8 @@ func (p *Parser) parse(tokens []string) (command, error) {
 	typ := p.dispatchCommand(cmd)
 
 	switch typ {
-	case Arithmetic:
-		return p.parseArithmetic(tokens)
+	case Arithmetic, Return:
+		return p.parseArithmeticReturn(typ, tokens)
 	case Push, Pop, Function, Call:
 		return p.parsePushPopFuncCall(typ, tokens)
 	case Label, Goto, If:
@@ -145,12 +145,18 @@ func (p *Parser) parse(tokens []string) (command, error) {
 	}
 }
 
-// parseArithmetic parses an arithmetic command.
-func (p *Parser) parseArithmetic(tokens []string) (command, error) {
+// parseArithmetic parses an arithmetic/return command.
+func (p *Parser) parseArithmeticReturn(typ CommandType, tokens []string) (command, error) {
 	if len(tokens) != 1 {
 		return command{}, ErrInvalidCommand
 	}
-	return command{typ: Arithmetic, arg1: tokens[0]}, nil
+
+	var arg1 string
+	if typ == Arithmetic {
+		arg1 = tokens[0]
+	}
+
+	return command{typ: typ, arg1: arg1}, nil
 }
 
 // parseLabelGoto parses a label/goto command.
