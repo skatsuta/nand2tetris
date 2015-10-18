@@ -163,7 +163,7 @@ func TestRunErr(t *testing.T) {
 		src      string
 		want     string
 	}{
-		{"4cmd.vm", "// 4cmd.vm\npop local -1", "invalid command"}, // split into [pop, local, -, 1]
+		{"4cmd.vm", "// 4cmd.vm\npop local -1", "invalid push/pop command"}, // split into [pop, local, -, 1]
 		{"unknown_command.vm", "// unknown_command.vm\nfoo", "unknown command"},
 		{"unknown_segment.vm", "// unknown_segment.vm\npush foo 1", "unknown segment"},
 		{"not_integer.vm", "// not_integer.vm\npop local a", "not a positive integer"},

@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -97,42 +98,74 @@ func (p *Parser) HasMoreCommands() bool {
 // If the next command is invalid, it returns an error.
 // This method should be called only if HasMoreCommands() returns true.
 func (p *Parser) Advance() error {
-	tokens := p.tokens
+	cmd, err := p.parse(p.tokens)
+	if err != nil {
+		return err
+	}
 
+	p.cmd = cmd
+	return nil
+}
+
+// parse parses tokens and returns a command object.
+// If it fails to parse tokens, it returns an error.
+func (p *Parser) parse(tokens []string) (command, error) {
 	// check the length of tokens: should be less than 4
-	if len(tokens) > 3 {
-		return fmt.Errorf("invalid command: %q", p.line)
+	if len(tokens) == 0 {
+		return command{}, errors.New("empty tokens")
 	}
 
 	// parse the first token as an opcode
 	cmd := tokens[0]
 	typ := p.dispatchCommand(cmd)
-	if typ == unknown {
-		return fmt.Errorf("unknown command: %s", cmd)
+
+	switch typ {
+	case Arithmetic:
+		return p.parseArithmetic(tokens)
+	case Push, Pop:
+		return p.parsePushPop(typ, tokens)
+	case Label:
+		return p.parseLabel(tokens)
+	default:
+		return command{}, fmt.Errorf("unknown command: %s", cmd)
 	}
-	p.cmd.typ = typ
-	if typ == Arithmetic {
-		p.cmd.arg1 = cmd
-		p.cmd.arg2 = 0
-		return nil
+}
+
+// parseArithmetic parses an arithmetic command.
+func (p *Parser) parseArithmetic(tokens []string) (command, error) {
+	if len(tokens) != 1 {
+		return command{}, fmt.Errorf("invalid arithmetic command: %s", p.line)
+	}
+	return command{typ: Arithmetic, arg1: tokens[0]}, nil
+}
+
+// parseLabel parses a label command.
+func (p *Parser) parseLabel(tokens []string) (command, error) {
+	if len(tokens) != 2 {
+		return command{}, fmt.Errorf("invalid label command: %s", p.line)
+	}
+	return command{typ: Label, arg1: tokens[1]}, nil
+}
+
+// parsePushPop parses a push/pop command.
+func (p *Parser) parsePushPop(typ CommandType, tokens []string) (command, error) {
+	if len(tokens) != 3 {
+		return command{}, fmt.Errorf("invalid push/pop command: %s", p.line)
 	}
 
-	// parse the second token as a segment
-	seg := tokens[1]
-	if !segs.contains(seg) {
-		return fmt.Errorf("unknown segment: %s", seg)
+	arg1 := tokens[1]
+	if !segs.contains(arg1) {
+		return command{}, fmt.Errorf("unknown segment: %s", arg1)
 	}
-	p.cmd.arg1 = seg
 
 	// parse the third token as an integer
 	a := tokens[2]
 	i, err := strconv.Atoi(a)
 	if i < 0 || err != nil {
-		return fmt.Errorf("not a positive integer: %s", a)
+		return command{}, fmt.Errorf("not a positive integer: %s", a)
 	}
-	p.cmd.arg2 = uint(i)
 
-	return nil
+	return command{typ: typ, arg1: arg1, arg2: uint(i)}, nil
 }
 
 // dispatchCommand dispatches CommandType from cmd.

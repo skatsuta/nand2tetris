@@ -54,6 +54,9 @@ func TestAdvance(t *testing.T) {
 		{"sub", command{Arithmetic, "sub", 0}},
 		{"push constant 1", command{Push, "constant", 1}},
 		{"pop constant 2", command{Pop, "constant", 2}},
+		{"push local 3", command{Push, "local", 3}},
+		{"pop   argument		4", command{Pop, "argument", 4}},
+		{"label LABEL0", command{Label, "LABEL0", 0}},
 	}
 
 	for _, tt := range testCases {
@@ -73,11 +76,17 @@ func TestAdvanceError(t *testing.T) {
 	testCases := []struct {
 		src string
 	}{
+		{""},
 		{"foo"},
-		{"push constant 1 2"},
+		{"push"},
+		{"label"},
+		{"add sub"},
+		{"pop temp"},
 		{"posh constant 1"},
 		{"pop argment 0"},
 		{"push local a"},
+		{"label L 0"},
+		{"push constant 1 2"},
 	}
 
 	for _, tt := range testCases {
