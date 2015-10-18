@@ -433,7 +433,8 @@ func (cw *CodeWriter) acmd(addr interface{}) {
 		return
 	}
 
-	_, cw.err = cw.buf.WriteString("@" + fmt.Sprintf("%v", addr) + "\n")
+	a := fmt.Sprintf("@%v\n", addr)
+	_, cw.err = cw.buf.WriteString(a)
 }
 
 // ccmd writes C command with no jump. If an error occurs, it is set at cw.err.
@@ -475,5 +476,6 @@ func (cw *CodeWriter) lcmd(label string) {
 		return
 	}
 
-	_, cw.err = cw.buf.WriteString("(" + label + ")\n")
+	lbl := fmt.Sprintf("(%s)\n", label)
+	_, cw.err = cw.buf.WriteString(lbl)
 }
