@@ -229,23 +229,33 @@ func TestPushVal(t *testing.T) {
 	}
 }
 
-func TestWriteLabel(t *testing.T) {
+func TestWriteLabelGoto(t *testing.T) {
 	testCases := []struct {
+		cmd   string
 		label string
 		want  string
 	}{
-		{"LABEL", asmLabel("LABEL") + asmEnd},
+		{"label", "LABEL", asmLabel("LABEL") + asmEnd},
+		{"goto", "LABEL", asmGoto("LABEL") + asmEnd},
 	}
 
 	var (
 		out bytes.Buffer
 		cw  *CodeWriter
+		err error
 	)
 
 	for _, tt := range testCases {
 		cw = New(&out)
-		if e := cw.WriteLabel(tt.label); e != nil {
-			t.Fatalf("WriteLabel failed: %v", e)
+
+		switch tt.cmd {
+		case "label":
+			err = cw.WriteLabel(tt.label)
+		case "goto":
+			err = cw.WriteGoto(tt.label)
+		}
+		if err != nil {
+			t.Fatalf("WriteLabel failed: %v", err)
 		}
 
 		if e := cw.Close(); e != nil {
@@ -260,6 +270,13 @@ func TestWriteLabel(t *testing.T) {
 
 		out.Reset()
 	}
+}
+
+func asmGoto(label string) string {
+	tpl := `@%s
+0;JMP
+`
+	return fmt.Sprintf(tpl, label)
 }
 
 func asmLabel(label string) string {

@@ -133,6 +133,17 @@ func (cw *CodeWriter) WriteLabel(label string) error {
 	return nil
 }
 
+// WriteGoto converts the given goto command to assembly code and writes it out.
+func (cw *CodeWriter) WriteGoto(label string) error {
+	cw.acmd(label)
+	cw.ccmdj("", "0", "JMP")
+
+	if cw.err != nil {
+		return fmt.Errorf("error writing goto: %v", cw.err)
+	}
+	return nil
+}
+
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {
