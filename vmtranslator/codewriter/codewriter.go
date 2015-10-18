@@ -123,6 +123,16 @@ func (cw *CodeWriter) WritePushPop(cmd, seg string, idx uint) error {
 	}
 }
 
+// WriteLabel converts the given label command to assembly code and writes it out.
+func (cw *CodeWriter) WriteLabel(label string) error {
+	cw.lcmd(label)
+
+	if cw.err != nil {
+		return fmt.Errorf("error writing label: %v", cw.err)
+	}
+	return nil
+}
+
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {

@@ -229,6 +229,43 @@ func TestPushVal(t *testing.T) {
 	}
 }
 
+func TestWriteLabel(t *testing.T) {
+	testCases := []struct {
+		label string
+		want  string
+	}{
+		{"LABEL", asmLabel("LABEL") + asmEnd},
+	}
+
+	var (
+		out bytes.Buffer
+		cw  *CodeWriter
+	)
+
+	for _, tt := range testCases {
+		cw = New(&out)
+		if e := cw.WriteLabel(tt.label); e != nil {
+			t.Fatalf("WriteLabel failed: %v", e)
+		}
+
+		if e := cw.Close(); e != nil {
+			t.Fatalf("Close failed: %v", e)
+		}
+
+		got := out.String()
+		if got != tt.want {
+			diff := diffTexts(got, tt.want)
+			t.Errorf("label = %q\n%s", tt.label, diff)
+		}
+
+		out.Reset()
+	}
+}
+
+func asmLabel(label string) string {
+	return fmt.Sprintf("(%s)\n", label)
+}
+
 func asmPushConst(v uint) string {
 	tpl := `@%d
 D=A
