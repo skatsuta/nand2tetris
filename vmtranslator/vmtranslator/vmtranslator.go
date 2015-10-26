@@ -47,8 +47,14 @@ func (tr *VMTranslator) run(filename string, src io.Reader) error {
 			err = tr.cw.WritePushPop("push", p.Arg1(), p.Arg2())
 		case parser.Pop:
 			err = tr.cw.WritePushPop("pop", p.Arg1(), p.Arg2())
+		case parser.Label:
+			err = tr.cw.WriteLabel(p.Arg1())
+		case parser.Goto:
+			err = tr.cw.WriteGoto(p.Arg1())
+		case parser.If:
+			err = tr.cw.WriteIf(p.Arg1())
 		default:
-			err = fmt.Errorf("unknown command: %d %s %d", tr.p.CommandType(), p.Arg1(), p.Arg2())
+			err = fmt.Errorf("unknown command: %d %s %d", p.CommandType(), p.Arg1(), p.Arg2())
 		}
 
 		if err != nil {

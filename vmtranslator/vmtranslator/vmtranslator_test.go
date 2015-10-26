@@ -111,6 +111,17 @@ A=M
 M=D
 `
 
+	wantLabelIfGoto = `
+(LABEL0)
+@LABEL1
+0;JMP
+@SP
+AM=M-1
+D=M
+@LABEL2
+D;JNE
+`
+
 	end = `(END)
 @END
 0;JMP
@@ -127,6 +138,8 @@ func TestRun(t *testing.T) {
 		{"add.vm", "// add.vm\npush constant 1\npush constant 2\nadd", "// add.vm" + wantAdd + end},
 		{"eq.vm", "// eq.vm\npush constant 1\npush constant 1\neq", "// eq.vm" + wantEq + end},
 		{"push_pop.vm", "// push_pop.vm\npush constant 0\npop local 0", "// push_pop.vm" + wantPushPop + end},
+		{"label_if_goto.vm", "// label_if_goto.vm\nlabel LABEL0\ngoto LABEL1\nif-goto LABEL2",
+			"// label_if_goto.vm" + wantLabelIfGoto + end},
 	}
 
 	var (
