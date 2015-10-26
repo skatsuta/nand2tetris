@@ -157,6 +157,22 @@ func (cw *CodeWriter) WriteIf(label string) error {
 	return nil
 }
 
+// WriteFunction converts the given function command to assembly code and writes it out.
+func (cw *CodeWriter) WriteFunction(funcName string, numLocals int) error {
+	cw.lcmd(funcName)
+
+	// initialize a variable pointed by symb + idx to 0.
+	for i := 0; i < numLocals; i++ {
+		cw.loadSeg("LCL", uint(i), false)
+		cw.ccmd("M", "0")
+	}
+
+	if cw.err != nil {
+		return fmt.Errorf("error writing function: %v", cw.err)
+	}
+	return nil
+}
+
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {

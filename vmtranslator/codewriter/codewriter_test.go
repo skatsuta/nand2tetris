@@ -274,6 +274,55 @@ func TestWriteLabelGoto(t *testing.T) {
 	}
 }
 
+func TestWriteFunction(t *testing.T) {
+	testCases := []struct {
+		funcName  string
+		numLocals int
+		want      string
+	}{
+		{"func0", 0, asmFunc("func0", 0) + asmEnd},
+		{"func1", 1, asmFunc("func1", 1) + asmEnd},
+		{"func2", 2, asmFunc("func2", 2) + asmEnd},
+	}
+
+	var (
+		out bytes.Buffer
+		cw  *CodeWriter
+	)
+	for _, tt := range testCases {
+		cw = New(&out)
+		if e := cw.WriteFunction(tt.funcName, tt.numLocals); e != nil {
+			t.Fatalf("WriteFunction failed: %v", e)
+		}
+
+		if e := cw.Close(); e != nil {
+			t.Fatalf("Close failed: %v", e)
+		}
+
+		got := out.String()
+		if got != tt.want {
+			diff := diffTexts(got, tt.want)
+			t.Errorf("%s(%d):\n%s", tt.funcName, tt.numLocals, diff)
+		}
+
+		out.Reset()
+	}
+}
+
+func asmFunc(name string, num int) string {
+	tpl := "(%s)\n"
+	ini := `@%d
+D=A
+@LCL
+AD=D+M
+M=0
+`
+	for i := 0; i < num; i++ {
+		tpl += fmt.Sprintf(ini, i)
+	}
+	return fmt.Sprintf(tpl, name)
+}
+
 func asmIf(label string) string {
 	tpl := `@SP
 AM=M-1
