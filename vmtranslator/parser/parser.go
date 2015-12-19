@@ -46,6 +46,14 @@ type command struct {
 	arg2 uint
 }
 
+// isIdentRune is a predicate controlling the characters accepted as the ith rune in an identifier.
+func isIdentRune(ch rune, i int) bool {
+	// make Scanner recognize non-first '-' and '.' as additional identifiers
+	// cf. text/scanner.Scanner.isIdentRune()
+	return ch == '_' || unicode.IsLetter(ch) ||
+		i > 0 && (unicode.IsDigit(ch) || ch == '-' || ch == '.')
+}
+
 // Parser is a parser for VM code.
 // Parser is not thread safe, so it should NOT be used in multiple goroutines.
 type Parser struct {
@@ -56,18 +64,13 @@ type Parser struct {
 	cmd    command
 }
 
-// New creates a new parser object that reads and parses r.
+// New creates a new parser object that reads and parses src.
 func New(src io.Reader) *Parser {
 	return &Parser{
 		src: bufio.NewScanner(src),
 		sc: &scanner.Scanner{
-			Mode: vmScanMode,
-			IsIdentRune: func(ch rune, i int) bool {
-				// make Scanner recognize '-' as an identifier too
-				// cf. text/scanner.Scanner.isIdentRune()
-				return ch == '_' || ch == '-' ||
-					unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
-			},
+			Mode:        vmScanMode,
+			IsIdentRune: isIdentRune,
 		},
 	}
 }
