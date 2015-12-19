@@ -17,8 +17,13 @@ func TestConvert(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		if e := convert(tt.path); e != nil {
-			t.Fatal(e)
+		opath, err := convert(tt.path)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if opath != tt.got {
+			t.Errorf("output file: got = %q, want = %q", opath, tt.got)
 		}
 
 		gotb, _ := ioutil.ReadFile(tt.got)
