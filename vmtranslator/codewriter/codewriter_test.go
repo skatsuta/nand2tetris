@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/sergi/go-diff/diffmatchpatch"
+	"github.com/skatsuta/nand2tetris/vmtranslator/parser"
 )
 
 func TestSetFileName(t *testing.T) {
@@ -111,29 +112,29 @@ func TestWriteArithmeticError(t *testing.T) {
 
 func TestWritePushPop(t *testing.T) {
 	testCases := []struct {
-		cmd  string
+		cmd  parser.CommandType
 		seg  string
 		idx  uint
 		want string
 	}{
-		{"push", "constant", 0, asmPushConst(0) + asmEnd},
-		{"push", "constant", 1, asmPushConst(1) + asmEnd},
-		{"push", "local", 0, asmPushMem("LCL", 0) + asmEnd},
-		{"push", "argument", 0, asmPushMem("ARG", 0) + asmEnd},
-		{"push", "this", 0, asmPushMem("THIS", 0) + asmEnd},
-		{"push", "that", 0, asmPushMem("THAT", 0) + asmEnd},
-		{"push", "temp", 0, asmPushReg("R5", 0) + asmEnd},
-		{"push", "temp", 7, asmPushReg("R5", 7) + asmEnd},
-		{"push", "pointer", 0, asmPushReg("R3", 0) + asmEnd},
-		{"push", "pointer", 1, asmPushReg("R3", 1) + asmEnd},
-		{"pop", "local", 0, asmPopMem("LCL", 0) + asmEnd},
-		{"pop", "argument", 2, asmPopMem("ARG", 2) + asmEnd},
-		{"pop", "this", 3, asmPopMem("THIS", 3) + asmEnd},
-		{"pop", "that", 4, asmPopMem("THAT", 4) + asmEnd},
-		{"pop", "temp", 0, asmPopReg("R5", 0) + asmEnd},
-		{"pop", "temp", 7, asmPopReg("R5", 7) + asmEnd},
-		{"pop", "pointer", 0, asmPopReg("R3", 0) + asmEnd},
-		{"pop", "pointer", 1, asmPopReg("R3", 1) + asmEnd},
+		{parser.Push, "constant", 0, asmPushConst(0) + asmEnd},
+		{parser.Push, "constant", 1, asmPushConst(1) + asmEnd},
+		{parser.Push, "local", 0, asmPushMem("LCL", 0) + asmEnd},
+		{parser.Push, "argument", 0, asmPushMem("ARG", 0) + asmEnd},
+		{parser.Push, "this", 0, asmPushMem("THIS", 0) + asmEnd},
+		{parser.Push, "that", 0, asmPushMem("THAT", 0) + asmEnd},
+		{parser.Push, "temp", 0, asmPushReg("R5", 0) + asmEnd},
+		{parser.Push, "temp", 7, asmPushReg("R5", 7) + asmEnd},
+		{parser.Push, "pointer", 0, asmPushReg("R3", 0) + asmEnd},
+		{parser.Push, "pointer", 1, asmPushReg("R3", 1) + asmEnd},
+		{parser.Pop, "local", 0, asmPopMem("LCL", 0) + asmEnd},
+		{parser.Pop, "argument", 2, asmPopMem("ARG", 2) + asmEnd},
+		{parser.Pop, "this", 3, asmPopMem("THIS", 3) + asmEnd},
+		{parser.Pop, "that", 4, asmPopMem("THAT", 4) + asmEnd},
+		{parser.Pop, "temp", 0, asmPopReg("R5", 0) + asmEnd},
+		{parser.Pop, "temp", 7, asmPopReg("R5", 7) + asmEnd},
+		{parser.Pop, "pointer", 0, asmPopReg("R3", 0) + asmEnd},
+		{parser.Pop, "pointer", 1, asmPopReg("R3", 1) + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -150,7 +151,7 @@ func TestWritePushPop(t *testing.T) {
 		got := buf.String()
 		if got != tt.want {
 			diff := diffTexts(got, tt.want)
-			t.Errorf("src = \"%s %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
+			t.Errorf("src = \"%d %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
 		}
 
 		buf.Reset()
@@ -161,15 +162,15 @@ func TestWritePushPop(t *testing.T) {
 func TestWritePushPopStatic(t *testing.T) {
 	testCases := []struct {
 		filename string
-		cmd      string
+		cmd      parser.CommandType
 		seg      string
 		idx      uint
 		want     string
 	}{
-		{"push0.vm", "push", "static", 0, asmPushStatic("push0.vm", "push0", 0) + asmEnd},
-		{"push5.vm", "push", "static", 5, asmPushStatic("push5.vm", "push5", 5) + asmEnd},
-		{"pop0.vm", "pop", "static", 0, asmPopStatic("pop0.vm", "pop0", 0) + asmEnd},
-		{"pop5.vm", "pop", "static", 5, asmPopStatic("pop5.vm", "pop5", 5) + asmEnd},
+		{"push0.vm", parser.Push, "static", 0, asmPushStatic("push0.vm", "push0", 0) + asmEnd},
+		{"push5.vm", parser.Push, "static", 5, asmPushStatic("push5.vm", "push5", 5) + asmEnd},
+		{"pop0.vm", parser.Pop, "static", 0, asmPopStatic("pop0.vm", "pop0", 0) + asmEnd},
+		{"pop5.vm", parser.Pop, "static", 5, asmPopStatic("pop5.vm", "pop5", 5) + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -189,7 +190,7 @@ func TestWritePushPopStatic(t *testing.T) {
 		got := out.String()
 		if got != tt.want {
 			diff := diffTexts(got, tt.want)
-			t.Errorf("src = \"%s %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
+			t.Errorf("src = \"%d %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
 		}
 
 		out.Reset()
