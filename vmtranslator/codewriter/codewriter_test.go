@@ -310,6 +310,85 @@ func TestWriteFunction(t *testing.T) {
 	}
 }
 
+func TestWriteReturn(t *testing.T) {
+	var out bytes.Buffer
+	cw := New(&out)
+
+	if e := cw.WriteReturn(); e != nil {
+		t.Fatalf("WriteReturn failed: %v", e)
+	}
+
+	if e := cw.Close(); e != nil {
+		t.Fatalf("Close failed: %v", e)
+	}
+
+	got := out.String()
+	want := asmReturn() + asmEnd
+	if got != want {
+		diff := diffTexts(got, want)
+		t.Errorf("return:\n%s", diff)
+	}
+}
+
+func asmReturn() string {
+	return `@0
+D=A
+@LCL
+AD=D+M
+@R14
+M=D
+@5
+D=A
+@R14
+AD=M-D
+D=M
+@R15
+M=D
+@SP
+AM=M-1
+D=M
+@ARG
+A=M
+M=D
+@1
+D=A
+@ARG
+AD=D+M
+@SP
+M=D
+@1
+D=A
+@R14
+AD=M-D
+D=M
+@THAT
+M=D
+@2
+D=A
+@R14
+AD=M-D
+D=M
+@THIS
+M=D
+@3
+D=A
+@R14
+AD=M-D
+D=M
+@ARG
+M=D
+@4
+D=A
+@R14
+AD=M-D
+D=M
+@LCL
+M=D
+@R15
+0;JMP
+`
+}
+
 func asmFunc(name string, num int) string {
 	tpl := "(%s)\n"
 	ini := `@%d
