@@ -126,12 +126,8 @@ func (p *Parser) HasMoreCommands() bool {
 func (p *Parser) Advance() error {
 	cmd, err := p.parse(p.tokens)
 	if err != nil {
-		if err == ErrInvalidCommand {
-			return fmt.Errorf("%v: %s", ErrInvalidCommand, p.line)
-		}
-		return err
+		return fmt.Errorf("error parsing %q: %v", p.line, err)
 	}
-
 	p.cmd = cmd
 	return nil
 }
