@@ -253,7 +253,7 @@ func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
 		cw.loadSeg(symb, int(idx), direct)
 	}
 	cw.ccmd("D", "M")
-	cw.saveTo(regSP)
+	cw.saveTo(regSP, true)
 	cw.incrSP()
 }
 
@@ -313,7 +313,7 @@ func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
 	cw.acmd(tmpreg)
 	cw.ccmd("M", "D")
 	cw.popStack()
-	cw.saveTo(tmpreg)
+	cw.saveTo(tmpreg, true)
 }
 
 // unary writes a unary operation for a value at the top of the stack.
@@ -421,10 +421,13 @@ func (cw *CodeWriter) loadSeg(symb string, idx int, direct bool) {
 }
 
 // saveTo save the value of D to addr.
+// If indirect is true it saves D to *addr instead of addr.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) saveTo(addr string) {
+func (cw *CodeWriter) saveTo(addr string, indirect bool) {
 	cw.acmd(addr)
-	cw.ccmd("A", "M")
+	if indirect {
+		cw.ccmd("A", "M")
+	}
 	cw.ccmd("M", "D")
 }
 
@@ -439,7 +442,7 @@ func (cw *CodeWriter) loadVal(v int) {
 
 	cw.acmd(v)
 	cw.ccmd("D", "A")
-	cw.saveTo(regSP)
+	cw.saveTo(regSP, true)
 }
 
 // popStack pops a value at the top of the stack. Internally,
