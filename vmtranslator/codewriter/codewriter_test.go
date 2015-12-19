@@ -151,7 +151,7 @@ func TestWritePushPop(t *testing.T) {
 		got := buf.String()
 		if got != tt.want {
 			diff := diffTexts(got, tt.want)
-			t.Errorf("src = \"%d %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
+			t.Errorf("src = \"%v %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
 		}
 
 		buf.Reset()
@@ -190,7 +190,7 @@ func TestWritePushPopStatic(t *testing.T) {
 		got := out.String()
 		if got != tt.want {
 			diff := diffTexts(got, tt.want)
-			t.Errorf("src = \"%d %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
+			t.Errorf("src = \"%v %s %d\"\n%s", tt.cmd, tt.seg, tt.idx, diff)
 		}
 
 		out.Reset()

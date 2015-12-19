@@ -121,7 +121,7 @@ func (cw *CodeWriter) WritePushPop(cmd parser.CommandType, seg string, idx uint)
 	case parser.Pop:
 		return cw.pop(seg, idx)
 	default:
-		return fmt.Errorf("unknown command: %d", cmd)
+		return fmt.Errorf("unknown command: %v", cmd)
 	}
 }
 
