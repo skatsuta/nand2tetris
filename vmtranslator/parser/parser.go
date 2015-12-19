@@ -25,6 +25,17 @@ var ErrInvalidCommand = errors.New("invalid command")
 // CommandType represents a type of VM command.
 type CommandType int
 
+const _CommandTypeName = "unknownarithmeticpushpoplabelgotoiffunctionreturncall"
+
+var _CommandTypeIndex = [...]uint8{0, 7, 17, 21, 24, 29, 33, 35, 43, 49, 53}
+
+func (i CommandType) String() string {
+	if i < 0 || i >= CommandType(len(_CommandTypeIndex)-1) {
+		return fmt.Sprintf("CommandType(%d)", i)
+	}
+	return _CommandTypeName[_CommandTypeIndex[i]:_CommandTypeIndex[i+1]]
+}
+
 // A list of command types.
 const (
 	unknown CommandType = iota

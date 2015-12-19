@@ -6,6 +6,24 @@ import (
 	"testing"
 )
 
+func TestCommandTypeString(t *testing.T) {
+	tests := []struct {
+		cmd  CommandType
+		want string
+	}{
+		{unknown, "unknown"},
+		{Arithmetic, "arithmetic"},
+		{Call, "call"},
+	}
+
+	for _, tt := range tests {
+		got := tt.cmd.String()
+		if got != tt.want {
+			t.Errorf("got: %v != want: %v", got, tt.want)
+		}
+	}
+}
+
 var testVM = `
 // comment
   push  constant	2
