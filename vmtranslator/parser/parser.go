@@ -19,8 +19,12 @@ const (
 	vmScanMode = scanner.ScanIdents | scanner.ScanInts | scanner.SkipComments
 )
 
-// ErrInvalidCommand is an error represenitng a command is invalid.
-var ErrInvalidCommand = errors.New("invalid command")
+var (
+	// ErrInvalidCommand is an error represenitng a command is invalid.
+	ErrInvalidCommand = errors.New("invalid command")
+	// ErrNoTokens is an error representing no tokens.
+	ErrNoTokens = errors.New("no tokens")
+)
 
 // CommandType represents a type of VM command.
 type CommandType int
@@ -137,7 +141,7 @@ func (p *Parser) Advance() error {
 func (p *Parser) parse(tokens []string) (command, error) {
 	// check the length of tokens: should be less than 4
 	if len(tokens) == 0 {
-		return command{}, errors.New("empty tokens")
+		return command{}, ErrNoTokens
 	}
 
 	// parse the first token as an opcode
