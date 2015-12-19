@@ -158,11 +158,11 @@ func (cw *CodeWriter) WriteIf(label string) error {
 }
 
 // WriteFunction converts the given function command to assembly code and writes it out.
-func (cw *CodeWriter) WriteFunction(funcName string, numLocals int) error {
+func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
 	cw.lcmd(funcName)
 
 	// initialize a variable pointed by symb + idx to 0.
-	for i := 0; i < numLocals; i++ {
+	for i := uint(0); i < numLocals; i++ {
 		cw.loadSeg("LCL", uint(i), false)
 		cw.ccmd("M", "0")
 	}

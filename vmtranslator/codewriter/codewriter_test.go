@@ -277,7 +277,7 @@ func TestWriteLabelGoto(t *testing.T) {
 func TestWriteFunction(t *testing.T) {
 	testCases := []struct {
 		funcName  string
-		numLocals int
+		numLocals uint
 		want      string
 	}{
 		{"func0", 0, asmFunc("func0", 0) + asmEnd},
