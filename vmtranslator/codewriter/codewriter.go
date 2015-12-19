@@ -161,6 +161,25 @@ func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
 	return cw.err
 }
 
+// WriteReturn writes out the assembly code of return statement.
+func (cw *CodeWriter) WriteReturn() error {
+	cw.loadSeg(regLCL, 0, true)
+	cw.saveTo(regR14, false)
+	cw.loadSeg(regR14, -5, true)
+	cw.ccmd("D", "M")
+	cw.saveTo(regR15, false)
+	cw.popStack()
+	cw.saveTo(regARG, true)
+	cw.loadSeg(regARG, 1, true)
+	cw.saveTo(regSP, false)
+	for i, reg := range []string{regTHAT, regTHIS, regARG, regLCL} {
+		cw.loadSeg(regR14, -i-1, true)
+		cw.ccmd("D", "M")
+		cw.saveTo(reg, false)
+	}
+	return cw.WriteGoto(regR15)
+}
+
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {
