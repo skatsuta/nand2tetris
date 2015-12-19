@@ -166,12 +166,10 @@ func (p *Parser) parse1(typ CommandType, tokens []string) (command, error) {
 		return command{}, ErrInvalidCommand
 	}
 
-	var arg1 string
 	if typ == Arithmetic {
-		arg1 = tokens[0]
+		return command{typ: typ, arg1: tokens[0]}, nil
 	}
-
-	return command{typ: typ, arg1: arg1}, nil
+	return command{typ: typ}, nil
 }
 
 // parse2 parses a command that should have two tokens.
