@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/skatsuta/nand2tetris/vmtranslator/parser"
 )
 
 // binary representation of logical values
@@ -112,14 +114,14 @@ func (cw *CodeWriter) WriteArithmetic(cmd string) error {
 }
 
 // WritePushPop converts the given push or pop command to assembly code and writes it out.
-func (cw *CodeWriter) WritePushPop(cmd, seg string, idx uint) error {
+func (cw *CodeWriter) WritePushPop(cmd parser.CommandType, seg string, idx uint) error {
 	switch cmd {
-	case "push":
+	case parser.Push:
 		return cw.push(seg, idx)
-	case "pop":
+	case parser.Pop:
 		return cw.pop(seg, idx)
 	default:
-		return fmt.Errorf("unknown command: %s", cmd)
+		return fmt.Errorf("unknown command: %d", cmd)
 	}
 }
 

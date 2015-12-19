@@ -44,9 +44,9 @@ func (tr *VMTranslator) run(filename string, src io.Reader) error {
 		case parser.Arithmetic:
 			err = tr.cw.WriteArithmetic(p.Arg1())
 		case parser.Push:
-			err = tr.cw.WritePushPop("push", p.Arg1(), p.Arg2())
+			err = tr.cw.WritePushPop(parser.Push, p.Arg1(), p.Arg2())
 		case parser.Pop:
-			err = tr.cw.WritePushPop("pop", p.Arg1(), p.Arg2())
+			err = tr.cw.WritePushPop(parser.Pop, p.Arg1(), p.Arg2())
 		case parser.Label:
 			err = tr.cw.WriteLabel(p.Arg1())
 		case parser.Goto:
