@@ -50,6 +50,7 @@ type command struct {
 // Parser is not thread safe, so it should NOT be used in multiple goroutines.
 type Parser struct {
 	src    *bufio.Scanner
+	sc     *scanner.Scanner
 	line   string
 	tokens []string
 	cmd    command
@@ -59,20 +60,20 @@ type Parser struct {
 func New(src io.Reader) *Parser {
 	return &Parser{
 		src: bufio.NewScanner(src),
+		sc: &scanner.Scanner{
+			Mode: vmScanMode,
+			IsIdentRune: func(ch rune, i int) bool {
+				// make Scanner recognize '-' as an identifier too
+				// cf. text/scanner.Scanner.isIdentRune()
+				return ch == '_' || ch == '-' ||
+					unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
+			},
+		},
 	}
 }
 
 // HasMoreCommands reports whether there exist more commands in input.
 func (p *Parser) HasMoreCommands() bool {
-	sc := scanner.Scanner{
-		Mode: vmScanMode,
-		IsIdentRune: func(ch rune, i int) bool {
-			// make Scanner recognize '-' as an identifier too
-			// cf. text/scanner.Scanner.isIdentRune()
-			return ch == '_' || ch == '-' || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
-		},
-	}
-
 	// if Scan() == true && Text() is not a comment, return true
 	// if Scan() == false, return false
 	for p.src.Scan() {
@@ -80,13 +81,13 @@ func (p *Parser) HasMoreCommands() bool {
 		p.tokens = p.tokens[:0]
 
 		// prepare a Scanner
-		sc.Init(strings.NewReader(p.line))
+		p.sc.Init(strings.NewReader(p.line))
 
 		// tokenize the current line
 		var tok rune
 		for tok != scanner.EOF {
-			tok = sc.Scan()
-			text := sc.TokenText()
+			tok = p.sc.Scan()
+			text := p.sc.TokenText()
 
 			// ignore empty string
 			if text == "" {
