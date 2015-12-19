@@ -153,8 +153,8 @@ func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
 	cw.lcmd(funcName)
 
 	// initialize a variable pointed by symb + idx to 0.
-	for i := uint(0); i < numLocals; i++ {
-		cw.loadSeg(regLCL, uint(i), false)
+	for i := 0; i < int(numLocals); i++ {
+		cw.loadSeg(regLCL, i, false)
 		cw.ccmd("M", "0")
 	}
 
@@ -250,7 +250,7 @@ func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
 	if symb == "STATIC" {
 		cw.acmd(fmt.Sprintf("%s.%d", cw.fnbase, idx))
 	} else {
-		cw.loadSeg(symb, idx, direct)
+		cw.loadSeg(symb, int(idx), direct)
 	}
 	cw.ccmd("D", "M")
 	cw.saveTo(regSP)
@@ -309,7 +309,7 @@ func (cw *CodeWriter) popStatic(idx uint) {
 func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
 	tmpreg := regR13
 
-	cw.loadSeg(symb, idx, direct)
+	cw.loadSeg(symb, int(idx), direct)
 	cw.acmd(tmpreg)
 	cw.ccmd("M", "D")
 	cw.popStack()
@@ -396,22 +396,28 @@ func (cw *CodeWriter) countUp() {
 	cw.cnt++
 }
 
-// loadSeg load a value of the symb segment to D.
+// loadSeg loads a value of the symb segment shifted by idx to D.
 // If direct is true a value in symb is loaded directly,
 // otherwise a value pointed by an address in symb indirectly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) loadSeg(symb string, idx uint, direct bool) {
-	var m string
+func (cw *CodeWriter) loadSeg(symb string, idx int, direct bool) {
+	m := "M"
 	if direct {
 		m = "A"
-	} else {
-		m = "M"
 	}
 
-	cw.acmd(idx)
+	// get the absolute value of idx and its sign
+	abs := idx
+	rhs := "D+" + m
+	if idx < 0 {
+		abs = -idx
+		rhs = m + "-D"
+	}
+
+	cw.acmd(abs)
 	cw.ccmd("D", "A")
 	cw.acmd(symb)
-	cw.ccmd("AD", "D+"+m)
+	cw.ccmd("AD", rhs)
 }
 
 // saveTo save the value of D to addr.
