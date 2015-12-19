@@ -109,13 +109,9 @@ func (cw *CodeWriter) WriteArithmetic(cmd string) error {
 	case opEq, opGt, opLt:
 		cw.compare(cmd)
 	default:
-		cw.err = fmt.Errorf("unknown command: %s", cmd)
+		return fmt.Errorf("unknown command: %s", cmd)
 	}
-
-	if cw.err != nil {
-		return fmt.Errorf("error writing code: %s", cw.err.Error())
-	}
-	return nil
+	return cw.err
 }
 
 // WritePushPop converts the given push or pop command to assembly code and writes it out.
@@ -133,22 +129,14 @@ func (cw *CodeWriter) WritePushPop(cmd parser.CommandType, seg string, idx uint)
 // WriteLabel converts the given label command to assembly code and writes it out.
 func (cw *CodeWriter) WriteLabel(label string) error {
 	cw.lcmd(label)
-
-	if cw.err != nil {
-		return fmt.Errorf("error writing label: %v", cw.err)
-	}
-	return nil
+	return cw.err
 }
 
 // WriteGoto converts the given goto command to assembly code and writes it out.
 func (cw *CodeWriter) WriteGoto(label string) error {
 	cw.acmd(label)
 	cw.ccmdj("", "0", "JMP")
-
-	if cw.err != nil {
-		return fmt.Errorf("error writing goto: %v", cw.err)
-	}
-	return nil
+	return cw.err
 }
 
 // WriteIf converts the given if-goto command to assembly code and writes it out.
@@ -157,11 +145,7 @@ func (cw *CodeWriter) WriteIf(label string) error {
 	cw.ccmd("D", "M")
 	cw.acmd(label)
 	cw.ccmdj("", "D", "JNE")
-
-	if cw.err != nil {
-		return fmt.Errorf("error writing if-goto: %v", cw.err)
-	}
-	return nil
+	return cw.err
 }
 
 // WriteFunction converts the given function command to assembly code and writes it out.
@@ -174,10 +158,7 @@ func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
 		cw.ccmd("M", "0")
 	}
 
-	if cw.err != nil {
-		return fmt.Errorf("error writing function: %v", cw.err)
-	}
-	return nil
+	return cw.err
 }
 
 // Close flushes bufferred data to the destination and closes it.
