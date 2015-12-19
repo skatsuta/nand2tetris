@@ -162,6 +162,61 @@ AM=M-1
 M=D+M
 @SP
 AM=M+1
+@0
+D=A
+@LCL
+AD=D+M
+@R14
+M=D
+@5
+D=A
+@R14
+AD=M-D
+D=M
+@R15
+M=D
+@SP
+AM=M-1
+D=M
+@ARG
+A=M
+M=D
+@1
+D=A
+@ARG
+AD=D+M
+@SP
+M=D
+@1
+D=A
+@R14
+AD=M-D
+D=M
+@THAT
+M=D
+@2
+D=A
+@R14
+AD=M-D
+D=M
+@THIS
+M=D
+@3
+D=A
+@R14
+AD=M-D
+D=M
+@ARG
+M=D
+@4
+D=A
+@R14
+AD=M-D
+D=M
+@LCL
+M=D
+@R15
+0;JMP
 `
 
 	end = `(END)
@@ -184,7 +239,7 @@ func TestRun(t *testing.T) {
 			"// push_pop.vm" + wantPushPop + end},
 		{"label_if_goto.vm", "// label_if_goto.vm\nlabel LABEL0\ngoto LABEL1\nif-goto LABEL2",
 			"// label_if_goto.vm" + wantLabelIfGoto + end},
-		{"function.vm", "// function.vm\nfunction Class.method 2\npush local 0\npush local 1\nadd",
+		{"function.vm", "// function.vm\nfunction Class.method 2\npush local 0\npush local 1\nadd\nreturn",
 			"// function.vm" + wantFunction + end},
 	}
 
@@ -225,6 +280,7 @@ func TestRunErr(t *testing.T) {
 		{"unknown_command.vm", "// unknown_command.vm\nfoo"},
 		{"unknown_segment.vm", "// unknown_segment.vm\npush foo 1"},
 		{"not_integer.vm", "// not_integer.vm\npop local a"},
+		{"invalid_function.vm", "// invalid_function.vm\nfunction"},
 	}
 
 	var (
