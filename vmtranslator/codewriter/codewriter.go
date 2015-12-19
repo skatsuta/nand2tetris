@@ -21,22 +21,17 @@ const (
 // baseLabel is a base name of labels.
 const baseLabel = "LABEL"
 
-// Mneumonic is a mneumonic of an instruction.
-type Mneumonic string
-
-// Mneumonics.
+// Mneumonics of arithmetic operations.
 const (
-	Add  Mneumonic = "add"
-	Sub            = "sub"
-	Neg            = "neg"
-	Eq             = "eq"
-	Gt             = "gt"
-	Lt             = "lt"
-	And            = "and"
-	Or             = "or"
-	Not            = "not"
-	Push           = "push"
-	Pop            = "pop"
+	opAdd = "add"
+	opSub = "sub"
+	opNeg = "neg"
+	opEq  = "eq"
+	opGt  = "gt"
+	opLt  = "lt"
+	opAnd = "and"
+	opOr  = "or"
+	opNot = "not"
 )
 
 // Segment is a memory segment.
@@ -97,11 +92,11 @@ func (cw *CodeWriter) fileNameBase(filename string) string {
 // WriteArithmetic converts the given arithmetic command to assembly code and writes it out.
 func (cw *CodeWriter) WriteArithmetic(cmd string) error {
 	switch cmd {
-	case "neg", "not":
+	case opNeg, opNot:
 		cw.unary(cmd)
-	case "add", "sub", "and", "or":
+	case opAdd, opSub, opAnd, opOr:
 		cw.binary(cmd)
-	case "eq", "gt", "lt":
+	case opEq, opGt, opLt:
 		cw.compare(cmd)
 	default:
 		cw.err = fmt.Errorf("unknown command: %s", cmd)
@@ -337,9 +332,9 @@ func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
 func (cw *CodeWriter) unary(cmd string) {
 	var op string
 	switch cmd {
-	case "neg":
+	case opNeg:
 		op = "-"
-	case "not":
+	case opNot:
 		op = "!"
 	}
 
@@ -357,13 +352,13 @@ func (cw *CodeWriter) unary(cmd string) {
 func (cw *CodeWriter) binary(cmd string) {
 	var op string
 	switch cmd {
-	case "add":
+	case opAdd:
 		op = "D+M"
-	case "sub":
+	case opSub:
 		op = "M-D"
-	case "and":
+	case opAnd:
 		op = "D&M"
-	case "or":
+	case opOr:
 		op = "D|M"
 	}
 
