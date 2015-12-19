@@ -154,7 +154,7 @@ func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
 
 	// initialize a variable pointed by symb + idx to 0.
 	for i := 0; i < int(numLocals); i++ {
-		cw.loadSeg(regLCL, i, false)
+		cw.loadSeg(regLCL, i, true)
 		cw.ccmd("M", "0")
 	}
 
@@ -227,30 +227,30 @@ func (cw *CodeWriter) pushVal(v uint) {
 
 // pushMem pushes a value pointed by an address in seg to the stack.
 func (cw *CodeWriter) pushMem(seg string, idx uint) {
-	cw.push0(seg, idx, false)
+	cw.push0(seg, idx, true)
 }
 
 // pushReg pushes a value in reg to the stack.
 func (cw *CodeWriter) pushReg(reg string, idx uint) {
-	cw.push0(reg, idx, true)
+	cw.push0(reg, idx, false)
 }
 
 // pushStatic loads a value of the static segment to *SP.
 func (cw *CodeWriter) pushStatic(idx uint) {
 	// direct is ignored so meaningless
-	cw.push0("STATIC", idx, false)
+	cw.push0("STATIC", idx, true)
 }
 
 // push0 pushes a value of symb to the top of the stack.
 // If symb is "STATIC", it pushes idx-th static variable.
-// If direct is true a value in symb is pushed directly,
-// otherwise a value pointed by an address in symb indirectly.
+// If indirect is true a value pointed by an address in symb indirectly,
+// otherwise a value in symb is pushed directly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
+func (cw *CodeWriter) push0(symb string, idx uint, indirect bool) {
 	if symb == "STATIC" {
 		cw.acmd(fmt.Sprintf("%s.%d", cw.fnbase, idx))
 	} else {
-		cw.loadSeg(symb, int(idx), direct)
+		cw.loadSeg(symb, int(idx), indirect)
 	}
 	cw.ccmd("D", "M")
 	cw.saveTo(regSP, true)
@@ -285,12 +285,12 @@ func (cw *CodeWriter) pop(seg string, idx uint) error {
 
 // popMem pops a value from the stack and stores it to an address seg points to.
 func (cw *CodeWriter) popMem(seg string, idx uint) {
-	cw.pop0(seg, idx, false)
+	cw.pop0(seg, idx, true)
 }
 
 // popReg pops a value from the stack and stores it to reg directly.
 func (cw *CodeWriter) popReg(reg string, idx uint) {
-	cw.pop0(reg, idx, true)
+	cw.pop0(reg, idx, false)
 }
 
 // popStatic pops a value from the stack and stores it to the static segment.
@@ -303,13 +303,13 @@ func (cw *CodeWriter) popStatic(idx uint) {
 
 // pop0 pops a value from the top of the stack to symb.
 // If symb is "STATIC", it pops idx-th static variable.
-// If direct is true a value in symb is popped directly,
-// otherwise a value pointed by an address in symb indirectly.
+// If indirect is true a value pointed by an address in symb indirectly,
+// otherwise a value in symb is popped directly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
+func (cw *CodeWriter) pop0(symb string, idx uint, indirect bool) {
 	tmpreg := regR13
 
-	cw.loadSeg(symb, int(idx), direct)
+	cw.loadSeg(symb, int(idx), indirect)
 	cw.acmd(tmpreg)
 	cw.ccmd("M", "D")
 	cw.popStack()
@@ -397,13 +397,13 @@ func (cw *CodeWriter) countUp() {
 }
 
 // loadSeg loads a value of the symb segment shifted by idx to D.
-// If direct is true a value in symb is loaded directly,
-// otherwise a value pointed by an address in symb indirectly.
+// If indirect is true a value pointed by an address in symb indirectly,
+// otherwise a value in symb is loaded directly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) loadSeg(symb string, idx int, direct bool) {
-	m := "M"
-	if direct {
-		m = "A"
+func (cw *CodeWriter) loadSeg(symb string, idx int, indirect bool) {
+	m := "A"
+	if indirect {
+		m = "M"
 	}
 
 	// get the absolute value of idx and its sign
