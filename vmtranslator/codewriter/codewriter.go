@@ -34,19 +34,30 @@ const (
 	opNot = "not"
 )
 
-// Segment is a memory segment.
-type Segment string
-
 // Memory segments.
 const (
-	Argument Segment = "argument"
-	Local            = "local"
-	Static           = "static"
-	Constant         = "constant"
-	This             = "this"
-	That             = "that"
-	Pointer          = "pointer"
-	Temp             = "temp"
+	segArgument = "argument"
+	segLocal    = "local"
+	segStatic   = "static"
+	segConstant = "constant"
+	segThis     = "this"
+	segThat     = "that"
+	segPointer  = "pointer"
+	segTemp     = "temp"
+)
+
+// Registers and its aliases.
+const (
+	regSP   = "SP"
+	regLCL  = "LCL"
+	regARG  = "ARG"
+	regTHIS = "THIS"
+	regTHAT = "THAT"
+	regR3   = "R3"
+	regR5   = "R5"
+	regR13  = "R13"
+	regR14  = "R14"
+	regR15  = "R15"
 )
 
 // CodeWriter converts VM commands to Hack assembly codes and write them out to a destination.
@@ -159,7 +170,7 @@ func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
 
 	// initialize a variable pointed by symb + idx to 0.
 	for i := uint(0); i < numLocals; i++ {
-		cw.loadSeg("LCL", uint(i), false)
+		cw.loadSeg(regLCL, uint(i), false)
 		cw.ccmd("M", "0")
 	}
 
@@ -200,23 +211,23 @@ func (cw *CodeWriter) end() error {
 // push converts the given push command to assembly and writes it out.
 func (cw *CodeWriter) push(seg string, idx uint) error {
 	switch seg {
-	case "constant":
+	case segConstant:
 		cw.pushVal(idx)
-	case "local":
-		cw.pushMem("LCL", idx)
-	case "argument":
-		cw.pushMem("ARG", idx)
-	case "this":
-		cw.pushMem("THIS", idx)
-	case "that":
-		cw.pushMem("THAT", idx)
-	case "temp":
+	case segLocal:
+		cw.pushMem(regLCL, idx)
+	case segArgument:
+		cw.pushMem(regARG, idx)
+	case segThis:
+		cw.pushMem(regTHIS, idx)
+	case segThat:
+		cw.pushMem(regTHAT, idx)
+	case segTemp:
 		// temp: R5 ~ R12
-		cw.pushReg("R5", idx)
+		cw.pushReg(regR5, idx)
 		// pointer: R3 ~ R4
-	case "pointer":
-		cw.pushReg("R3", idx)
-	case "static":
+	case segPointer:
+		cw.pushReg(regR3, idx)
+	case segStatic:
 		cw.pushStatic(idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
@@ -261,28 +272,28 @@ func (cw *CodeWriter) push0(symb string, idx uint, direct bool) {
 		cw.loadSeg(symb, idx, direct)
 	}
 	cw.ccmd("D", "M")
-	cw.saveTo("SP")
+	cw.saveTo(regSP)
 	cw.incrSP()
 }
 
 // pop converts the given pop command to assembly and writes it out.
 func (cw *CodeWriter) pop(seg string, idx uint) error {
 	switch seg {
-	case "local":
-		cw.popMem("LCL", idx)
-	case "argument":
-		cw.popMem("ARG", idx)
-	case "this":
-		cw.popMem("THIS", idx)
-	case "that":
-		cw.popMem("THAT", idx)
-	case "temp":
+	case segLocal:
+		cw.popMem(regLCL, idx)
+	case segArgument:
+		cw.popMem(regARG, idx)
+	case segThis:
+		cw.popMem(regTHIS, idx)
+	case segThat:
+		cw.popMem(regTHAT, idx)
+	case segTemp:
 		// temp: R5 ~ R12
-		cw.popReg("R5", idx)
-	case "pointer":
+		cw.popReg(regR5, idx)
+	case segPointer:
 		// pointer R3 ~ R4
-		cw.popReg("R3", idx)
-	case "static":
+		cw.popReg(regR3, idx)
+	case segStatic:
 		cw.popStatic(idx)
 	default:
 		return fmt.Errorf("unknown segment: %s", seg)
@@ -315,7 +326,7 @@ func (cw *CodeWriter) popStatic(idx uint) {
 // otherwise a value pointed by an address in symb indirectly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pop0(symb string, idx uint, direct bool) {
-	tmpreg := "R13"
+	tmpreg := regR13
 
 	cw.loadSeg(symb, idx, direct)
 	cw.acmd(tmpreg)
@@ -433,7 +444,7 @@ func (cw *CodeWriter) saveTo(addr string) {
 // loadVal loads v to *SP. v should be greater than or equal -1 (v >= -1).
 func (cw *CodeWriter) loadVal(v int) {
 	if v < 0 {
-		cw.acmd("SP")
+		cw.acmd(regSP)
 		cw.ccmd("A", "M")
 		cw.ccmd("M", strconv.Itoa(v))
 		return
@@ -441,7 +452,7 @@ func (cw *CodeWriter) loadVal(v int) {
 
 	cw.acmd(v)
 	cw.ccmd("D", "A")
-	cw.saveTo("SP")
+	cw.saveTo(regSP)
 }
 
 // popStack pops a value at the top of the stack. Internally,
@@ -469,7 +480,7 @@ func (cw *CodeWriter) decrSP() {
 //   "+": SP++
 //   "-": SP--
 func (cw *CodeWriter) sp(op string) {
-	cw.acmd("SP")
+	cw.acmd(regSP)
 	cw.ccmd("AM", "M"+op+"1")
 }
 
