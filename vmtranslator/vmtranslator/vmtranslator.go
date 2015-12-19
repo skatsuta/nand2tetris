@@ -55,6 +55,8 @@ func (tr *VMTranslator) run(filename string, src io.Reader) error {
 			err = tr.cw.WriteIf(p.Arg1())
 		case parser.Function:
 			err = tr.cw.WriteFunction(p.Arg1(), p.Arg2())
+		case parser.Return:
+			err = tr.cw.WriteReturn()
 		default:
 			err = fmt.Errorf("unknown command: %d %s %d", p.CommandType(), p.Arg1(), p.Arg2())
 		}
