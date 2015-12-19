@@ -104,12 +104,10 @@ func (p *Parser) HasMoreCommands() bool {
 			tok = p.sc.Scan()
 			text := p.sc.TokenText()
 
-			// ignore empty string
-			if text == "" {
-				continue
+			// ignore empty line
+			if text != "" {
+				p.tokens = append(p.tokens, text)
 			}
-
-			p.tokens = append(p.tokens, text)
 		}
 
 		if len(p.tokens) > 0 {
