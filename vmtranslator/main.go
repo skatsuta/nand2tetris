@@ -27,15 +27,17 @@ func main() {
 	args := flag.Args()
 	if len(args) != 1 {
 		flag.Usage()
-		return
+		os.Exit(1)
 	}
 
 	path := args[0]
-
-	if e := convert(path); e != nil {
-		printErr("%v", e)
-		return
+	opath, err := convert(path)
+	if err != nil {
+		printErr(err.Error())
+		os.Exit(255)
 	}
+
+	fmt.Println("Successfully converted", path, "to", opath)
 }
 
 // printErr prints an formatted error message in os.Stderr.
@@ -44,18 +46,18 @@ func printErr(format string, args ...interface{}) {
 }
 
 // convert converts files in path to one .asm file.
-func convert(path string) error {
+func convert(path string) (string, error) {
 	// check whether the given path is valid
 	info, err := os.Stat(path)
 	if err != nil {
-		return fmt.Errorf("invalid path is given: %s", path)
+		return "", fmt.Errorf("invalid path is given: %s", path)
 	}
 
 	// prepare an output .asm file
 	opath := outpath(path, info.IsDir())
 	out, err := os.Create(opath)
 	if err != nil {
-		return fmt.Errorf("cannot create %s", opath)
+		return "", fmt.Errorf("cannot create %s", opath)
 	}
 
 	vmt := vmtranslator.New(out)
@@ -64,11 +66,7 @@ func convert(path string) error {
 	}()
 
 	// walk throuth path and run conversion
-	if e := filepath.Walk(path, vmt.Run); e != nil {
-		return fmt.Errorf("failed to convert: %v", e)
-	}
-
-	return nil
+	return opath, filepath.Walk(path, vmt.Run)
 }
 
 // outpath returns an output file path.
