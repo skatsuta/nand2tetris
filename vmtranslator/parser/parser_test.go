@@ -72,6 +72,7 @@ func TestAdvance(t *testing.T) {
 		{"goto END", command{Goto, "END", 0}},
 		{"if-goto SYMBOL", command{If, "SYMBOL", 0}},
 		{"function func1 0", command{Function, "func1", 0}},
+		{"function Class.method 1", command{Function, "Class.method", 1}},
 		{"call func2 1", command{Call, "func2", 1}},
 		{"return", command{Return, "", 0}},
 	}
@@ -113,6 +114,8 @@ func TestAdvanceError(t *testing.T) {
 		{"goto G 1"},
 		{"if-goto I 2"},
 		{"function func1 -1"},
+		{"function -func1 0"},
+		{"function .func1 0"},
 		{"call func1 a"},
 		{"push constant 1 2"},
 		{"function func1 2 3"},
