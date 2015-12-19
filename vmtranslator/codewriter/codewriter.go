@@ -154,8 +154,7 @@ func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
 
 	// initialize a variable pointed by symb + idx to 0.
 	for i := 0; i < int(numLocals); i++ {
-		cw.loadSeg(regLCL, i, true)
-		cw.ccmd("M", "0")
+		cw.pushVal(0)
 	}
 
 	return cw.err
@@ -177,7 +176,10 @@ func (cw *CodeWriter) WriteReturn() error {
 		cw.ccmd("D", "M")
 		cw.saveTo(reg, false)
 	}
-	return cw.WriteGoto(regR15)
+	cw.acmd(regR15)
+	cw.ccmd("A", "M")
+	cw.ccmdj("", "0", "JMP")
+	return cw.err
 }
 
 // Close flushes bufferred data to the destination and closes it.

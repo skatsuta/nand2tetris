@@ -126,14 +126,18 @@ D;JNE
 (Class.method)
 @0
 D=A
-@LCL
-AD=D+M
-M=0
-@1
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
 D=A
-@LCL
-AD=D+M
-M=0
+@SP
+A=M
+M=D
+@SP
+AM=M+1
 @0
 D=A
 @LCL
@@ -216,6 +220,7 @@ D=M
 @LCL
 M=D
 @R15
+A=M
 0;JMP
 `
 
