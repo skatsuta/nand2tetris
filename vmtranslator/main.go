@@ -74,11 +74,12 @@ func convert(path string) error {
 // outpath returns an output file path.
 // This function expects the suffix of the path to be ".vm" if it is a file.
 func outpath(path string, isDir bool) string {
-	if !isDir {
-		// file.vm => file.asm
-		return path[:len(path)-2] + "asm"
+	if isDir {
+		filename := filepath.Base(path)
+		return filepath.Join(path, filename+".asm")
 	}
 
-	filename := filepath.Base(path)
-	return filepath.Join(path, filename+".asm")
+	// file.vm => file.asm
+	ext := filepath.Ext(path)
+	return path[:len(path)-len(ext)] + ".asm"
 }
