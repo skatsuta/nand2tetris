@@ -12,9 +12,6 @@ import (
 )
 
 const (
-	// prefixComment is a prefix of a comment.
-	prefixComment = "//"
-
 	// vmScanMode is a mode for scanning VM code.
 	vmScanMode = scanner.ScanIdents | scanner.ScanInts | scanner.SkipComments
 )
