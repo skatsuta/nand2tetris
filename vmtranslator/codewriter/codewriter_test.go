@@ -385,20 +385,15 @@ D=M
 @LCL
 M=D
 @R15
+A=M
 0;JMP
 `
 }
 
 func asmFunc(name string, num int) string {
 	tpl := "(%s)\n"
-	ini := `@%d
-D=A
-@LCL
-AD=D+M
-M=0
-`
 	for i := 0; i < num; i++ {
-		tpl += fmt.Sprintf(ini, i)
+		tpl += asmPushConst(0)
 	}
 	return fmt.Sprintf(tpl, name)
 }
