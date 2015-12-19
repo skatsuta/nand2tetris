@@ -122,6 +122,48 @@ D=M
 D;JNE
 `
 
+	wantFunction = `
+(Class.method)
+@0
+D=A
+@LCL
+AD=D+M
+M=0
+@1
+D=A
+@LCL
+AD=D+M
+M=0
+@0
+D=A
+@LCL
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@1
+D=A
+@LCL
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@SP
+AM=M-1
+D=M
+@SP
+AM=M-1
+M=D+M
+@SP
+AM=M+1
+`
+
 	end = `(END)
 @END
 0;JMP
@@ -134,12 +176,16 @@ func TestRun(t *testing.T) {
 		src      string
 		want     string
 	}{
-		{"push_const_0.vm", "// push_const_0.vm\npush constant 0", "// push_const_0.vm" + wantPushConst0 + end},
+		{"push_const_0.vm", "// push_const_0.vm\npush constant 0",
+			"// push_const_0.vm" + wantPushConst0 + end},
 		{"add.vm", "// add.vm\npush constant 1\npush constant 2\nadd", "// add.vm" + wantAdd + end},
 		{"eq.vm", "// eq.vm\npush constant 1\npush constant 1\neq", "// eq.vm" + wantEq + end},
-		{"push_pop.vm", "// push_pop.vm\npush constant 0\npop local 0", "// push_pop.vm" + wantPushPop + end},
+		{"push_pop.vm", "// push_pop.vm\npush constant 0\npop local 0",
+			"// push_pop.vm" + wantPushPop + end},
 		{"label_if_goto.vm", "// label_if_goto.vm\nlabel LABEL0\ngoto LABEL1\nif-goto LABEL2",
 			"// label_if_goto.vm" + wantLabelIfGoto + end},
+		{"function.vm", "// function.vm\nfunction Class.method 2\npush local 0\npush local 1\nadd",
+			"// function.vm" + wantFunction + end},
 	}
 
 	var (
