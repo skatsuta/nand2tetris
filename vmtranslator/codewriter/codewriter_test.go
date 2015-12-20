@@ -520,6 +520,108 @@ A=M
 `
 }
 
+func TestWriteCall(t *testing.T) {
+	tests := []struct {
+		funcName string
+		numArgs  uint
+		want     string
+	}{
+		{"func1", 0, asmCall("func1", 0) + asmEnd},
+		{"func2", 1, asmCall("func2", 1) + asmEnd},
+		{"func3", 2, asmCall("func3", 2) + asmEnd},
+	}
+
+	var (
+		out bytes.Buffer
+		cw  *CodeWriter
+	)
+	for _, tt := range tests {
+		cw = New(&out)
+		if e := cw.WriteCall(tt.funcName, tt.numArgs); e != nil {
+			t.Fatalf("WriteCall failed: %v", e)
+		}
+
+		if e := cw.Close(); e != nil {
+			t.Fatalf("Close failed: %v", e)
+		}
+
+		got := out.String()
+		if got != tt.want {
+			diff := diffTexts(got, tt.want)
+			t.Errorf("%s(%d):\n%s", tt.funcName, tt.numArgs, diff)
+		}
+
+		out.Reset()
+	}
+}
+
+func asmCall(funcName string, numArgs uint) string {
+	tpl := `@%s_RET_ADDR
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@LCL
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@ARG
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@THIS
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@THAT
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@%d
+D=A
+@SP
+AD=M-D
+@ARG
+M=D
+@0
+D=A
+@SP
+AD=D+M
+@LCL
+M=D
+@%s
+0;JMP
+(%s_RET_ADDR)
+`
+	return fmt.Sprintf(tpl, funcName, numArgs+5, funcName, funcName)
+}
+
 func asmUnary(op string) string {
 	tpl := `@SP
 AM=M-1
