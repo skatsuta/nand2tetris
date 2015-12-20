@@ -99,6 +99,13 @@ func (cw *CodeWriter) fileNameBase(filename string) string {
 	return base[:len(base)-len(ext)]
 }
 
+// WriteInit writes out bootstrap code.
+func (cw *CodeWriter) WriteInit() error {
+	cw.loadVal(256, false)
+	cw.WriteCall("Sys.init", 0)
+	return cw.err
+}
+
 // WriteArithmetic converts the given arithmetic command to assembly code and writes it out.
 func (cw *CodeWriter) WriteArithmetic(cmd string) error {
 	switch cmd {

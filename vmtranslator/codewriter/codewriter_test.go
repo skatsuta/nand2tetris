@@ -57,6 +57,33 @@ func TestFileNameBase(t *testing.T) {
 	}
 }
 
+func TestWriteInit(t *testing.T) {
+	want := asmInit() + asmEnd
+	var buf bytes.Buffer
+	cw := New(&buf)
+
+	if e := cw.WriteInit(); e != nil {
+		t.Fatalf("WriteInit failed: %v", e)
+	}
+	if e := cw.Close(); e != nil {
+		t.Fatalf("Close failed: %v", e)
+	}
+
+	got := buf.String()
+	if got != want {
+		diff := diffTexts(got, want)
+		t.Errorf("init:\n%s", diff)
+	}
+}
+
+func asmInit() string {
+	return `@256
+D=A
+@SP
+M=D
+` + asmCall("Sys.init", 0)
+}
+
 func TestWriteArithmetic(t *testing.T) {
 	testCases := []struct {
 		cmd  string
