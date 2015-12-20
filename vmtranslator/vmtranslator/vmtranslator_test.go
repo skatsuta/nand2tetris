@@ -224,6 +224,72 @@ A=M
 0;JMP
 `
 
+	wantCall = `
+(Sys.init)
+@Class.method_RET_ADDR
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@LCL
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@ARG
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@THIS
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@THAT
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@6
+D=A
+@SP
+AD=M-D
+@ARG
+M=D
+@0
+D=A
+@SP
+AD=D+M
+@LCL
+M=D
+@Class.method
+0;JMP
+(Class.method_RET_ADDR)
+`
+
 	end = `(END)
 @END
 0;JMP
@@ -246,6 +312,8 @@ func TestRun(t *testing.T) {
 			"// label_if_goto.vm" + wantLabelIfGoto + end},
 		{"function.vm", "// function.vm\nfunction Class.method 2\npush local 0\npush local 1\nadd\nreturn",
 			"// function.vm" + wantFunction + end},
+		{"call.vm", "// call.vm\nfunction Sys.init 0\ncall Class.method 1",
+			"// call.vm" + wantCall + end},
 	}
 
 	var (
@@ -264,7 +332,7 @@ func TestRun(t *testing.T) {
 		got := strings.Split(buf.String(), "\n")
 		want := strings.Split(tt.want, "\n")
 		if len(got) != len(want) {
-			t.Fatalf("%s: the number of lines should be %d, but got %d", tt.filename, len(want), len(got))
+			t.Errorf("%s: the number of lines should be %d, but got %d", tt.filename, len(want), len(got))
 		}
 		for i := range got {
 			if got[i] != want[i] {
