@@ -182,6 +182,24 @@ func (cw *CodeWriter) WriteReturn() error {
 	return cw.err
 }
 
+// WriteCall converts the given function call command to assembly code and writes it out.
+func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
+	cw.acmd(funcName + "_RET_ADDR")
+	cw.ccmd("D", "M")
+	cw.pushStack()
+	cw.pushMem(regLCL, 0)
+	cw.pushMem(regARG, 0)
+	cw.pushMem(regTHIS, 0)
+	cw.pushMem(regTHAT, 0)
+	cw.loadSeg(regSP, -int(numArgs+5), true)
+	cw.saveTo(regARG, false)
+	cw.loadSeg(regSP, 0, true)
+	cw.saveTo(regLCL, false)
+	cw.WriteGoto(funcName)
+	cw.lcmd(funcName + "_RET_ADDR")
+	return cw.err
+}
+
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {
@@ -276,6 +294,7 @@ func (cw *CodeWriter) push0(symb string, idx uint, indirect bool) {
 	cw.ccmd("D", "M")
 	cw.saveTo(regSP, true)
 	cw.incrSP()
+	//cw.pushStack()
 }
 
 // pop converts the given pop command to assembly and writes it out.
@@ -464,6 +483,16 @@ func (cw *CodeWriter) loadVal(v int) {
 	cw.acmd(v)
 	cw.ccmd("D", "A")
 	cw.saveTo(regSP, true)
+}
+
+// pushStack pushs a value at the top of the stack. Internally,
+// it assigns a value pointed by SP to D and increments SP.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) pushStack() {
+	cw.acmd(regSP)
+	cw.ccmd("A", "M")
+	cw.ccmd("M", "D")
+	cw.incrSP()
 }
 
 // popStack pops a value at the top of the stack. Internally,
