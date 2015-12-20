@@ -71,7 +71,7 @@ func (tr *VMTranslator) run(filename string, src io.Reader) error {
 	return nil
 }
 
-// Run is a callback function when a file is found.
+// Run is a callback function called when a file is found.
 // It implements filepath.WalkFunc.
 func (tr *VMTranslator) Run(path string, info os.FileInfo, err error) error {
 	if err != nil {
