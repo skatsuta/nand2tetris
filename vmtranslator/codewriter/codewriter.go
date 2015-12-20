@@ -260,7 +260,7 @@ func (cw *CodeWriter) push(seg string, idx uint) error {
 // it assgins v to *SP and increments SP.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pushVal(v uint) {
-	cw.loadVal(int(v))
+	cw.loadVal(int(v), true)
 	cw.incrSP()
 }
 
@@ -414,11 +414,11 @@ func (cw *CodeWriter) compare(cmd string) {
 	cw.ccmd("D", "M-D")
 	cw.acmd(label1)
 	cw.ccmdj("", "D", op)
-	cw.loadVal(bitFalse)
+	cw.loadVal(bitFalse, true)
 	cw.acmd(label2)
 	cw.ccmdj("", "0", "JMP")
 	cw.lcmd(label1)
-	cw.loadVal(bitTrue)
+	cw.loadVal(bitTrue, true)
 	cw.lcmd(label2)
 	cw.incrSP()
 }
@@ -472,7 +472,7 @@ func (cw *CodeWriter) saveTo(addr string, indirect bool) {
 }
 
 // loadVal loads v to *SP. v should be greater than or equal -1 (v >= -1).
-func (cw *CodeWriter) loadVal(v int) {
+func (cw *CodeWriter) loadVal(v int, indirect bool) {
 	if v < 0 {
 		cw.acmd(regSP)
 		cw.ccmd("A", "M")
@@ -482,7 +482,7 @@ func (cw *CodeWriter) loadVal(v int) {
 
 	cw.acmd(v)
 	cw.ccmd("D", "A")
-	cw.saveTo(regSP, true)
+	cw.saveTo(regSP, indirect)
 }
 
 // pushStack pushs a value at the top of the stack. Internally,
