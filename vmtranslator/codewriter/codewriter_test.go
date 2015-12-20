@@ -391,11 +391,12 @@ A=M
 }
 
 func asmFunc(name string, num int) string {
-	tpl := "(%s)\n"
+	var buf bytes.Buffer
+	_, _ = buf.WriteString("(" + name + ")\n")
 	for i := 0; i < num; i++ {
-		tpl += asmPushConst(0)
+		_, _ = buf.WriteString(asmPushConst(0))
 	}
-	return fmt.Sprintf(tpl, name)
+	return buf.String()
 }
 
 func asmIf(label string) string {
