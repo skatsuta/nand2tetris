@@ -1,45 +1,6 @@
 package main
 
-import (
-	"io/ioutil"
-	"strings"
-	"testing"
-)
-
-func TestConvert(t *testing.T) {
-	testCases := []struct {
-		path string
-		got  string
-		want string
-	}{
-		{"../projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm",
-			"../projects/07/StackArithmetic/SimpleAdd/SimpleAdd.asm", simpleAdd},
-	}
-
-	for _, tt := range testCases {
-		opath, err := convert(tt.path)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if opath != tt.got {
-			t.Errorf("output file: got = %q, want = %q", opath, tt.got)
-		}
-
-		gotb, _ := ioutil.ReadFile(tt.got)
-		got := strings.Split(string(gotb), "\n")
-		want := strings.Split(tt.want, "\n")
-
-		if len(got) != len(want) {
-			t.Fatalf("the number of lines: got = %d, want = %d", len(got), len(want))
-		}
-		for i := range got {
-			if got[i] != want[i] {
-				t.Errorf("line %2d:\n got = %q\nwant = %q", i+1, got[i], want[i])
-			}
-		}
-	}
-}
+import "testing"
 
 func TestOutpath(t *testing.T) {
 	testCases := []struct {
@@ -58,31 +19,3 @@ func TestOutpath(t *testing.T) {
 		}
 	}
 }
-
-var simpleAdd = `// ../projects/07/StackArithmetic/SimpleAdd/SimpleAdd.vm
-@7
-D=A
-@SP
-A=M
-M=D
-@SP
-AM=M+1
-@8
-D=A
-@SP
-A=M
-M=D
-@SP
-AM=M+1
-@SP
-AM=M-1
-D=M
-@SP
-AM=M-1
-M=D+M
-@SP
-AM=M+1
-(END)
-@END
-0;JMP
-`
