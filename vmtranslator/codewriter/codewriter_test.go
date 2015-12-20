@@ -159,6 +159,113 @@ func TestWritePushPop(t *testing.T) {
 	}
 }
 
+func TestPushVal(t *testing.T) {
+	testCases := []struct {
+		v    uint
+		want string
+	}{
+		{bitFalse, asmPushConst(bitFalse) + asmEnd},
+		{1, asmPushConst(1) + asmEnd},
+		{2, asmPushConst(2) + asmEnd},
+	}
+
+	var buf bytes.Buffer
+	cw := New(&buf)
+	for _, tt := range testCases {
+		if cw.pushVal(tt.v); cw.err != nil {
+			t.Fatalf("pushStack failed: %v", cw.err)
+		}
+		if e := cw.Close(); e != nil {
+			t.Fatalf("Close failed: %s", e.Error())
+		}
+
+		got := buf.String()
+		if got != tt.want {
+			diff := diffTexts(got, tt.want)
+			t.Errorf("v = %d\n%s", tt.v, diff)
+		}
+
+		buf.Reset()
+		cw.err = nil
+	}
+}
+
+func asmPushConst(v uint) string {
+	tpl := `@%d
+D=A
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+`
+	return fmt.Sprintf(tpl, v)
+}
+
+func asmPushMem(symb string, idx uint) string {
+	tpl := `@%d
+D=A
+@%s
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+`
+	return fmt.Sprintf(tpl, idx, symb)
+}
+
+func asmPopMem(symb string, idx uint) string {
+	tpl := `@%d
+D=A
+@%s
+AD=D+M
+@R13
+M=D
+@SP
+AM=M-1
+D=M
+@R13
+A=M
+M=D
+`
+	return fmt.Sprintf(tpl, idx, symb)
+}
+
+func asmPushReg(symb string, idx uint) string {
+	tpl := `@%d
+D=A
+@%s
+AD=D+A
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+`
+	return fmt.Sprintf(tpl, idx, symb)
+}
+
+func asmPopReg(symb string, idx uint) string {
+	tpl := `@%d
+D=A
+@%s
+AD=D+A
+@R13
+M=D
+@SP
+AM=M-1
+D=M
+@R13
+A=M
+M=D
+`
+	return fmt.Sprintf(tpl, idx, symb)
+}
+
 func TestWritePushPopStatic(t *testing.T) {
 	testCases := []struct {
 		filename string
@@ -198,35 +305,28 @@ func TestWritePushPopStatic(t *testing.T) {
 	}
 }
 
-func TestPushVal(t *testing.T) {
-	testCases := []struct {
-		v    uint
-		want string
-	}{
-		{bitFalse, asmPushConst(bitFalse) + asmEnd},
-		{1, asmPushConst(1) + asmEnd},
-		{2, asmPushConst(2) + asmEnd},
-	}
+func asmPushStatic(filename, base string, idx uint) string {
+	tpl := `// %s
+@%s.%d
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+`
+	return fmt.Sprintf(tpl, filename, base, idx)
+}
 
-	var buf bytes.Buffer
-	cw := New(&buf)
-	for _, tt := range testCases {
-		if cw.pushVal(tt.v); cw.err != nil {
-			t.Fatalf("pushStack failed: %v", cw.err)
-		}
-		if e := cw.Close(); e != nil {
-			t.Fatalf("Close failed: %s", e.Error())
-		}
-
-		got := buf.String()
-		if got != tt.want {
-			diff := diffTexts(got, tt.want)
-			t.Errorf("v = %d\n%s", tt.v, diff)
-		}
-
-		buf.Reset()
-		cw.err = nil
-	}
+func asmPopStatic(filename, base string, idx uint) string {
+	tpl := `// %s
+@SP
+AM=M-1
+D=M
+@%s.%d
+M=D
+`
+	return fmt.Sprintf(tpl, filename, base, idx)
 }
 
 func TestWriteLabelGoto(t *testing.T) {
@@ -275,6 +375,27 @@ func TestWriteLabelGoto(t *testing.T) {
 	}
 }
 
+func asmIf(label string) string {
+	tpl := `@SP
+AM=M-1
+D=M
+@%s
+D;JNE
+`
+	return fmt.Sprintf(tpl, label)
+}
+
+func asmGoto(label string) string {
+	tpl := `@%s
+0;JMP
+`
+	return fmt.Sprintf(tpl, label)
+}
+
+func asmLabel(label string) string {
+	return fmt.Sprintf("(%s)\n", label)
+}
+
 func TestWriteFunction(t *testing.T) {
 	testCases := []struct {
 		funcName  string
@@ -308,6 +429,15 @@ func TestWriteFunction(t *testing.T) {
 
 		out.Reset()
 	}
+}
+
+func asmFunc(name string, num int) string {
+	var buf bytes.Buffer
+	_, _ = buf.WriteString("(" + name + ")\n")
+	for i := 0; i < num; i++ {
+		_, _ = buf.WriteString(asmPushConst(0))
+	}
+	return buf.String()
 }
 
 func TestWriteReturn(t *testing.T) {
@@ -388,136 +518,6 @@ M=D
 A=M
 0;JMP
 `
-}
-
-func asmFunc(name string, num int) string {
-	var buf bytes.Buffer
-	_, _ = buf.WriteString("(" + name + ")\n")
-	for i := 0; i < num; i++ {
-		_, _ = buf.WriteString(asmPushConst(0))
-	}
-	return buf.String()
-}
-
-func asmIf(label string) string {
-	tpl := `@SP
-AM=M-1
-D=M
-@%s
-D;JNE
-`
-	return fmt.Sprintf(tpl, label)
-}
-
-func asmGoto(label string) string {
-	tpl := `@%s
-0;JMP
-`
-	return fmt.Sprintf(tpl, label)
-}
-
-func asmLabel(label string) string {
-	return fmt.Sprintf("(%s)\n", label)
-}
-
-func asmPushConst(v uint) string {
-	tpl := `@%d
-D=A
-@SP
-A=M
-M=D
-@SP
-AM=M+1
-`
-	return fmt.Sprintf(tpl, v)
-}
-
-func asmPushMem(symb string, idx uint) string {
-	tpl := `@%d
-D=A
-@%s
-AD=D+M
-D=M
-@SP
-A=M
-M=D
-@SP
-AM=M+1
-`
-	return fmt.Sprintf(tpl, idx, symb)
-}
-
-func asmPopMem(symb string, idx uint) string {
-	tpl := `@%d
-D=A
-@%s
-AD=D+M
-@R13
-M=D
-@SP
-AM=M-1
-D=M
-@R13
-A=M
-M=D
-`
-	return fmt.Sprintf(tpl, idx, symb)
-}
-
-func asmPushReg(symb string, idx uint) string {
-	tpl := `@%d
-D=A
-@%s
-AD=D+A
-D=M
-@SP
-A=M
-M=D
-@SP
-AM=M+1
-`
-	return fmt.Sprintf(tpl, idx, symb)
-}
-
-func asmPopReg(symb string, idx uint) string {
-	tpl := `@%d
-D=A
-@%s
-AD=D+A
-@R13
-M=D
-@SP
-AM=M-1
-D=M
-@R13
-A=M
-M=D
-`
-	return fmt.Sprintf(tpl, idx, symb)
-}
-
-func asmPushStatic(filename, base string, idx uint) string {
-	tpl := `// %s
-@%s.%d
-D=M
-@SP
-A=M
-M=D
-@SP
-AM=M+1
-`
-	return fmt.Sprintf(tpl, filename, base, idx)
-}
-
-func asmPopStatic(filename, base string, idx uint) string {
-	tpl := `// %s
-@SP
-AM=M-1
-D=M
-@%s.%d
-M=D
-`
-	return fmt.Sprintf(tpl, filename, base, idx)
 }
 
 func asmUnary(op string) string {
