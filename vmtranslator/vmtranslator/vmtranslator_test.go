@@ -290,11 +290,104 @@ M=D
 (Class.method_RET_ADDR)
 `
 
+	wantInit = `@256
+D=A
+@SP
+M=D
+@Sys.init_RET_ADDR
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@LCL
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@ARG
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@THIS
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@0
+D=A
+@THAT
+AD=D+M
+D=M
+@SP
+A=M
+M=D
+@SP
+AM=M+1
+@5
+D=A
+@SP
+AD=M-D
+@ARG
+M=D
+@0
+D=A
+@SP
+AD=D+M
+@LCL
+M=D
+@Sys.init
+0;JMP
+(Sys.init_RET_ADDR)
+`
+
 	end = `(END)
 @END
 0;JMP
 `
 )
+
+func TestInit(t *testing.T) {
+	var (
+		buf      bytes.Buffer
+		vmtransl = New(&buf)
+	)
+
+	if e := vmtransl.Init(); e != nil {
+		t.Fatalf("Init failed: %v", e)
+	}
+	if e := vmtransl.Close(); e != nil {
+		t.Fatalf("Close failed: %v", e)
+	}
+
+	got := strings.Split(buf.String(), "\n")
+	want := strings.Split(wantInit+end, "\n")
+	if len(got) != len(want) {
+		t.Errorf("the number of lines should be %d, but got %d", len(want), len(got))
+	}
+	for i := range got {
+		if got[i] != want[i] {
+			t.Errorf("got = %q; want = %q", got[i], want[i])
+		}
+	}
+}
 
 func TestRun(t *testing.T) {
 	testCases := []struct {

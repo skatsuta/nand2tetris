@@ -61,6 +61,9 @@ func convert(path string) (string, error) {
 	}
 
 	vmt := vmtranslator.New(out)
+	if e := vmt.Init(); e != nil {
+		return "", fmt.Errorf("error creating a translator object: %v", e)
+	}
 	defer func() {
 		_ = vmt.Close()
 	}()

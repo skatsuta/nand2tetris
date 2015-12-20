@@ -23,6 +23,12 @@ func New(out io.Writer) *VMTranslator {
 	}
 }
 
+// Init initialize the output assembly file.
+// This method should be called immediately after New().
+func (tr *VMTranslator) Init() error {
+	return tr.cw.WriteInit()
+}
+
 // run runs the translation from source VM files tr holds to out.
 func (tr *VMTranslator) run(filename string, src io.Reader) error {
 	// write the file name as a comment
