@@ -1,0 +1,36 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.13
+
+    working_directory: /go/src/github.com/skatsuta/nand2tetris
+
+    steps:
+      # Check out source code to the working directory
+      - checkout
+
+      # Restore saved cache if no changes are detected since last run
+      # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+      - restore_cache:
+          keys:
+            - v1-pkg-cache
+
+      # Print Go version
+      - run: go version
+
+      # Get dependencies
+      - run: go get -v -t -d ./...
+
+      # Run unit tests
+      - run: go test -cpu 1,2 -race -v ./...
+
+      # Store cache in the /go/pkg directory
+      - save_cache:
+          key: v1-pkg-cache
+          paths:
+            - /go/pkg
