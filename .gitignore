@@ -2,3 +2,4 @@
 *.dat
 _builds
 _steps
+.env*
