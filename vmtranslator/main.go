@@ -21,6 +21,9 @@ func init() {
 }
 
 func main() {
+	// Define and parse flags
+	var bootstrap bool
+	flag.BoolVar(&bootstrap, "bootstrap", true, "Emit bootstrap code")
 	flag.Parse()
 
 	// check whether one argument is passed
@@ -32,6 +35,7 @@ func main() {
 
 	path := args[0]
 	opath, err := convert(path)
+	opath, err := convert(path, bootstrap)
 	if err != nil {
 		printErr(err.Error())
 		os.Exit(255)
@@ -45,8 +49,9 @@ func printErr(format string, args ...interface{}) {
 	_, _ = fmt.Fprintf(os.Stderr, format+"\n", args...)
 }
 
-// convert converts files in path to one .asm file.
-func convert(path string) (string, error) {
+// convert converts files in path to one .asm file. If bootstrap is true, it also emits
+// bootstrap code at the beginning of the output file.
+func convert(path string, bootstrap bool) (string, error) {
 	// check whether the given path is valid
 	info, err := os.Stat(path)
 	if err != nil {
@@ -61,8 +66,12 @@ func convert(path string) (string, error) {
 	}
 
 	vmt := vmtranslator.New(out)
-	if e := vmt.Init(); e != nil {
-		return "", fmt.Errorf("error creating a translator object: %v", e)
+	defer vmt.Close()
+
+	if bootstrap {
+		if e := vmt.Init(); e != nil {
+			return "", fmt.Errorf("error creating a translator object: %v", e)
+		}
 	}
 	defer func() {
 		_ = vmt.Close()
