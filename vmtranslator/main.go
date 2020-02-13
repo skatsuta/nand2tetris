@@ -9,7 +9,7 @@ import (
 	"github.com/skatsuta/nand2tetris/vmtranslator/vmtranslator"
 )
 
-var (
+const (
 	appName = "vmtranslator"
 	usage   = "Usage: %s [-h | --help] path"
 )
