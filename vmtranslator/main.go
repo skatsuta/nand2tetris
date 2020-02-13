@@ -26,15 +26,13 @@ func main() {
 	flag.BoolVar(&bootstrap, "bootstrap", true, "Emit bootstrap code")
 	flag.Parse()
 
-	// check whether one argument is passed
-	args := flag.Args()
-	if len(args) != 1 {
+	// Check if only one argument is passed
+	if flag.NArg() != 1 {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	path := args[0]
-	opath, err := convert(path)
+	path := flag.Arg(0)
 	opath, err := convert(path, bootstrap)
 	if err != nil {
 		printErr(err.Error())
