@@ -60,14 +60,17 @@ const (
 	regR15  = "R15"
 )
 
+const entrypoint = "Sys.init"
+
 // CodeWriter converts VM commands to Hack assembly codes and write them out to a destination.
 type CodeWriter struct {
+	verbose bool
+
 	err      error
 	dest     io.Writer
 	buf      *bufio.Writer
 	filename string
 	fnbase   string
-	verbose  bool
 
 	mu  sync.Mutex
 	cnt int
@@ -129,7 +132,7 @@ func (cw *CodeWriter) WriteInit() error {
 	cw.debug("WriteInit()")
 
 	cw.loadVal(256, false)
-	cw.WriteGoto("Sys.init")
+	cw.WriteGoto(entrypoint)
 	return cw.err
 }
 
