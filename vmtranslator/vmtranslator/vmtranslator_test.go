@@ -381,7 +381,7 @@ func TestRun(t *testing.T) {
 		}
 		for i := range got {
 			if got[i] != want[i] {
-				t.Errorf("in %s\ngot = %q; want = %q", tt.filename, got[i], want[i])
+				t.Errorf("in %s\n%d: got = %q; want = %q", tt.filename, i, got[i], want[i])
 			}
 		}
 
