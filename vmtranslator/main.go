@@ -22,8 +22,9 @@ func init() {
 
 func main() {
 	// Define and parse flags
-	var bootstrap bool
+	var bootstrap, verbose bool
 	flag.BoolVar(&bootstrap, "bootstrap", true, "Emit bootstrap code")
+	flag.BoolVar(&verbose, "verbose", false, "Enable verbose mode")
 	flag.Parse()
 
 	// Check if only one argument is passed
@@ -33,7 +34,7 @@ func main() {
 	}
 
 	path := flag.Arg(0)
-	opath, err := convert(path, bootstrap)
+	opath, err := convert(path, bootstrap, verbose)
 	if err != nil {
 		printErr(err.Error())
 		os.Exit(255)
@@ -48,8 +49,9 @@ func printErr(format string, args ...interface{}) {
 }
 
 // convert converts files in path to one .asm file. If bootstrap is true, it also emits
-// bootstrap code at the beginning of the output file.
-func convert(path string, bootstrap bool) (string, error) {
+// bootstrap code at the beginning of the output file. If verbose is true, it also emits
+// virtual machine instuctions as comments.
+func convert(path string, bootstrap, verbose bool) (string, error) {
 	// check whether the given path is valid
 	info, err := os.Stat(path)
 	if err != nil {
@@ -63,7 +65,7 @@ func convert(path string, bootstrap bool) (string, error) {
 		return "", fmt.Errorf("cannot create %s", opath)
 	}
 
-	vmt := vmtranslator.New(out)
+	vmt := vmtranslator.New(out).Verbose(verbose)
 	defer vmt.Close()
 
 	if bootstrap {
