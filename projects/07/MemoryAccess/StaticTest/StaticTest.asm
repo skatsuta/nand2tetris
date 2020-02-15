@@ -1,4 +1,4 @@
-// ../MemoryAccess/StaticTest/StaticTest.vm
+// ../projects/07/MemoryAccess/StaticTest/StaticTest.vm
 @111
 D=A
 @SP

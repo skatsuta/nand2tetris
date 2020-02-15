@@ -1,4 +1,4 @@
-// ../MemoryAccess/PointerTest/PointerTest.vm
+// ../projects/07/MemoryAccess/PointerTest/PointerTest.vm
 @3030
 D=A
 @SP

@@ -1,4 +1,4 @@
-// ../MemoryAccess/BasicTest/BasicTest.vm
+// ../projects/07/MemoryAccess/BasicTest/BasicTest.vm
 @10
 D=A
 @SP

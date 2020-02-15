@@ -1,4 +1,4 @@
-// projects/08/ProgramFlow/BasicLoop/BasicLoop.vm
+// ../projects/08/ProgramFlow/BasicLoop/BasicLoop.vm
 @0
 D=A
 @SP

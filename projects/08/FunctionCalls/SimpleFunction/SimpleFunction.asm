@@ -1,4 +1,4 @@
-// projects/08/FunctionCalls/SimpleFunction/SimpleFunction.vm
+// ../projects/08/FunctionCalls/SimpleFunction/SimpleFunction.vm
 (SimpleFunction.test)
 @0
 D=A
