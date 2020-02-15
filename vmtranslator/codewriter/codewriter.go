@@ -688,8 +688,6 @@ func (cw *CodeWriter) ccmd(dest, comp, jump string) {
 
 // lcmd writes label command. If an error occurs, it is set at cw.err.
 func (cw *CodeWriter) lcmd(label string) {
-	cw.debug("lcmd(label=%q)", label)
-
 	if cw.err != nil {
 		return
 	}
