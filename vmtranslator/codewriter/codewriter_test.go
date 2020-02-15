@@ -58,7 +58,6 @@ func TestFileNameBase(t *testing.T) {
 }
 
 func TestWriteInit(t *testing.T) {
-	want := asmInit() + asmEnd
 	var buf bytes.Buffer
 	cw := New(&buf)
 
@@ -70,18 +69,17 @@ func TestWriteInit(t *testing.T) {
 	}
 
 	got := buf.String()
+	want := `@256
+D=A
+@SP
+M=D
+@Sys.init
+0;JMP
+` + asmEnd
 	if got != want {
 		diff := diffTexts(got, want)
 		t.Errorf("init:\n%s", diff)
 	}
-}
-
-func asmInit() string {
-	return `@256
-D=A
-@SP
-M=D
-` + asmCall("Sys.init", 0)
 }
 
 func TestWriteArithmetic(t *testing.T) {

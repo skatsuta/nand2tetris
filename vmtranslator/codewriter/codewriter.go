@@ -129,7 +129,7 @@ func (cw *CodeWriter) WriteInit() error {
 	cw.debug("WriteInit()")
 
 	cw.loadVal(256, false)
-	cw.WriteCall("Sys.init", 0)
+	cw.WriteGoto("Sys.init")
 	return cw.err
 }
 
