@@ -224,19 +224,31 @@ func (cw *CodeWriter) WriteReturn() error {
 func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
 	cw.debug("WriteCall(funcName=%q, numArgs=%d)", funcName, numArgs)
 
-	cw.acmd(funcName + "_RET_ADDR")
-	cw.store("D", "M")
-	cw.pushStack()
-	cw.pushMem(regLCL, 0)
-	cw.pushMem(regARG, 0)
-	cw.pushMem(regTHIS, 0)
-	cw.pushMem(regTHAT, 0)
+	// Push return address onto the stack
+	retAddrLbl := cw.label(funcName + "_RET_ADDR")
+	cw.loadSymb(retAddrLbl, false) // Load the address at the label to D register
+	cw.pushStack()                 // Push the address onto the stack for function return
+
+	// Push local/argument/this/that segment base addresses onto the stack
+	for _, symb := range []string{regLCL, regARG, regTHIS, regTHAT} {
+		cw.loadSymb(symb, true) // Load the value the address of the symbol points to to D register
+		cw.pushStack()          // Push the address onto the stack for function return
+	}
+
+	// Update argument segment for the callee function
 	cw.loadSeg(regSP, -int(numArgs+5), true)
 	cw.saveTo(regARG, false)
+
+	// Update local segment for the callee function
 	cw.loadSeg(regSP, 0, true)
 	cw.saveTo(regLCL, false)
+
+	// Go to the callee function
 	cw.WriteGoto(funcName)
-	cw.lcmd(funcName + "_RET_ADDR")
+
+	// Mark the return address
+	cw.lcmd(retAddrLbl)
+
 	return cw.err
 }
 
