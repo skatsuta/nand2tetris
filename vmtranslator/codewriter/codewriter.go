@@ -480,9 +480,22 @@ func (cw *CodeWriter) compare(cmd string) {
 	cw.incrSP()
 }
 
-// loadSeg loads a value of the symb segment shifted by idx to D.
-// If indirect is true a value pointed by an address in symb indirectly,
-// otherwise a value in symb is loaded directly.
+// loadSymb loads the address of a given symbol or label to D register.
+// If indirect is true, it loads the value the address points to instead.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) loadSymb(symb string, indirect bool) {
+	cw.debug("loadSymb(symb=%q, indirect=%t)", symb, indirect)
+
+	cw.acmd(symb) // Load the address of the label or symbol to A register
+	if indirect {
+		cw.store("D", "M") // Store the value the address points to to D register
+	} else {
+		cw.store("D", "A") // Store the value of the address itself to D register
+	}
+}
+
+// loadSeg loads a value of the symb segment shifted by idx to D register.
+// If indirect is true, a value pointed by an address in symb is loaded instead.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) loadSeg(symb string, idx int, indirect bool) {
 	cw.debug("loadSeg(symb=%q, idx=%d, indirect=%t)", symb, idx, indirect)
