@@ -67,6 +67,7 @@ type CodeWriter struct {
 	buf      *bufio.Writer
 	filename string
 	fnbase   string
+	verbose  bool
 
 	mu  sync.Mutex
 	cnt int
@@ -78,6 +79,13 @@ func New(dest io.Writer) *CodeWriter {
 		dest: dest,
 		buf:  bufio.NewWriter(dest),
 	}
+}
+
+// Verbose controls verbose mode of tr. If verbose mode is enabled, the CodeWriter also
+// outputs each method call as a comment corresponding to each assembly code block.
+func (cw *CodeWriter) Verbose(verbose bool) *CodeWriter {
+	cw.verbose = verbose
+	return cw
 }
 
 // SetFileName sets an input VM file name and writes it to the output file as comment.
@@ -102,6 +110,18 @@ func (cw *CodeWriter) fileNameBase(filename string) string {
 func (cw *CodeWriter) WriteComment(comment string) error {
 	_, err := cw.buf.WriteString("// " + comment + "\n")
 	return err
+}
+
+// debug prints debugging message. Args are formatted with printf verbs (such as %v) in msg.
+func (cw *CodeWriter) debug(msg string, a ...interface{}) {
+	if !cw.verbose {
+		return
+	}
+
+	err := cw.WriteComment(fmt.Sprintf("[DEBUG] CodeWriter#"+msg, a...))
+	if err != nil && cw.err == nil {
+		cw.err = err
+	}
 }
 
 // WriteInit writes out bootstrap code.

@@ -25,6 +25,7 @@ func New(out io.Writer) *VMTranslator {
 // outputs each virtual machine code as a comment corresponding to each assembly code block.
 func (tr *VMTranslator) Verbose(verbose bool) *VMTranslator {
 	tr.verbose = verbose
+	tr.cw.Verbose(verbose)
 	return tr
 }
 
