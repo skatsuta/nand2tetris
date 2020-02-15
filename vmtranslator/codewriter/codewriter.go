@@ -72,6 +72,8 @@ type CodeWriter struct {
 	filename string
 	fnbase   string
 
+	funcName string
+
 	mu  sync.Mutex
 	cnt int
 }
@@ -167,6 +169,10 @@ func (cw *CodeWriter) WritePushPop(cmd parser.CommandType, seg string, idx uint)
 
 // WriteLabel converts the given label command to assembly code and writes it out.
 func (cw *CodeWriter) WriteLabel(label string) error {
+	if cw.funcName != "" {
+		label = cw.funcName + "$" + label
+	}
+
 	cw.lcmd(label)
 	return cw.err
 }
@@ -191,6 +197,11 @@ func (cw *CodeWriter) WriteIf(label string) error {
 
 // WriteFunction converts the given function command to assembly code and writes it out.
 func (cw *CodeWriter) WriteFunction(funcName string, numLocals uint) error {
+	cw.debug("WriteFunction(funcName=%q, numLocals=%d)", funcName, numLocals)
+
+	// Save current function name
+	cw.funcName = funcName
+
 	cw.lcmd(funcName)
 
 	// initialize a variable pointed by symb + idx to 0.

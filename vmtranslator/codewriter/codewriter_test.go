@@ -400,6 +400,44 @@ func TestWriteLabelGoto(t *testing.T) {
 	}
 }
 
+func TestLabelsInFunction(t *testing.T) {
+	var out, expected strings.Builder
+	cw := New(&out)
+
+	for i := 0; i < 3; i++ {
+		funcName := fmt.Sprintf("func%d", i)
+		if e := cw.WriteFunction(funcName, uint(i)); e != nil {
+			t.Fatalf("Failed to write function %q: %v", funcName, e)
+		}
+
+		label := fmt.Sprintf("label%d", i)
+		if e := cw.WriteLabel(label); e != nil {
+			t.Fatalf("Failed to write label %q: %v", label, e)
+		}
+		if e := cw.WriteIf(label); e != nil {
+			t.Fatalf("Failed to write if-goto %q: %v", label, e)
+		}
+		if e := cw.WriteGoto(label); e != nil {
+			t.Fatalf("Failed to write goto %q: %v", label, e)
+		}
+
+		wantLabel := funcName + "$" + label
+		expected.WriteString(asmFunc(funcName, i))
+		expected.WriteString(asmLabel(wantLabel))
+		expected.WriteString(asmIf(wantLabel))
+		expected.WriteString(asmGoto(wantLabel))
+	}
+	if e := cw.Close(); e != nil {
+		t.Fatalf("Close failed: %v", e)
+	}
+	expected.WriteString(asmEnd)
+
+	if got, want := out.String(), expected.String(); got != want {
+		diff := diffTexts(got, want)
+		t.Errorf("\n  got  \t\t  want  \n-------\t\t--------\n%s", diff)
+	}
+}
+
 func asmIf(label string) string {
 	tpl := `@SP
 AM=M-1
