@@ -12,7 +12,8 @@ import (
 
 // VMTranslator is a translator that converts VM code to Hack assembly code.
 type VMTranslator struct {
-	cw *codewriter.CodeWriter
+	cw      *codewriter.CodeWriter
+	verbose bool
 }
 
 // New creates a new VMTranslator that translates virtual machine code into assembly code.
@@ -20,7 +21,14 @@ func New(out io.Writer) *VMTranslator {
 	return &VMTranslator{cw: codewriter.New(out)}
 }
 
-// Init initialize the output assembly file.
+// Verbose controls verbose mode of tr. If verbose mode is enabled, the VMTranslator also
+// outputs each virtual machine code as a comment corresponding to each assembly code block.
+func (tr *VMTranslator) Verbose(verbose bool) *VMTranslator {
+	tr.verbose = verbose
+	return tr
+}
+
+// Init initializes the output assembly file.
 // This method should be called immediately after New().
 func (tr *VMTranslator) Init() error {
 	return tr.cw.WriteInit()
@@ -41,6 +49,13 @@ func (tr *VMTranslator) run(filename string, src io.Reader) (err error) {
 
 		// Current VM instruction
 		cmd := p.Command()
+
+		// Write the current VM instruction as a comment for debugging
+		if tr.verbose {
+			if e := tr.cw.WriteComment(cmd.String()); e != nil {
+				return fmt.Errorf("error writing a comment: %v", e)
+			}
+		}
 
 		switch cmd.Type {
 		case parser.Arithmetic:

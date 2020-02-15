@@ -87,8 +87,7 @@ func (cw *CodeWriter) SetFileName(filename string) error {
 
 	// TODO print an absolute path or just a base file name,
 	// or a file name if it's a file and dir/file if it's a dir.
-	_, err := cw.buf.WriteString(fmt.Sprintln("//", filename))
-	return err
+	return cw.WriteComment(filename)
 }
 
 // fileNameBase return a base name of a file.
@@ -97,6 +96,12 @@ func (cw *CodeWriter) fileNameBase(filename string) string {
 	base := filepath.Base(filename)
 	ext := filepath.Ext(filename)
 	return base[:len(base)-len(ext)]
+}
+
+// WriteComment writes a comment.
+func (cw *CodeWriter) WriteComment(comment string) error {
+	_, err := cw.buf.WriteString("// " + comment + "\n")
+	return err
 }
 
 // WriteInit writes out bootstrap code.
