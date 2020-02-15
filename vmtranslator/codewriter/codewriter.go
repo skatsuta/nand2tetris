@@ -506,19 +506,6 @@ func (cw *CodeWriter) loadSeg(symb string, idx int, indirect bool) {
 	cw.store("AD", rhs)
 }
 
-// saveTo save the value of D to addr.
-// If indirect is true it saves D to *addr instead of addr.
-// If an error occurs and cw.err is nil, it is set at cw.err.
-func (cw *CodeWriter) saveTo(addr string, indirect bool) {
-	cw.debug("saveTo(addr=%q, indirect=%t)", addr, indirect)
-
-	cw.acmd(addr)
-	if indirect {
-		cw.store("A", "M")
-	}
-	cw.store("M", "D")
-}
-
 // loadVal loads v to *SP. v should be greater than or equal -1 (v >= -1).
 func (cw *CodeWriter) loadVal(v int, indirect bool) {
 	cw.debug("loadVal(v=%d, indirect=%t)", v, indirect)
@@ -535,15 +522,15 @@ func (cw *CodeWriter) loadVal(v int, indirect bool) {
 	cw.saveTo(regSP, indirect)
 }
 
-// pushStack pushs a value at the top of the stack. Internally,
-// it assigns a value pointed by SP to D and increments SP.
+// pushStack pushs a value in D register onto the stack.
 // If an error occurs and cw.err is nil, it is set at cw.err.
+//
+// Internally, it writes a value in D register to a memory address pointed by SP
+// and increments SP.
 func (cw *CodeWriter) pushStack() {
 	cw.debug("pushStack()")
 
-	cw.acmd(regSP)
-	cw.store("A", "M")
-	cw.store("M", "D")
+	cw.saveTo(regSP, true)
 	cw.incrSP()
 }
 
@@ -553,6 +540,19 @@ func (cw *CodeWriter) pushStack() {
 func (cw *CodeWriter) popStack() {
 	cw.decrSP()
 	cw.store("D", "M")
+}
+
+// saveTo saves the value in D register to a memory address pointed by addr.
+// If indirect is true, it saves D to *addr instead of addr.
+// If an error occurs and cw.err is nil, it is set at cw.err.
+func (cw *CodeWriter) saveTo(addr string, indirect bool) {
+	cw.debug("saveTo(addr=%q, indirect=%t)", addr, indirect)
+
+	cw.acmd(addr)
+	if indirect {
+		cw.store("A", "M")
+	}
+	cw.store("M", "D")
 }
 
 // incrSP increments SP and sets the current address to it.
