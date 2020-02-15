@@ -173,16 +173,16 @@ func (cw *CodeWriter) WriteGoto(label string) error {
 	cw.debug("WriteGoto(label=%q)", label)
 
 	cw.acmd(label)
-	cw.ccmdj("", "0", "JMP")
+	cw.jump("0", "JMP")
 	return cw.err
 }
 
 // WriteIf converts the given if-goto command to assembly code and writes it out.
 func (cw *CodeWriter) WriteIf(label string) error {
 	cw.decrSP()
-	cw.ccmd("D", "M")
+	cw.store("D", "M")
 	cw.acmd(label)
-	cw.ccmdj("", "D", "JNE")
+	cw.jump("D", "JNE")
 	return cw.err
 }
 
@@ -203,7 +203,7 @@ func (cw *CodeWriter) WriteReturn() error {
 	cw.loadSeg(regLCL, 0, true)
 	cw.saveTo(regR14, false)
 	cw.loadSeg(regR14, -5, true)
-	cw.ccmd("D", "M")
+	cw.store("D", "M")
 	cw.saveTo(regR15, false)
 	cw.popStack()
 	cw.saveTo(regARG, true)
@@ -211,12 +211,12 @@ func (cw *CodeWriter) WriteReturn() error {
 	cw.saveTo(regSP, false)
 	for i, reg := range []string{regTHAT, regTHIS, regARG, regLCL} {
 		cw.loadSeg(regR14, -i-1, true)
-		cw.ccmd("D", "M")
+		cw.store("D", "M")
 		cw.saveTo(reg, false)
 	}
 	cw.acmd(regR15)
-	cw.ccmd("A", "M")
-	cw.ccmdj("", "0", "JMP")
+	cw.store("A", "M")
+	cw.jump("0", "JMP")
 	return cw.err
 }
 
@@ -225,7 +225,7 @@ func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
 	cw.debug("WriteCall(funcName=%q, numArgs=%d)", funcName, numArgs)
 
 	cw.acmd(funcName + "_RET_ADDR")
-	cw.ccmd("D", "M")
+	cw.store("D", "M")
 	cw.pushStack()
 	cw.pushMem(regLCL, 0)
 	cw.pushMem(regARG, 0)
@@ -264,7 +264,7 @@ func (cw *CodeWriter) Close() error {
 func (cw *CodeWriter) end() error {
 	cw.lcmd("END")
 	cw.acmd("END")
-	cw.ccmdj("", "0", "JMP")
+	cw.jump("0", "JMP")
 	return cw.err
 }
 
@@ -335,10 +335,9 @@ func (cw *CodeWriter) push0(symb string, idx uint, indirect bool) {
 	} else {
 		cw.loadSeg(symb, int(idx), indirect)
 	}
-	cw.ccmd("D", "M")
+	cw.store("D", "M")
 	cw.saveTo(regSP, true)
 	cw.incrSP()
-	//cw.pushStack()
 }
 
 // pop converts the given pop command to assembly and writes it out.
@@ -380,9 +379,9 @@ func (cw *CodeWriter) popReg(reg string, idx uint) {
 // popStatic pops a value from the stack and stores it to the static segment.
 func (cw *CodeWriter) popStatic(idx uint) {
 	cw.decrSP()
-	cw.ccmd("D", "M")
+	cw.store("D", "M")
 	cw.acmd(fmt.Sprintf("%s.%d", cw.fnbase, idx))
-	cw.ccmd("M", "D")
+	cw.store("M", "D")
 }
 
 // pop0 pops a value from the top of the stack to symb.
@@ -395,7 +394,7 @@ func (cw *CodeWriter) pop0(symb string, idx uint, indirect bool) {
 
 	cw.loadSeg(symb, int(idx), indirect)
 	cw.acmd(tmpreg)
-	cw.ccmd("M", "D")
+	cw.store("M", "D")
 	cw.popStack()
 	cw.saveTo(tmpreg, true)
 }
@@ -414,7 +413,7 @@ func (cw *CodeWriter) unary(cmd string) {
 	}
 
 	cw.decrSP()
-	cw.ccmd("M", op+"M")
+	cw.store("M", op+"M")
 	cw.incrSP()
 }
 
@@ -439,7 +438,7 @@ func (cw *CodeWriter) binary(cmd string) {
 
 	cw.popStack()
 	cw.decrSP()
-	cw.ccmd("M", op)
+	cw.store("M", op)
 	cw.incrSP()
 }
 
@@ -455,12 +454,12 @@ func (cw *CodeWriter) compare(cmd string) {
 
 	cw.popStack()
 	cw.decrSP()
-	cw.ccmd("D", "M-D")
+	cw.store("D", "M-D")
 	cw.acmd(label1)
-	cw.ccmdj("", "D", op)
+	cw.jump("D", op)
 	cw.loadVal(bitFalse, true)
 	cw.acmd(label2)
-	cw.ccmdj("", "0", "JMP")
+	cw.jump("0", "JMP")
 	cw.lcmd(label1)
 	cw.loadVal(bitTrue, true)
 	cw.lcmd(label2)
@@ -501,9 +500,9 @@ func (cw *CodeWriter) loadSeg(symb string, idx int, indirect bool) {
 	}
 
 	cw.acmd(abs)
-	cw.ccmd("D", "A")
+	cw.store("D", "A")
 	cw.acmd(symb)
-	cw.ccmd("AD", rhs)
+	cw.store("AD", rhs)
 }
 
 // saveTo save the value of D to addr.
@@ -514,9 +513,9 @@ func (cw *CodeWriter) saveTo(addr string, indirect bool) {
 
 	cw.acmd(addr)
 	if indirect {
-		cw.ccmd("A", "M")
+		cw.store("A", "M")
 	}
-	cw.ccmd("M", "D")
+	cw.store("M", "D")
 }
 
 // loadVal loads v to *SP. v should be greater than or equal -1 (v >= -1).
@@ -525,13 +524,13 @@ func (cw *CodeWriter) loadVal(v int, indirect bool) {
 
 	if v < 0 {
 		cw.acmd(regSP)
-		cw.ccmd("A", "M")
-		cw.ccmd("M", strconv.Itoa(v))
+		cw.store("A", "M")
+		cw.store("M", strconv.Itoa(v))
 		return
 	}
 
 	cw.acmd(v)
-	cw.ccmd("D", "A")
+	cw.store("D", "A")
 	cw.saveTo(regSP, indirect)
 }
 
@@ -542,8 +541,8 @@ func (cw *CodeWriter) pushStack() {
 	cw.debug("pushStack()")
 
 	cw.acmd(regSP)
-	cw.ccmd("A", "M")
-	cw.ccmd("M", "D")
+	cw.store("A", "M")
+	cw.store("M", "D")
 	cw.incrSP()
 }
 
@@ -552,7 +551,7 @@ func (cw *CodeWriter) pushStack() {
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) popStack() {
 	cw.decrSP()
-	cw.ccmd("D", "M")
+	cw.store("D", "M")
 }
 
 // incrSP increments SP and sets the current address to it.
@@ -575,7 +574,7 @@ func (cw *CodeWriter) decrSP() {
 //   "-": SP--
 func (cw *CodeWriter) sp(op string) {
 	cw.acmd(regSP)
-	cw.ccmd("AM", "M"+op+"1")
+	cw.store("AM", "M"+op+"1")
 }
 
 // acmd writes @ command. If an error occurs and cw.err is nil, it is set at cw.err.
@@ -588,13 +587,18 @@ func (cw *CodeWriter) acmd(addr interface{}) {
 	_, cw.err = cw.buf.WriteString(a)
 }
 
-// ccmd writes C command with no jump. If an error occurs, it is set at cw.err.
-func (cw *CodeWriter) ccmd(dest, comp string) {
-	cw.ccmdj(dest, comp, "")
+// store writes C command with no jump. If an error occurs, it is set at cw.err.
+func (cw *CodeWriter) store(dest, comp string) {
+	cw.ccmd(dest, comp, "")
 }
 
-// ccmdj writes C command with jump. If an error occurs, it is set at cw.err.
-func (cw *CodeWriter) ccmdj(dest, comp, jump string) {
+// jump writes C command with jump. If an error occurs, it is set at cw.err.
+func (cw *CodeWriter) jump(comp, jump string) {
+	cw.ccmd("", comp, jump)
+}
+
+// ccmd writes raw C command. If an error occurs, it is set at cw.err.
+func (cw *CodeWriter) ccmd(dest, comp, jump string) {
 	if cw.err != nil {
 		return
 	}

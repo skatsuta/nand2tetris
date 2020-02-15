@@ -797,7 +797,7 @@ func TestAcmd(t *testing.T) {
 	}
 }
 
-func TestCcmdj(t *testing.T) {
+func TestCcmd(t *testing.T) {
 	testCases := []struct {
 		dest, comp, jump string
 		want             string
@@ -811,7 +811,7 @@ func TestCcmdj(t *testing.T) {
 		var buf bytes.Buffer
 		cw := New(&buf)
 
-		cw.ccmdj(tt.dest, tt.comp, tt.jump)
+		cw.ccmd(tt.dest, tt.comp, tt.jump)
 		if cw.err != nil {
 			t.Fatalf("error writing cCommand: %s", cw.err)
 		}
