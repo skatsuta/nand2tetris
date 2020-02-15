@@ -40,7 +40,7 @@ func main() {
 		os.Exit(255)
 	}
 
-	fmt.Println("Successfully converted", path, "to", opath)
+	fmt.Println("Successfully compiled", path, "to", opath)
 }
 
 // printErr prints an formatted error message in os.Stderr.
