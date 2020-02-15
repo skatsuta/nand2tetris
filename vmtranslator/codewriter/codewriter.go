@@ -228,7 +228,7 @@ func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
 	cw.debug("WriteCall(funcName=%q, numArgs=%d)", funcName, numArgs)
 
 	// Push return address onto the stack
-	retAddrLbl := cw.label(funcName + "_RET_ADDR")
+	retAddrLbl := cw.uniqueLabel(funcName + "_RET_ADDR")
 	cw.loadSymb(retAddrLbl, false) // Load the address at the label to D register
 	cw.pushStack()                 // Push the address onto the stack for function return
 
@@ -283,10 +283,11 @@ func (cw *CodeWriter) end() error {
 	return cw.err
 }
 
-// label returns a label.
-func (cw *CodeWriter) label(name string) string {
+// uniqueLabel generates a temporary label from a given label. It returns different labels even
+// if the same label is given multiple times.
+func (cw *CodeWriter) uniqueLabel(label string) string {
 	defer cw.countUp()
-	return fmt.Sprintf("%s_%d", name, cw.cnt)
+	return fmt.Sprintf("%s_%d", label, cw.cnt)
 }
 
 // countUp counts up an internal counter.
@@ -478,8 +479,8 @@ func (cw *CodeWriter) binary(cmd string) {
 func (cw *CodeWriter) compare(cmd string) {
 	// JEQ, JGT, JLT
 	op := "J" + strings.ToUpper(cmd)
-	label1 := cw.label(baseLabel)
-	label2 := cw.label(baseLabel)
+	label1 := cw.uniqueLabel(baseLabel)
+	label2 := cw.uniqueLabel(baseLabel)
 
 	cw.popStack()
 	cw.decrSP()
