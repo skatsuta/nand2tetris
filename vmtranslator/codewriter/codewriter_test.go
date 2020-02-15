@@ -93,9 +93,9 @@ func TestWriteArithmetic(t *testing.T) {
 		{"or", asmBinary("M=D|M") + asmEnd},
 		{"neg", asmUnary("-") + asmEnd},
 		{"not", asmUnary("!") + asmEnd},
-		{"eq", asmCompare("JEQ", "LABEL0", "LABEL1") + asmEnd},
-		{"gt", asmCompare("JGT", "LABEL0", "LABEL1") + asmEnd},
-		{"lt", asmCompare("JLT", "LABEL0", "LABEL1") + asmEnd},
+		{"eq", asmCompare("JEQ", "LABEL_0", "LABEL_1") + asmEnd},
+		{"gt", asmCompare("JGT", "LABEL_0", "LABEL_1") + asmEnd},
+		{"lt", asmCompare("JLT", "LABEL_0", "LABEL_1") + asmEnd},
 	}
 
 	for _, tt := range testCases {
@@ -581,47 +581,35 @@ func TestWriteCall(t *testing.T) {
 }
 
 func asmCall(funcName string, numArgs uint) string {
-	tpl := `@%s_RET_ADDR
-D=M
+	tpl := `@%s_RET_ADDR_0
+D=A
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @LCL
-AD=D+M
 D=M
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @ARG
-AD=D+M
 D=M
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @THIS
-AD=D+M
 D=M
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @THAT
-AD=D+M
 D=M
 @SP
 A=M
@@ -642,7 +630,7 @@ AD=D+M
 M=D
 @%s
 0;JMP
-(%s_RET_ADDR)
+(%s_RET_ADDR_0)
 `
 	return fmt.Sprintf(tpl, funcName, numArgs+5, funcName, funcName)
 }
@@ -750,9 +738,9 @@ func TestCompare(t *testing.T) {
 		cmd  string
 		want string
 	}{
-		{"eq", asmCompare("JEQ", "LABEL0", "LABEL1") + asmEnd},
-		{"gt", asmCompare("JGT", "LABEL0", "LABEL1") + asmEnd},
-		{"lt", asmCompare("JLT", "LABEL0", "LABEL1") + asmEnd},
+		{"eq", asmCompare("JEQ", "LABEL_0", "LABEL_1") + asmEnd},
+		{"gt", asmCompare("JGT", "LABEL_0", "LABEL_1") + asmEnd},
+		{"lt", asmCompare("JLT", "LABEL_0", "LABEL_1") + asmEnd},
 	}
 
 	for _, tt := range testCases {

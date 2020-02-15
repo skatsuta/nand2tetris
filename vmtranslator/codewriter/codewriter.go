@@ -268,6 +268,19 @@ func (cw *CodeWriter) end() error {
 	return cw.err
 }
 
+// label returns a label.
+func (cw *CodeWriter) label(name string) string {
+	defer cw.countUp()
+	return fmt.Sprintf("%s_%d", name, cw.cnt)
+}
+
+// countUp counts up an internal counter.
+func (cw *CodeWriter) countUp() {
+	cw.mu.Lock()
+	defer cw.mu.Unlock()
+	cw.cnt++
+}
+
 // push converts the given push command to assembly and writes it out.
 func (cw *CodeWriter) push(seg string, idx uint) error {
 	cw.debug("push(seg=%q, idx=%d)", seg, idx)
@@ -450,7 +463,8 @@ func (cw *CodeWriter) binary(cmd string) {
 func (cw *CodeWriter) compare(cmd string) {
 	// JEQ, JGT, JLT
 	op := "J" + strings.ToUpper(cmd)
-	label1, label2 := cw.label(), cw.label()
+	label1 := cw.label(baseLabel)
+	label2 := cw.label(baseLabel)
 
 	cw.popStack()
 	cw.decrSP()
@@ -464,19 +478,6 @@ func (cw *CodeWriter) compare(cmd string) {
 	cw.loadVal(bitTrue, true)
 	cw.lcmd(label2)
 	cw.incrSP()
-}
-
-// label returns a label.
-func (cw *CodeWriter) label() string {
-	defer cw.countUp()
-	return baseLabel + strconv.Itoa(cw.cnt)
-}
-
-// countUp counts up an internal counter.
-func (cw *CodeWriter) countUp() {
-	cw.mu.Lock()
-	defer cw.mu.Unlock()
-	cw.cnt++
 }
 
 // loadSeg loads a value of the symb segment shifted by idx to D.

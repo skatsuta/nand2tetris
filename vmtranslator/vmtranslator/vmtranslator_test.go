@@ -70,20 +70,20 @@ D=M
 @SP
 AM=M-1
 D=M-D
-@LABEL0
+@LABEL_0
 D;JEQ
 @0
 D=A
 @SP
 A=M
 M=D
-@LABEL1
+@LABEL_1
 0;JMP
-(LABEL0)
+(LABEL_0)
 @SP
 A=M
 M=-1
-(LABEL1)
+(LABEL_1)
 @SP
 AM=M+1
 `
@@ -111,13 +111,13 @@ M=D
 `
 
 	wantLabelIfGoto = `
-(LABEL0)
-@LABEL1
+(LABEL_0)
+@LABEL_1
 0;JMP
 @SP
 AM=M-1
 D=M
-@LABEL2
+@LABEL_2
 D;JNE
 `
 
@@ -225,47 +225,35 @@ A=M
 
 	wantCall = `
 (Sys.init)
-@Class.method_RET_ADDR
-D=M
+@Class.method_RET_ADDR_0
+D=A
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @LCL
-AD=D+M
 D=M
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @ARG
-AD=D+M
 D=M
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @THIS
-AD=D+M
 D=M
 @SP
 A=M
 M=D
 @SP
 AM=M+1
-@0
-D=A
 @THAT
-AD=D+M
 D=M
 @SP
 A=M
@@ -286,7 +274,7 @@ AD=D+M
 M=D
 @Class.method
 0;JMP
-(Class.method_RET_ADDR)
+(Class.method_RET_ADDR_0)
 `
 
 	wantInit = `@256
@@ -334,18 +322,41 @@ func TestRun(t *testing.T) {
 		src      string
 		want     string
 	}{
-		{"push_const_0.vm", "// push_const_0.vm\npush constant 0",
-			"// push_const_0.vm" + wantPushConst0 + end},
-		{"add.vm", "// add.vm\npush constant 1\npush constant 2\nadd", "// add.vm" + wantAdd + end},
-		{"eq.vm", "// eq.vm\npush constant 1\npush constant 1\neq", "// eq.vm" + wantEq + end},
-		{"push_pop.vm", "// push_pop.vm\npush constant 0\npop local 0",
-			"// push_pop.vm" + wantPushPop + end},
-		{"label_if_goto.vm", "// label_if_goto.vm\nlabel LABEL0\ngoto LABEL1\nif-goto LABEL2",
-			"// label_if_goto.vm" + wantLabelIfGoto + end},
-		{"function.vm", "// function.vm\nfunction Class.method 2\npush local 0\npush local 1\nadd\nreturn",
-			"// function.vm" + wantFunction + end},
-		{"call.vm", "// call.vm\nfunction Sys.init 0\ncall Class.method 1",
-			"// call.vm" + wantCall + end},
+		{
+			filename: "push_const_0.vm",
+			src:      "// push_const_0.vm\npush constant 0",
+			want:     "// push_const_0.vm" + wantPushConst0 + end,
+		},
+		{
+			filename: "add.vm",
+			src:      "// add.vm\npush constant 1\npush constant 2\nadd",
+			want:     "// add.vm" + wantAdd + end,
+		},
+		{
+			filename: "eq.vm",
+			src:      "// eq.vm\npush constant 1\npush constant 1\neq",
+			want:     "// eq.vm" + wantEq + end,
+		},
+		{
+			filename: "push_pop.vm",
+			src:      "// push_pop.vm\npush constant 0\npop local 0",
+			want:     "// push_pop.vm" + wantPushPop + end,
+		},
+		{
+			filename: "label_if_goto.vm",
+			src:      "// label_if_goto.vm\nlabel LABEL_0\ngoto LABEL_1\nif-goto LABEL_2",
+			want:     "// label_if_goto.vm" + wantLabelIfGoto + end,
+		},
+		{
+			filename: "function.vm",
+			src:      "// function.vm\nfunction Class.method 2\npush local 0\npush local 1\nadd\nreturn",
+			want:     "// function.vm" + wantFunction + end,
+		},
+		{
+			filename: "call.vm",
+			src:      "// call.vm\nfunction Sys.init 0\ncall Class.method 1",
+			want:     "// call.vm" + wantCall + end,
+		},
 	}
 
 	var (
@@ -364,7 +375,9 @@ func TestRun(t *testing.T) {
 		got := strings.Split(buf.String(), "\n")
 		want := strings.Split(tt.want, "\n")
 		if len(got) != len(want) {
-			t.Errorf("%s: the number of lines should be %d, but got %d", tt.filename, len(want), len(got))
+			t.Errorf(
+				"%s: the number of lines should be %d, but got %d", tt.filename, len(want), len(got),
+			)
 		}
 		for i := range got {
 			if got[i] != want[i] {
