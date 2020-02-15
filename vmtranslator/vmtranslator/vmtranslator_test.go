@@ -225,7 +225,7 @@ A=M
 
 	wantCall = `
 (Sys.init)
-@Class.method_RET_ADDR_0
+@Sys.init$Class.method_RET_ADDR_0
 D=A
 @SP
 A=M
@@ -272,9 +272,9 @@ D=A
 AD=D+M
 @LCL
 M=D
-@Class.method
+@Sys.init$Class.method
 0;JMP
-(Class.method_RET_ADDR_0)
+(Sys.init$Class.method_RET_ADDR_0)
 `
 
 	wantInit = `@256

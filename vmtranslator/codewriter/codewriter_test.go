@@ -438,6 +438,20 @@ func TestLabelsInFunction(t *testing.T) {
 	}
 }
 
+func TestDuplicateLabelsError(t *testing.T) {
+	var out strings.Builder
+	cw := New(&out)
+
+	// Write the same level twice
+	label := "TestDuplicateLabelsErrorLabel"
+	if e := cw.WriteLabel(label); e != nil {
+		t.Errorf("Failed to write label %q: %v", label, e)
+	}
+	if e := cw.WriteLabel(label); e == nil {
+		t.Errorf("Expected an error when placing duplicate labels, but got no error")
+	}
+}
+
 func asmIf(label string) string {
 	tpl := `@SP
 AM=M-1

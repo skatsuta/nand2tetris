@@ -72,6 +72,7 @@ type CodeWriter struct {
 	filename string
 	fnbase   string
 
+	labels   map[string]struct{}
 	funcName string
 
 	mu  sync.Mutex
@@ -81,8 +82,9 @@ type CodeWriter struct {
 // New creates a new CodeWriter that writes converted codes to dest.
 func New(dest io.Writer) *CodeWriter {
 	return &CodeWriter{
-		dest: dest,
-		buf:  bufio.NewWriter(dest),
+		dest:   dest,
+		buf:    bufio.NewWriter(dest),
+		labels: map[string]struct{}{},
 	}
 }
 
@@ -168,10 +170,16 @@ func (cw *CodeWriter) WritePushPop(cmd parser.CommandType, seg string, idx uint)
 }
 
 // WriteLabel converts the given label command to assembly code and writes it out.
+// If the label already exists, it returns an error.
 func (cw *CodeWriter) WriteLabel(label string) error {
-	if cw.funcName != "" {
-		label = cw.funcName + "$" + label
+	cw.debug("WriteLabel(label=%q)", label)
+
+	// Check if the label already exists
+	label = cw.scopedLabel(label)
+	if _, exists := cw.labels[label]; exists {
+		return fmt.Errorf("label %q already exists", label)
 	}
+	cw.labels[label] = struct{}{} // Register new label
 
 	cw.lcmd(label)
 	return cw.err
@@ -181,16 +189,18 @@ func (cw *CodeWriter) WriteLabel(label string) error {
 func (cw *CodeWriter) WriteGoto(label string) error {
 	cw.debug("WriteGoto(label=%q)", label)
 
-	cw.acmd(label)
+	cw.acmd(cw.scopedLabel(label))
 	cw.jump("0", "JMP")
 	return cw.err
 }
 
 // WriteIf converts the given if-goto command to assembly code and writes it out.
 func (cw *CodeWriter) WriteIf(label string) error {
+	cw.debug("WriteIf(label=%q)", label)
+
 	cw.decrSP()
 	cw.store("D", "M")
-	cw.acmd(label)
+	cw.acmd(cw.scopedLabel(label))
 	cw.jump("D", "JNE")
 	return cw.err
 }
@@ -294,10 +304,20 @@ func (cw *CodeWriter) end() error {
 	return cw.err
 }
 
-// uniqueLabel generates a temporary label from a given label. It returns different labels even
-// if the same label is given multiple times.
+// scopedLabel returns a scoped label based on a given label. It returns "functionName$label"
+// if the label is defined in a function definition, otherwise the same label as input.
+func (cw *CodeWriter) scopedLabel(label string) string {
+	if cw.funcName == "" {
+		return label
+	}
+	return cw.funcName + "$" + label
+}
+
+// uniqueLabel generates a globally unique label from a given label. It returns different
+// labels even if the same label is given multiple times.
 func (cw *CodeWriter) uniqueLabel(label string) string {
 	defer cw.countUp()
+	label = cw.scopedLabel(label)
 	return fmt.Sprintf("%s_%d", label, cw.cnt)
 }
 
