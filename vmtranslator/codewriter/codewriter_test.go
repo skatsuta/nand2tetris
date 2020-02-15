@@ -460,9 +460,9 @@ func TestWriteFunction(t *testing.T) {
 
 func asmFunc(name string, num int) string {
 	var buf bytes.Buffer
-	_, _ = buf.WriteString("(" + name + ")\n")
+	buf.WriteString("(" + name + ")\n")
 	for i := 0; i < num; i++ {
-		_, _ = buf.WriteString(asmPushConst(0))
+		buf.WriteString(asmPushConst(0))
 	}
 	return buf.String()
 }

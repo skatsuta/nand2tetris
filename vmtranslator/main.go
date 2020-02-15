@@ -44,7 +44,7 @@ func main() {
 
 // printErr prints an formatted error message in os.Stderr.
 func printErr(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(os.Stderr, format+"\n", args...)
+	fmt.Fprintf(os.Stderr, format+"\n", args...)
 }
 
 // convert converts files in path to one .asm file. If bootstrap is true, it also emits
@@ -71,9 +71,6 @@ func convert(path string, bootstrap bool) (string, error) {
 			return "", fmt.Errorf("error creating a translator object: %v", e)
 		}
 	}
-	defer func() {
-		_ = vmt.Close()
-	}()
 
 	// walk throuth path and run conversion
 	return opath, filepath.Walk(path, vmt.Run)
