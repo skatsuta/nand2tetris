@@ -267,8 +267,9 @@ func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
 	cw.loadSeg(regSP, 0, true)
 	cw.saveTo(regLCL, false)
 
-	// Go to the callee function
-	cw.WriteGoto(funcName)
+	// Jump to the callee function
+	cw.acmd(funcName)
+	cw.jump("0", "JMP")
 
 	// Mark the return address
 	cw.lcmd(retAddrLbl)
@@ -317,7 +318,6 @@ func (cw *CodeWriter) scopedLabel(label string) string {
 // labels even if the same label is given multiple times.
 func (cw *CodeWriter) uniqueLabel(label string) string {
 	defer cw.countUp()
-	label = cw.scopedLabel(label)
 	return fmt.Sprintf("%s_%d", label, cw.cnt)
 }
 
