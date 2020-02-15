@@ -12,15 +12,12 @@ import (
 
 // VMTranslator is a translator that converts VM code to Hack assembly code.
 type VMTranslator struct {
-	p  *parser.Parser
 	cw *codewriter.CodeWriter
 }
 
-// New creates a new VMTranslator that translates srces into one assembly code.
+// New creates a new VMTranslator that translates virtual machine code into assembly code.
 func New(out io.Writer) *VMTranslator {
-	return &VMTranslator{
-		cw: codewriter.New(out),
-	}
+	return &VMTranslator{cw: codewriter.New(out)}
 }
 
 // Init initialize the output assembly file.
@@ -30,43 +27,40 @@ func (tr *VMTranslator) Init() error {
 }
 
 // run runs the translation from source VM files tr holds to out.
-func (tr *VMTranslator) run(filename string, src io.Reader) error {
+func (tr *VMTranslator) run(filename string, src io.Reader) (err error) {
 	// write the file name as a comment
 	if e := tr.cw.SetFileName(filename); e != nil {
 		return fmt.Errorf("cannot write file name: %v", e)
 	}
 
-	var (
-		err error
-		p   = parser.New(src)
-	)
-
+	p := parser.New(src)
 	for p.HasMoreCommands() {
 		if e := p.Advance(); e != nil {
 			return fmt.Errorf("error parsing a command: %v", e)
 		}
 
-		switch p.CommandType() {
+		// Current VM instruction
+		cmd := p.Command()
+
+		switch cmd.Type {
 		case parser.Arithmetic:
-			err = tr.cw.WriteArithmetic(p.Arg1())
-		case parser.Push:
-			err = tr.cw.WritePushPop(parser.Push, p.Arg1(), p.Arg2())
-		case parser.Pop:
-			err = tr.cw.WritePushPop(parser.Pop, p.Arg1(), p.Arg2())
+			err = tr.cw.WriteArithmetic(cmd.Arg1)
+		case parser.Push, parser.Pop:
+			err = tr.cw.WritePushPop(cmd.Type, cmd.Arg1, cmd.Arg2)
 		case parser.Label:
-			err = tr.cw.WriteLabel(p.Arg1())
+			err = tr.cw.WriteLabel(cmd.Arg1)
 		case parser.Goto:
-			err = tr.cw.WriteGoto(p.Arg1())
+			err = tr.cw.WriteGoto(cmd.Arg1)
 		case parser.If:
-			err = tr.cw.WriteIf(p.Arg1())
+			err = tr.cw.WriteIf(cmd.Arg1)
 		case parser.Function:
-			err = tr.cw.WriteFunction(p.Arg1(), p.Arg2())
+			err = tr.cw.WriteFunction(cmd.Arg1, cmd.Arg2)
 		case parser.Return:
 			err = tr.cw.WriteReturn()
 		case parser.Call:
-			err = tr.cw.WriteCall(p.Arg1(), p.Arg2())
+			err = tr.cw.WriteCall(cmd.Arg1, cmd.Arg2)
 		default:
-			err = fmt.Errorf("unknown command: %d %s %d", p.CommandType(), p.Arg1(), p.Arg2())
+			err = fmt.Errorf("unknown command: %s %s %d", cmd.Type, cmd.Arg1, cmd.Arg2)
 		}
 
 		if err != nil {

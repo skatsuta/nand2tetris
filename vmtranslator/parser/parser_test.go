@@ -6,24 +6,6 @@ import (
 	"testing"
 )
 
-func TestCommandTypeString(t *testing.T) {
-	tests := []struct {
-		cmd  CommandType
-		want string
-	}{
-		{unknown, "unknown"},
-		{Arithmetic, "arithmetic"},
-		{Call, "call"},
-	}
-
-	for _, tt := range tests {
-		got := tt.cmd.String()
-		if got != tt.want {
-			t.Errorf("got: %v != want: %v", got, tt.want)
-		}
-	}
-}
-
 var testVM = `
 // comment
   push  constant	2
@@ -78,21 +60,21 @@ func TestHasMoreCommands(t *testing.T) {
 func TestAdvance(t *testing.T) {
 	testCases := []struct {
 		src  string
-		want command
+		want Command
 	}{
-		{"add", command{Arithmetic, "add", 0}},
-		{"sub", command{Arithmetic, "sub", 0}},
-		{"push constant 1", command{Push, "constant", 1}},
-		{"push local 3", command{Push, "local", 3}},
-		{"pop constant 2", command{Pop, "constant", 2}},
-		{"pop argument 4", command{Pop, "argument", 4}},
-		{"label LABEL0", command{Label, "LABEL0", 0}},
-		{"goto END", command{Goto, "END", 0}},
-		{"if-goto SYMBOL", command{If, "SYMBOL", 0}},
-		{"function func1 0", command{Function, "func1", 0}},
-		{"function Class.method 1", command{Function, "Class.method", 1}},
-		{"call func2 1", command{Call, "func2", 1}},
-		{"return", command{Return, "", 0}},
+		{"add", Command{Arithmetic, "add", 0}},
+		{"sub", Command{Arithmetic, "sub", 0}},
+		{"push constant 1", Command{Push, "constant", 1}},
+		{"push local 3", Command{Push, "local", 3}},
+		{"pop constant 2", Command{Pop, "constant", 2}},
+		{"pop argument 4", Command{Pop, "argument", 4}},
+		{"label LABEL0", Command{Label, "LABEL0", 0}},
+		{"goto END", Command{Goto, "END", 0}},
+		{"if-goto SYMBOL", Command{If, "SYMBOL", 0}},
+		{"function func1 0", Command{Function, "func1", 0}},
+		{"function Class.method 1", Command{Function, "Class.method", 1}},
+		{"call func2 1", Command{Call, "func2", 1}},
+		{"return", Command{Return, "", 0}},
 	}
 
 	for _, tt := range testCases {
