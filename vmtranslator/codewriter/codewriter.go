@@ -126,6 +126,8 @@ func (cw *CodeWriter) debug(msg string, a ...interface{}) {
 
 // WriteInit writes out bootstrap code.
 func (cw *CodeWriter) WriteInit() error {
+	cw.debug("WriteInit()")
+
 	cw.loadVal(256, false)
 	cw.WriteCall("Sys.init", 0)
 	return cw.err
@@ -148,6 +150,8 @@ func (cw *CodeWriter) WriteArithmetic(cmd string) error {
 
 // WritePushPop converts the given push or pop command to assembly code and writes it out.
 func (cw *CodeWriter) WritePushPop(cmd parser.CommandType, seg string, idx uint) error {
+	cw.debug("WritePushPop(cmd=%q, seg=%q, idx=%d)", cmd, seg, idx)
+
 	switch cmd {
 	case parser.Push:
 		return cw.push(seg, idx)
@@ -166,6 +170,8 @@ func (cw *CodeWriter) WriteLabel(label string) error {
 
 // WriteGoto converts the given goto command to assembly code and writes it out.
 func (cw *CodeWriter) WriteGoto(label string) error {
+	cw.debug("WriteGoto(label=%q)", label)
+
 	cw.acmd(label)
 	cw.ccmdj("", "0", "JMP")
 	return cw.err
@@ -216,6 +222,8 @@ func (cw *CodeWriter) WriteReturn() error {
 
 // WriteCall converts the given function call command to assembly code and writes it out.
 func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
+	cw.debug("WriteCall(funcName=%q, numArgs=%d)", funcName, numArgs)
+
 	cw.acmd(funcName + "_RET_ADDR")
 	cw.ccmd("D", "M")
 	cw.pushStack()
@@ -262,6 +270,8 @@ func (cw *CodeWriter) end() error {
 
 // push converts the given push command to assembly and writes it out.
 func (cw *CodeWriter) push(seg string, idx uint) error {
+	cw.debug("push(seg=%q, idx=%d)", seg, idx)
+
 	switch seg {
 	case segConstant:
 		cw.pushVal(idx)
@@ -298,6 +308,8 @@ func (cw *CodeWriter) pushVal(v uint) {
 
 // pushMem pushes a value pointed by an address in seg to the stack.
 func (cw *CodeWriter) pushMem(seg string, idx uint) {
+	cw.debug("pushMem(seg=%q, idx=%d)", seg, idx)
+
 	cw.push0(seg, idx, true)
 }
 
@@ -473,6 +485,8 @@ func (cw *CodeWriter) countUp() {
 // otherwise a value in symb is loaded directly.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) loadSeg(symb string, idx int, indirect bool) {
+	cw.debug("loadSeg(symb=%q, idx=%d, indirect=%t)", symb, idx, indirect)
+
 	m := "A"
 	if indirect {
 		m = "M"
@@ -496,6 +510,8 @@ func (cw *CodeWriter) loadSeg(symb string, idx int, indirect bool) {
 // If indirect is true it saves D to *addr instead of addr.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) saveTo(addr string, indirect bool) {
+	cw.debug("saveTo(addr=%q, indirect=%t)", addr, indirect)
+
 	cw.acmd(addr)
 	if indirect {
 		cw.ccmd("A", "M")
@@ -505,6 +521,8 @@ func (cw *CodeWriter) saveTo(addr string, indirect bool) {
 
 // loadVal loads v to *SP. v should be greater than or equal -1 (v >= -1).
 func (cw *CodeWriter) loadVal(v int, indirect bool) {
+	cw.debug("loadVal(v=%d, indirect=%t)", v, indirect)
+
 	if v < 0 {
 		cw.acmd(regSP)
 		cw.ccmd("A", "M")
@@ -521,6 +539,8 @@ func (cw *CodeWriter) loadVal(v int, indirect bool) {
 // it assigns a value pointed by SP to D and increments SP.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) pushStack() {
+	cw.debug("pushStack()")
+
 	cw.acmd(regSP)
 	cw.ccmd("A", "M")
 	cw.ccmd("M", "D")
@@ -538,6 +558,8 @@ func (cw *CodeWriter) popStack() {
 // incrSP increments SP and sets the current address to it.
 // If an error occurs and cw.err is nil, it is set at cw.err.
 func (cw *CodeWriter) incrSP() {
+	cw.debug("incrSP()")
+
 	cw.sp("+")
 }
 
@@ -601,6 +623,8 @@ func (cw *CodeWriter) ccmdj(dest, comp, jump string) {
 
 // lcmd writes label command. If an error occurs, it is set at cw.err.
 func (cw *CodeWriter) lcmd(label string) {
+	cw.debug("lcmd(label=%q)", label)
+
 	if cw.err != nil {
 		return
 	}
