@@ -74,8 +74,28 @@ func compile(path string, bootstrap, verbose bool) (string, error) {
 		}
 	}
 
-	// walk throuth path and run conversion
-	return opath, filepath.Walk(path, vmt.Run)
+	// callback is a callback function called when a file is found.
+	// It implements filepath.WalkFunc.
+	callback := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// skip if path is a directory or not a ".vm" file
+		if info.IsDir() || filepath.Ext(path) != ".vm" {
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+
+		return vmt.Run(path, f)
+	}
+
+	// walk throuth path and compile each .vm file
+	return opath, filepath.Walk(path, callback)
 }
 
 // outpath returns an output file path.

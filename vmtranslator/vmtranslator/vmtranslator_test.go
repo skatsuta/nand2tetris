@@ -5,14 +5,6 @@ import (
 	"testing"
 )
 
-func TestNew(t *testing.T) {
-	vmtransl := New(&strings.Builder{})
-
-	if vmtransl.cw == nil {
-		t.Errorf("VMTranslator.cw is nil")
-	}
-}
-
 var (
 	wantPushConst0 = `
 @0
@@ -363,7 +355,7 @@ func TestRun(t *testing.T) {
 	)
 	for _, tt := range testCases {
 		vmt = New(&buf)
-		if e := vmt.run(tt.filename, strings.NewReader(tt.src)); e != nil {
+		if e := vmt.Run(tt.filename, strings.NewReader(tt.src)); e != nil {
 			t.Fatalf("Run failed: %v", e)
 		}
 
@@ -397,12 +389,12 @@ func TestRunErr(t *testing.T) {
 	}
 
 	var (
-		buf      strings.Builder
-		vmtransl *VMTranslator
+		buf strings.Builder
+		vmt *VMTranslator
 	)
 	for _, tt := range testCases {
-		vmtransl = New(&buf)
-		if e := vmtransl.run(tt.filename, strings.NewReader(tt.src)); e == nil {
+		vmt = New(&buf)
+		if e := vmt.Run(tt.filename, strings.NewReader(tt.src)); e == nil {
 			t.Errorf("filename = %s\nsrc = %q\nerror should occur but got <nil>", tt.filename, tt.src)
 		}
 
