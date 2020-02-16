@@ -39,13 +39,13 @@ func (tr *VMTranslator) Init() error {
 func (tr *VMTranslator) run(filename string, src io.Reader) (err error) {
 	// write the file name as a comment
 	if e := tr.cw.SetFileName(filename); e != nil {
-		return fmt.Errorf("cannot write file name: %v", e)
+		return fmt.Errorf("cannot write file name: %w", e)
 	}
 
 	p := parser.New(src)
 	for p.HasMoreCommands() {
 		if e := p.Advance(); e != nil {
-			return fmt.Errorf("error parsing a command: %v", e)
+			return fmt.Errorf("error parsing a command: %w", e)
 		}
 
 		// Current VM instruction
@@ -54,7 +54,7 @@ func (tr *VMTranslator) run(filename string, src io.Reader) (err error) {
 		// Write the current VM instruction as a comment for debugging
 		if tr.verbose {
 			if e := tr.cw.WriteComment(cmd.String()); e != nil {
-				return fmt.Errorf("error writing a comment: %v", e)
+				return fmt.Errorf("error writing a comment: %w", e)
 			}
 		}
 
@@ -80,7 +80,7 @@ func (tr *VMTranslator) run(filename string, src io.Reader) (err error) {
 		}
 
 		if err != nil {
-			return fmt.Errorf("error writing a command: %v", err)
+			return fmt.Errorf("error writing a command: %w", err)
 		}
 	}
 

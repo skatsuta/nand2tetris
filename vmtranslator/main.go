@@ -70,7 +70,7 @@ func convert(path string, bootstrap, verbose bool) (string, error) {
 
 	if bootstrap {
 		if e := vmt.Init(); e != nil {
-			return "", fmt.Errorf("error creating a translator object: %v", e)
+			return "", fmt.Errorf("error creating a translator object: %w", e)
 		}
 	}
 
