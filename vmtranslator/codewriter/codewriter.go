@@ -113,8 +113,8 @@ func (cw *CodeWriter) fileNameBase(filename string) string {
 
 // WriteComment writes a comment.
 func (cw *CodeWriter) WriteComment(comment string) error {
-	_, err := cw.dest.WriteString("// " + comment + "\n")
-	return err
+	cw.write("// %s\n", comment)
+	return cw.err
 }
 
 // WriteInit writes out bootstrap code.
@@ -278,14 +278,20 @@ func (cw *CodeWriter) Close() error {
 
 // debug prints debugging message. Args are formatted with printf verbs (such as %v) in msg.
 func (cw *CodeWriter) debug(msg string, a ...interface{}) {
-	if !cw.verbose {
+	if !cw.verbose || cw.err != nil {
 		return
 	}
 
-	err := cw.WriteComment(fmt.Sprintf("[DEBUG] CodeWriter#"+msg, a...))
-	if err != nil && cw.err == nil {
-		cw.err = err
+	cw.write("// [DEBUG] CodeWriter#"+msg+"\n", a...)
+}
+
+// write writes s to the output.
+func (cw *CodeWriter) write(s string, a ...interface{}) {
+	if cw.err != nil {
+		return
 	}
+
+	_, cw.err = fmt.Fprintf(cw.dest, s, a...)
 }
 
 // end writes the end infinite loop.
@@ -319,12 +325,11 @@ func (cw *CodeWriter) countUp() {
 }
 
 // writeGoto writes goto instruction to the given label.
-func (cw *CodeWriter) writeGoto(label string) error {
+func (cw *CodeWriter) writeGoto(label string) {
 	cw.debug("writeGoto(label=%q)", label)
 
 	cw.acmd(label)
 	cw.jump("0", "JMP")
-	return cw.err
 }
 
 // push converts the given push command to assembly and writes it out.
@@ -643,8 +648,7 @@ func (cw *CodeWriter) acmd(addr interface{}) {
 		return
 	}
 
-	a := fmt.Sprintf("@%v\n", addr)
-	_, cw.err = cw.dest.WriteString(a)
+	cw.write("@%v\n", addr)
 }
 
 // store writes C command with no jump. If an error occurs, it is set at cw.err.
@@ -691,6 +695,5 @@ func (cw *CodeWriter) lcmd(label string) {
 		return
 	}
 
-	lbl := fmt.Sprintf("(%s)\n", label)
-	_, cw.err = cw.dest.WriteString(lbl)
+	cw.write("(%s)\n", label)
 }
