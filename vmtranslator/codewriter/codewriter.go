@@ -136,7 +136,7 @@ func (cw *CodeWriter) WriteInit() error {
 	cw.debug("WriteInit()")
 
 	cw.loadVal(256, false)
-	cw.WriteGoto(entrypoint)
+	cw.writeGoto(entrypoint)
 	return cw.err
 }
 
@@ -189,8 +189,7 @@ func (cw *CodeWriter) WriteLabel(label string) error {
 func (cw *CodeWriter) WriteGoto(label string) error {
 	cw.debug("WriteGoto(label=%q)", label)
 
-	cw.acmd(cw.scopedLabel(label))
-	cw.jump("0", "JMP")
+	cw.writeGoto(cw.scopedLabel(label))
 	return cw.err
 }
 
@@ -268,8 +267,7 @@ func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
 	cw.saveTo(regLCL, false)
 
 	// Jump to the callee function
-	cw.acmd(funcName)
-	cw.jump("0", "JMP")
+	cw.writeGoto(funcName)
 
 	// Mark the return address
 	cw.lcmd(retAddrLbl)
@@ -300,8 +298,7 @@ func (cw *CodeWriter) Close() error {
 // end writes the end infinite loop.
 func (cw *CodeWriter) end() error {
 	cw.lcmd("END")
-	cw.acmd("END")
-	cw.jump("0", "JMP")
+	cw.writeGoto("END")
 	return cw.err
 }
 
@@ -326,6 +323,15 @@ func (cw *CodeWriter) countUp() {
 	cw.mu.Lock()
 	defer cw.mu.Unlock()
 	cw.cnt++
+}
+
+// writeGoto writes goto instruction to the given label.
+func (cw *CodeWriter) writeGoto(label string) error {
+	cw.debug("writeGoto(label=%q)", label)
+
+	cw.acmd(label)
+	cw.jump("0", "JMP")
+	return cw.err
 }
 
 // push converts the given push command to assembly and writes it out.
