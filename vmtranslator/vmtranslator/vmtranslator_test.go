@@ -292,16 +292,14 @@ M=D
 )
 
 func TestInit(t *testing.T) {
-	var (
-		buf      strings.Builder
-		vmtransl = New(&buf)
-	)
+	var buf strings.Builder
+	vmt := New(&buf)
 
-	if e := vmtransl.Init(); e != nil {
+	if e := vmt.Init(); e != nil {
 		t.Fatalf("Init failed: %v", e)
 	}
-	if e := vmtransl.Close(); e != nil {
-		t.Fatalf("Close failed: %v", e)
+	if e := vmt.cw.Close(); e != nil {
+		t.Fatalf("CodeWriter#Close failed: %v", e)
 	}
 
 	got := strings.Split(buf.String(), "\n")
@@ -360,16 +358,13 @@ func TestRun(t *testing.T) {
 	}
 
 	var (
-		buf      strings.Builder
-		vmtransl *VMTranslator
+		buf strings.Builder
+		vmt *VMTranslator
 	)
 	for _, tt := range testCases {
-		vmtransl = New(&buf)
-		if e := vmtransl.run(tt.filename, strings.NewReader(tt.src)); e != nil {
+		vmt = New(&buf)
+		if e := vmt.run(tt.filename, strings.NewReader(tt.src)); e != nil {
 			t.Fatalf("Run failed: %v", e)
-		}
-		if e := vmtransl.Close(); e != nil {
-			t.Fatalf("Close failed: %v", e)
 		}
 
 		got := strings.Split(buf.String(), "\n")

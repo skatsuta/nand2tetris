@@ -67,8 +67,7 @@ type CodeWriter struct {
 	verbose bool
 
 	err      error
-	dest     io.Writer
-	buf      *bufio.Writer
+	dest     *bufio.Writer
 	filename string
 	fnbase   string
 
@@ -82,8 +81,7 @@ type CodeWriter struct {
 // New creates a new CodeWriter that writes converted codes to dest.
 func New(dest io.Writer) *CodeWriter {
 	return &CodeWriter{
-		dest:   dest,
-		buf:    bufio.NewWriter(dest),
+		dest:   bufio.NewWriter(dest),
 		labels: map[string]struct{}{},
 	}
 }
@@ -115,20 +113,8 @@ func (cw *CodeWriter) fileNameBase(filename string) string {
 
 // WriteComment writes a comment.
 func (cw *CodeWriter) WriteComment(comment string) error {
-	_, err := cw.buf.WriteString("// " + comment + "\n")
+	_, err := cw.dest.WriteString("// " + comment + "\n")
 	return err
-}
-
-// debug prints debugging message. Args are formatted with printf verbs (such as %v) in msg.
-func (cw *CodeWriter) debug(msg string, a ...interface{}) {
-	if !cw.verbose {
-		return
-	}
-
-	err := cw.WriteComment(fmt.Sprintf("[DEBUG] CodeWriter#"+msg, a...))
-	if err != nil && cw.err == nil {
-		cw.err = err
-	}
 }
 
 // WriteInit writes out bootstrap code.
@@ -278,21 +264,28 @@ func (cw *CodeWriter) WriteCall(funcName string, numArgs uint) error {
 // Close flushes bufferred data to the destination and closes it.
 // Note that no data is written to the destination until Close is called.
 func (cw *CodeWriter) Close() error {
-	defer func() {
-		if cl, ok := cw.dest.(io.Closer); ok {
-			_ = cl.Close()
-		}
-	}()
-
 	// write the end infinite loop
 	if e := cw.end(); e != nil {
-		return fmt.Errorf("error writing the end infinite loop: %v", e)
+		return fmt.Errorf("error writing the end infinite loop: %w", e)
 	}
 
-	if e := cw.buf.Flush(); e != nil {
-		return fmt.Errorf("error flushing bufferred data: %s", e)
+	if e := cw.dest.Flush(); e != nil {
+		return fmt.Errorf("error flushing bufferred data: %w", e)
 	}
+
 	return nil
+}
+
+// debug prints debugging message. Args are formatted with printf verbs (such as %v) in msg.
+func (cw *CodeWriter) debug(msg string, a ...interface{}) {
+	if !cw.verbose {
+		return
+	}
+
+	err := cw.WriteComment(fmt.Sprintf("[DEBUG] CodeWriter#"+msg, a...))
+	if err != nil && cw.err == nil {
+		cw.err = err
+	}
 }
 
 // end writes the end infinite loop.
@@ -651,7 +644,7 @@ func (cw *CodeWriter) acmd(addr interface{}) {
 	}
 
 	a := fmt.Sprintf("@%v\n", addr)
-	_, cw.err = cw.buf.WriteString(a)
+	_, cw.err = cw.dest.WriteString(a)
 }
 
 // store writes C command with no jump. If an error occurs, it is set at cw.err.
@@ -689,7 +682,7 @@ func (cw *CodeWriter) ccmd(dest, comp, jump string) {
 	// append \n
 	opc = append(opc, '\n')
 
-	_, cw.err = cw.buf.Write(opc)
+	_, cw.err = cw.dest.Write(opc)
 }
 
 // lcmd writes label command. If an error occurs, it is set at cw.err.
@@ -699,5 +692,5 @@ func (cw *CodeWriter) lcmd(label string) {
 	}
 
 	lbl := fmt.Sprintf("(%s)\n", label)
-	_, cw.err = cw.buf.WriteString(lbl)
+	_, cw.err = cw.dest.WriteString(lbl)
 }

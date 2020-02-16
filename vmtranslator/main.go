@@ -64,9 +64,9 @@ func convert(path string, bootstrap, verbose bool) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("cannot create %s", opath)
 	}
+	defer out.Close()
 
 	vmt := vmtranslator.New(out).Verbose(verbose)
-	defer vmt.Close()
 
 	if bootstrap {
 		if e := vmt.Init(); e != nil {
