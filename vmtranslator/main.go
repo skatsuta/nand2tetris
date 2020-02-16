@@ -34,7 +34,7 @@ func main() {
 	}
 
 	path := flag.Arg(0)
-	opath, err := convert(path, bootstrap, verbose)
+	opath, err := compile(path, bootstrap, verbose)
 	if err != nil {
 		printErr(err.Error())
 		os.Exit(255)
@@ -48,10 +48,10 @@ func printErr(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
 }
 
-// convert converts files in path to one .asm file. If bootstrap is true, it also emits
+// compile compiles files in path to one .asm file. If bootstrap is true, it also emits
 // bootstrap code at the beginning of the output file. If verbose is true, it also emits
 // virtual machine instuctions as comments.
-func convert(path string, bootstrap, verbose bool) (string, error) {
+func compile(path string, bootstrap, verbose bool) (string, error) {
 	// check whether the given path is valid
 	info, err := os.Stat(path)
 	if err != nil {
