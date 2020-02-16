@@ -1,13 +1,12 @@
 package vmtranslator
 
 import (
-	"bytes"
 	"strings"
 	"testing"
 )
 
 func TestNew(t *testing.T) {
-	vmtransl := New(&bytes.Buffer{})
+	vmtransl := New(&strings.Builder{})
 
 	if vmtransl.cw == nil {
 		t.Errorf("VMTranslator.cw is nil")
@@ -306,7 +305,7 @@ M=D
 
 func TestInit(t *testing.T) {
 	var (
-		buf      bytes.Buffer
+		buf      strings.Builder
 		vmtransl = New(&buf)
 	)
 
@@ -350,7 +349,7 @@ func TestRun(t *testing.T) {
 	}
 
 	var (
-		buf      bytes.Buffer
+		buf      strings.Builder
 		vmtransl *VMTranslator
 	)
 	for _, tt := range testCases {
@@ -390,7 +389,7 @@ func TestRunErr(t *testing.T) {
 	}
 
 	var (
-		buf      bytes.Buffer
+		buf      strings.Builder
 		vmtransl *VMTranslator
 	)
 	for _, tt := range testCases {

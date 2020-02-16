@@ -1,8 +1,8 @@
 package codewriter
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/sergi/go-diff/diffmatchpatch"
@@ -18,7 +18,7 @@ func TestSetFileName(t *testing.T) {
 		{"foo.txt", "// foo.txt\n" + asmEnd},
 	}
 
-	var buf bytes.Buffer
+	var buf strings.Builder
 	cw := New(&buf)
 	for _, tt := range testCases {
 		if e := cw.SetFileName(tt.filename); e != nil {
@@ -47,7 +47,7 @@ func TestFileNameBase(t *testing.T) {
 		{"a/b/foo.txt", "foo"},
 	}
 
-	var buf bytes.Buffer
+	var buf strings.Builder
 	cw := New(&buf)
 	for _, tt := range testCases {
 		got := cw.fileNameBase(tt.filename)
@@ -58,7 +58,7 @@ func TestFileNameBase(t *testing.T) {
 }
 
 func TestWriteInit(t *testing.T) {
-	var buf bytes.Buffer
+	var buf strings.Builder
 	cw := New(&buf)
 
 	if e := cw.WriteInit(); e != nil {
@@ -99,7 +99,7 @@ func TestWriteArithmetic(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		if e := cw.WriteArithmetic(tt.cmd); e != nil {
@@ -126,7 +126,7 @@ func TestWriteArithmeticError(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		if e := cw.WriteArithmetic(tt.cmd); e == nil {
@@ -163,7 +163,7 @@ func TestWritePushPop(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		if e := cw.WritePushPop(tt.cmd, tt.seg, tt.idx); e != nil {
@@ -194,7 +194,7 @@ func TestPushVal(t *testing.T) {
 		{2, asmPushConst(2) + asmEnd},
 	}
 
-	var buf bytes.Buffer
+	var buf strings.Builder
 	cw := New(&buf)
 	for _, tt := range testCases {
 		if cw.pushVal(tt.v); cw.err != nil {
@@ -306,7 +306,7 @@ func TestWritePushPopStatic(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var out bytes.Buffer
+		var out strings.Builder
 		cw := New(&out)
 		if e := cw.SetFileName(tt.filename); e != nil {
 			t.Fatalf("SetFileName failed: %v", e)
@@ -366,7 +366,7 @@ func TestWriteLabelGoto(t *testing.T) {
 	}
 
 	var (
-		out bytes.Buffer
+		out strings.Builder
 		cw  *CodeWriter
 		err error
 	)
@@ -433,7 +433,7 @@ func TestWriteFunction(t *testing.T) {
 	}
 
 	var (
-		out bytes.Buffer
+		out strings.Builder
 		cw  *CodeWriter
 	)
 	for _, tt := range testCases {
@@ -457,7 +457,7 @@ func TestWriteFunction(t *testing.T) {
 }
 
 func asmFunc(name string, num int) string {
-	var buf bytes.Buffer
+	var buf strings.Builder
 	buf.WriteString("(" + name + ")\n")
 	for i := 0; i < num; i++ {
 		buf.WriteString(asmPushConst(0))
@@ -466,7 +466,7 @@ func asmFunc(name string, num int) string {
 }
 
 func TestWriteReturn(t *testing.T) {
-	var out bytes.Buffer
+	var out strings.Builder
 	cw := New(&out)
 
 	if e := cw.WriteReturn(); e != nil {
@@ -557,7 +557,7 @@ func TestWriteCall(t *testing.T) {
 	}
 
 	var (
-		out bytes.Buffer
+		out strings.Builder
 		cw  *CodeWriter
 	)
 	for _, tt := range tests {
@@ -667,7 +667,7 @@ func TestUnary(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		cw.unary(tt.cmd)
@@ -705,7 +705,7 @@ func TestBinary(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		cw.binary(tt.cmd)
@@ -756,7 +756,7 @@ func TestCompare(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		cw.compare(tt.cmd)
@@ -779,7 +779,7 @@ func TestAcmd(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		cw.acmd(tt.addr)
@@ -806,7 +806,7 @@ func TestCcmd(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		cw.ccmd(tt.dest, tt.comp, tt.jump)
@@ -831,7 +831,7 @@ func TestLcmd(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		var buf bytes.Buffer
+		var buf strings.Builder
 		cw := New(&buf)
 
 		cw.lcmd(tt.label)
@@ -859,7 +859,7 @@ func diffTexts(text1, text2 string) string {
 	diffs := dmp.DiffMain(a, b, false)
 	res := dmp.DiffCharsToLines(diffs, c)
 
-	var buf bytes.Buffer
+	var buf strings.Builder
 	for _, diff := range res {
 		if diff.Type < 0 {
 			_, _ = buf.WriteString("< " + diff.Text)
