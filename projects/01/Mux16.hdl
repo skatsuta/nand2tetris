@@ -4,8 +4,8 @@
 // File name: projects/01/Mux16.hdl
 
 /**
- * 16-bit multiplexor: 
- * for i = 0..15 out[i] = a[i] if sel == 0 
+ * 16-bit multiplexor:
+ * for i = 0..15 out[i] = a[i] if sel == 0
  *                        b[i] if sel == 1
  */
 
@@ -16,52 +16,52 @@ CHIP Mux16 {
     PARTS:
     // Put your code here:
     Not (in=sel, out=notSel);
-    And (a=a[0],  b=notSel, out=AandNotSel0);
-    And (a=a[1],  b=notSel, out=AandNotSel1);
-    And (a=a[2],  b=notSel, out=AandNotSel2);
-    And (a=a[3],  b=notSel, out=AandNotSel3);
-    And (a=a[4],  b=notSel, out=AandNotSel4);
-    And (a=a[5],  b=notSel, out=AandNotSel5);
-    And (a=a[6],  b=notSel, out=AandNotSel6);
-    And (a=a[7],  b=notSel, out=AandNotSel7);
-    And (a=a[8],  b=notSel, out=AandNotSel8);
-    And (a=a[9],  b=notSel, out=AandNotSel9);
-    And (a=a[10], b=notSel, out=AandNotSel10);
-    And (a=a[11], b=notSel, out=AandNotSel11);
-    And (a=a[12], b=notSel, out=AandNotSel12);
-    And (a=a[13], b=notSel, out=AandNotSel13);
-    And (a=a[14], b=notSel, out=AandNotSel14);
-    And (a=a[15], b=notSel, out=AandNotSel15);
-    And (a=b[0],  b=sel, out=BandSel0);
-    And (a=b[1],  b=sel, out=BandSel1);
-    And (a=b[2],  b=sel, out=BandSel2);
-    And (a=b[3],  b=sel, out=BandSel3);
-    And (a=b[4],  b=sel, out=BandSel4);
-    And (a=b[5],  b=sel, out=BandSel5);
-    And (a=b[6],  b=sel, out=BandSel6);
-    And (a=b[7],  b=sel, out=BandSel7);
-    And (a=b[8],  b=sel, out=BandSel8);
-    And (a=b[9],  b=sel, out=BandSel9);
-    And (a=b[10], b=sel, out=BandSel10);
-    And (a=b[11], b=sel, out=BandSel11);
-    And (a=b[12], b=sel, out=BandSel12);
-    And (a=b[13], b=sel, out=BandSel13);
-    And (a=b[14], b=sel, out=BandSel14);
-    And (a=b[15], b=sel, out=BandSel15);
-    Or  (a=AandNotSel0,  b=BandSel0,  out=out[0]);
-    Or  (a=AandNotSel1,  b=BandSel1,  out=out[1]);
-    Or  (a=AandNotSel2,  b=BandSel2,  out=out[2]);
-    Or  (a=AandNotSel3,  b=BandSel3,  out=out[3]);
-    Or  (a=AandNotSel4,  b=BandSel4,  out=out[4]);
-    Or  (a=AandNotSel5,  b=BandSel5,  out=out[5]);
-    Or  (a=AandNotSel6,  b=BandSel6,  out=out[6]);
-    Or  (a=AandNotSel7,  b=BandSel7,  out=out[7]);
-    Or  (a=AandNotSel8,  b=BandSel8,  out=out[8]);
-    Or  (a=AandNotSel9,  b=BandSel9,  out=out[9]);
-    Or  (a=AandNotSel10, b=BandSel10, out=out[10]);
-    Or  (a=AandNotSel11, b=BandSel11, out=out[11]);
-    Or  (a=AandNotSel12, b=BandSel12, out=out[12]);
-    Or  (a=AandNotSel13, b=BandSel13, out=out[13]);
-    Or  (a=AandNotSel14, b=BandSel14, out=out[14]);
-    Or  (a=AandNotSel15, b=BandSel15, out=out[15]);
+    And (a=a[0],  b=notSel, out=aAndNotSel0);
+    And (a=a[1],  b=notSel, out=aAndNotSel1);
+    And (a=a[2],  b=notSel, out=aAndNotSel2);
+    And (a=a[3],  b=notSel, out=aAndNotSel3);
+    And (a=a[4],  b=notSel, out=aAndNotSel4);
+    And (a=a[5],  b=notSel, out=aAndNotSel5);
+    And (a=a[6],  b=notSel, out=aAndNotSel6);
+    And (a=a[7],  b=notSel, out=aAndNotSel7);
+    And (a=a[8],  b=notSel, out=aAndNotSel8);
+    And (a=a[9],  b=notSel, out=aAndNotSel9);
+    And (a=a[10], b=notSel, out=aAndNotSel10);
+    And (a=a[11], b=notSel, out=aAndNotSel11);
+    And (a=a[12], b=notSel, out=aAndNotSel12);
+    And (a=a[13], b=notSel, out=aAndNotSel13);
+    And (a=a[14], b=notSel, out=aAndNotSel14);
+    And (a=a[15], b=notSel, out=aAndNotSel15);
+    And (a=b[0],  b=sel, out=bAndSel0);
+    And (a=b[1],  b=sel, out=bAndSel1);
+    And (a=b[2],  b=sel, out=bAndSel2);
+    And (a=b[3],  b=sel, out=bAndSel3);
+    And (a=b[4],  b=sel, out=bAndSel4);
+    And (a=b[5],  b=sel, out=bAndSel5);
+    And (a=b[6],  b=sel, out=bAndSel6);
+    And (a=b[7],  b=sel, out=bAndSel7);
+    And (a=b[8],  b=sel, out=bAndSel8);
+    And (a=b[9],  b=sel, out=bAndSel9);
+    And (a=b[10], b=sel, out=bAndSel10);
+    And (a=b[11], b=sel, out=bAndSel11);
+    And (a=b[12], b=sel, out=bAndSel12);
+    And (a=b[13], b=sel, out=bAndSel13);
+    And (a=b[14], b=sel, out=bAndSel14);
+    And (a=b[15], b=sel, out=bAndSel15);
+    Or  (a=aAndNotSel0,  b=bAndSel0,  out=out[0]);
+    Or  (a=aAndNotSel1,  b=bAndSel1,  out=out[1]);
+    Or  (a=aAndNotSel2,  b=bAndSel2,  out=out[2]);
+    Or  (a=aAndNotSel3,  b=bAndSel3,  out=out[3]);
+    Or  (a=aAndNotSel4,  b=bAndSel4,  out=out[4]);
+    Or  (a=aAndNotSel5,  b=bAndSel5,  out=out[5]);
+    Or  (a=aAndNotSel6,  b=bAndSel6,  out=out[6]);
+    Or  (a=aAndNotSel7,  b=bAndSel7,  out=out[7]);
+    Or  (a=aAndNotSel8,  b=bAndSel8,  out=out[8]);
+    Or  (a=aAndNotSel9,  b=bAndSel9,  out=out[9]);
+    Or  (a=aAndNotSel10, b=bAndSel10, out=out[10]);
+    Or  (a=aAndNotSel11, b=bAndSel11, out=out[11]);
+    Or  (a=aAndNotSel12, b=bAndSel12, out=out[12]);
+    Or  (a=aAndNotSel13, b=bAndSel13, out=out[13]);
+    Or  (a=aAndNotSel14, b=bAndSel14, out=out[14]);
+    Or  (a=aAndNotSel15, b=bAndSel15, out=out[15]);
 }
